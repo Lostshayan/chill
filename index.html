@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cozy Lo-Fi Study Room - Sync & Chill</title>
+  
+  <!-- Modern Font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Core Styles -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Ambient Room Background -->
+  <div class="room-container" id="roomContainer">
+
+
+    <!-- SCENE 2: Winter Cabin -->
+    <div id="scene2-container" class="scene-container" style="display: block; position: absolute; top: 0; left: 0; width: 100%; height: 100%;">
+      <div id="bg-mountains" style="z-index: 1;"></div>
+      <canvas id="blizzard-canvas" style="z-index: 2;"></canvas>
+      <div id="foreground-cabin" style="z-index: 3;">
+        <div class="hotspot-ring lamp" id="hotspotLamp2" style="left: 28%; top: 52%; z-index: 20;" title="Toggle Desk Lamp">
+          <div class="ring-pulse"></div>
+        </div>
+        <div class="hotspot-ring window" id="hotspotWindow2" style="left: 70%; top: 40%; z-index: 20;" title="Toggle Blizzard">
+          <div class="ring-pulse"></div>
+        </div>
+        
+        <div class="steam-container" id="steamContainer2" style="left: 27%; top: 72%;">
+          <span style="--i:1;"></span>
+          <span style="--i:3;"></span>
+          <span style="--i:2;"></span>
+          <span style="--i:5;"></span>
+          <span style="--i:4;"></span>
+        </div>
+        
+        <div class="lamp-light2" id="lampLight2"></div>
+      </div>
+    </div>
+
+    <!-- Cozy Ambient Lighting Overlay (covers all layers for unified coloring) -->
+    <div class="campfire-glow" id="campfireGlow"></div>
+    <div class="lamp-light" id="lampLight"></div>
+  </div>
+
+  <!-- Digital Clock & Room Badge (Top Center) -->
+  <div class="top-center-overlay">
+    <div class="digital-clock" id="digitalClock">12:00 PM</div>
+    <div class="room-heading-badge glass-panel">
+      <div class="sync-status online" id="syncStatus">
+        <span class="pulse-dot"></span>
+        <span id="syncText">Syncing...</span>
+      </div>
+      <div class="room-info-label">
+        Room: <span class="room-name-display" id="roomNameDisplay">Lobby</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- UNIFIED FLOATING BOTTOM CONTROL BAR (Discord Pill Style) -->
+  <div class="bottom-control-bar glass-panel">
+    <!-- Left: Track info -->
+    <div class="bar-section bar-left">
+      <div class="track-thumbnail"><i class="fa-solid fa-headphones"></i></div>
+      <div class="track-text">
+        <div class="track-title" id="trackTitle">Loading beats...</div>
+        <div class="track-artist" id="trackArtist">Chill Station</div>
+      </div>
+    </div>
+
+    <!-- Center: Playback & Progress -->
+    <div class="bar-section bar-center">
+      <div class="playback-controls">
+        <button class="ctrl-btn" id="btnPrev" title="Previous Track"><i class="fa-solid fa-backward-step"></i></button>
+        <button class="ctrl-btn play-btn" id="btnPlay" title="Play / Pause"><i class="fa-solid fa-play"></i></button>
+        <button class="ctrl-btn" id="btnNext" title="Next Track"><i class="fa-solid fa-forward-step"></i></button>
+      </div>
+      
+      <div class="progress-area">
+        <span class="time-label" id="timeCurrent">0:00</span>
+        <div class="progress-container" id="progressContainer">
+          <div class="progress-bar" id="progressBar"></div>
+        </div>
+        <span class="time-label" id="timeDuration">0:00</span>
+      </div>
+    </div>
+
+    <!-- Right: Utility Toggles -->
+    <div class="bar-section bar-right">
+      <!-- Master Volume -->
+      <div class="master-volume">
+        <button class="ctrl-btn" id="btnMute" title="Mute/Unmute"><i class="fa-solid fa-volume-high"></i></button>
+        <input type="range" min="0" max="1" step="0.05" value="0.7" class="slider volume-slider" id="slider-master">
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- Toggle buttons for panels -->
+      <button class="bar-utility-btn" id="toggleLeftPanelBtn" title="Soundscape Layers & Vibes">
+        <i class="fa-solid fa-sliders"></i>
+      </button>
+      <button class="bar-utility-btn" id="toggleRightPanelBtn" title="Room Lobby">
+        <i class="fa-solid fa-users"></i>
+      </button>
+      <button class="bar-utility-btn" id="toggleTodoBtn" title="Study Checklist">
+        <i class="fa-solid fa-list-check"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- LEFT SLIDE-IN PANEL: Audio Mixer & Vibes -->
+  <aside class="slide-panel slide-panel-left glass-panel" id="panelLeft">
+    <div class="panel-header">
+      <h2><i class="fa-solid fa-sliders"></i> Soundscape Mixer</h2>
+      <div class="panel-header-actions">
+        <button class="ctrl-btn" id="togglePlaylistBtn" title="Change Playlist Vibe"><i class="fa-solid fa-music"></i> Select Vibe</button>
+        <button class="ctrl-btn" id="closePanelLeft" title="Close"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+    </div>
+
+
+
+    <!-- Soundscape Mixer -->
+    <div class="mixer-section">
+      <div class="mixer-item">
+        <div class="mixer-label">
+          <span><i class="fa-solid fa-cloud-showers-heavy"></i> Rain & Storm</span>
+          <span class="value" id="val-rain">Off</span>
+        </div>
+        <input type="range" min="0" max="1" step="0.05" value="0" class="slider" id="slider-rain">
+      </div>
+
+      <div class="mixer-item">
+        <div class="mixer-label">
+          <span><i class="fa-solid fa-fire"></i> Cozy Campfire</span>
+          <span class="value" id="val-campfire">Off</span>
+        </div>
+        <input type="range" min="0" max="1" step="0.05" value="0" class="slider" id="slider-campfire">
+      </div>
+
+      <div class="mixer-item">
+        <div class="mixer-label">
+          <span><i class="fa-solid fa-keyboard"></i> Keyboard Clicks</span>
+          <span class="value" id="val-keyboard">Off</span>
+        </div>
+        <input type="range" min="0" max="1" step="0.05" value="0" class="slider" id="slider-keyboard">
+      </div>
+
+      <div class="mixer-item">
+        <div class="mixer-label">
+          <span><i class="fa-solid fa-mug-hot"></i> Coffee Shop Ambient</span>
+          <span class="value" id="val-cafe">Off</span>
+        </div>
+        <input type="range" min="0" max="1" step="0.05" value="0" class="slider" id="slider-cafe">
+      </div>
+
+      <div class="mixer-item">
+        <div class="mixer-label">
+          <span><i class="fa-solid fa-wind"></i> Autumn Wind</span>
+          <span class="value" id="val-wind">Off</span>
+        </div>
+        <input type="range" min="0" max="1" step="0.05" value="0" class="slider" id="slider-wind">
+      </div>
+    </div>
+
+    <!-- Playlist sub-drawer inside left panel -->
+    <div class="playlist-drawer" id="playlistDrawer">
+      <div class="playlist-drawer-header">
+        <h3><i class="fa-solid fa-compact-disc"></i> Select Vibe</h3>
+        <button class="ctrl-btn" id="closePlaylistBtn" title="Close"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="playlist-drawer-items">
+        <button class="vibe-btn active" data-vibe="focus">
+          <i class="fa-solid fa-brain"></i> Focus Beats
+        </button>
+        <button class="vibe-btn" data-vibe="cafe">
+          <i class="fa-solid fa-coffee"></i> Cozy Cafe
+        </button>
+        <button class="vibe-btn" data-vibe="dream">
+          <i class="fa-solid fa-moon"></i> Sleepy Dreams
+        </button>
+        <button class="vibe-btn" data-vibe="jazz">
+          <i class="fa-solid fa-guitar"></i> Midnight Jazz
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- RIGHT SLIDE-IN PANEL: Room Lobby -->
+  <aside class="slide-panel slide-panel-right glass-panel" id="panelRight">
+    <div class="panel-header">
+      <h2><i class="fa-solid fa-users"></i> Room Lobby</h2>
+      <button class="ctrl-btn" id="closePanelRight" title="Close"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+
+    <!-- Online Listeners List -->
+    <div class="listeners-section">
+      <h3>Active Listeners (<span id="listenersCount">0</span>)</h3>
+      <div class="listeners-list" id="listenersList">
+        <!-- Populated dynamically -->
+      </div>
+    </div>
+  </aside>
+
+  <!-- SHARED TO-DO LIST MODAL (Triggered by Laptop Hotspot) -->
+  <div class="modal-overlay" id="todoModal">
+    <div class="modal-content glass-panel">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-list-check"></i> Shared Room Study Checklist</h3>
+        <button class="close-modal-btn" id="closeTodoBtn"><i class="fa-solid fa-times"></i></button>
+      </div>
+      <div class="modal-body">
+        <form class="todo-input-form" id="todoForm">
+          <input type="text" id="todoInput" placeholder="Add a task to study together..." required>
+          <button type="submit"><i class="fa-solid fa-plus"></i> Add</button>
+        </form>
+        <ul class="todo-list" id="todoList">
+          <!-- Populated dynamically -->
+        </ul>
+      </div>
+    </div>
+  </div>
+
+
+
+  <script src="config.js" defer></script>
+  <script src="app.js" defer></script>
+</body>
+</html>
