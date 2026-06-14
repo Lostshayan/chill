@@ -148,6 +148,8 @@ body {
   color: var(--accent-color);
   font-size: 1.1rem;
   box-shadow: inset 0 0 5px rgba(255, 255, 255, 0.05);
+  animation: spin 6s linear infinite;
+  animation-play-state: paused;
 }
 
 .track-text {
@@ -1187,43 +1189,34 @@ body {
 /* --- SCENE 2: Winter Cabin --- */
 
 #scene2-container {
-  /* It is absolute and covers the screen as defined in index.html, but let's be sure */
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
   overflow: hidden;
 }
 
 #bg-mountains {
-  position: absolute;
-  top: -5%; /* slight bleed for parallax */
-  left: -5%;
-  width: 110%;
-  height: 110%;
   background: url('assets/images/scene2/bg_mountains.png') no-repeat center center;
-  background-size: cover;
+  transition: filter 1.5s ease-in-out, opacity 1.5s ease-in-out;
 }
 
-#blizzard-canvas {
+#bg-mountains.blizzard-fog {
+  filter: blur(3px) brightness(0.8);
+}
+
+.scene2-fg-layer {
   position: absolute;
-  top: 0;
-  left: 0;
   width: 100%;
   height: 100%;
+  background-size: cover;
+  background-position: center;
   pointer-events: none;
+  transition: opacity 0.5s ease-in-out;
 }
 
-#foreground-cabin {
-  position: absolute;
-  top: -5%;
-  left: -5%;
-  width: 110%;
-  height: 110%;
-  background: url('assets/images/scene2/foreground_cabin.png?v=3') no-repeat center center;
-  background-size: cover;
-  pointer-events: none; /* Let interactions pass through if needed, though no hotspots exist yet */
+#foreground-cabin-off {
+  background-image: url('assets/images/scene2/foreground_cabin_off.png');
+}
+
+#foreground-cabin-on {
+  background-image: url('assets/images/scene2/foreground_cabin_on.png');
 }
 
 /* Make sure Lofi scene layers cover the container properly */
@@ -1266,3 +1259,219 @@ body {
   animation: pulse-glow 4s infinite alternate ease-in-out;
 }
 
+/* --- THEME SWITCHER CARDS --- */
+.theme-switcher-section {
+  padding: 0 12px 16px;
+  border-bottom: 1px solid var(--panel-border);
+  margin-bottom: 12px;
+}
+
+.theme-switcher-section .section-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.theme-cards {
+  display: flex;
+  gap: 8px;
+}
+
+.theme-card {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 12px 8px;
+  border-radius: 10px;
+  border: 2px solid rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: inherit;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.theme-card:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.12);
+  color: var(--text-main);
+  transform: translateY(-1px);
+}
+
+.theme-card.active {
+  background: rgba(187, 134, 252, 0.12);
+  border-color: var(--accent-color);
+  color: var(--accent-color);
+  box-shadow: 0 0 12px rgba(187, 134, 252, 0.15);
+}
+
+.theme-card-icon {
+  font-size: 1.6rem;
+  line-height: 1;
+}
+
+.theme-card-label {
+  white-space: nowrap;
+}
+
+/* --- SCENE 3: Forest Cabin --- */
+
+#scene3-container {
+  overflow: hidden;
+}
+
+.scene3-bg-layer {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+  pointer-events: none;
+  transition: opacity 0.5s ease-in-out;
+}
+
+.scene3-interior-layer {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+  pointer-events: none;
+  transition: opacity 0.5s ease-in-out;
+}
+
+#forest-day {
+  background-image: url('assets/images/scene3/forest_day.png');
+}
+
+#forest-night {
+  background-image: url('assets/images/scene3/forest_night.png');
+}
+
+#lamp-off {
+  background-image: url('assets/images/scene3/interior_lamp_off.png');
+}
+
+#lamp-on {
+  background-image: url('assets/images/scene3/interior_lamp_on.png');
+}
+
+/* --- SCENE 4: Train Window --- */
+
+#scene4-container {
+  overflow: hidden;
+}
+
+.sky-dome-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+  transition: opacity 0.6s ease-in-out;
+  pointer-events: none;
+}
+
+#sky-dome-day {
+  background-image: url('assets/images/scene4/sky_dome_day.png');
+}
+
+#sky-dome-night {
+  background-image: url('assets/images/scene4/sky_dome_night.png');
+}
+
+.moving-scenery-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 200vw; /* Double width for repeat scroll */
+  height: 100%;
+  background-repeat: repeat-x;
+  background-size: auto 100%;
+  transition: opacity 0.6s ease-in-out;
+  pointer-events: none;
+}
+
+#mountain-scroll-day {
+  background-image: url('assets/images/scene4/distant_mountains_day.png');
+}
+
+#mountain-scroll-night {
+  background-image: url('assets/images/scene4/distant_mountains_night.png');
+}
+
+#forest-scroll-day {
+  background-image: url('assets/images/scene4/midground_forest_day.png');
+}
+
+#forest-scroll-night {
+  background-image: url('assets/images/scene4/midground_forest_night.png');
+}
+
+#utility-scroll {
+  background-image: url('assets/images/scene4/foreground_blur_elements.png');
+}
+
+.train-interior-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+  pointer-events: none;
+  transition: opacity 0.6s ease-in-out;
+}
+
+#interior-day {
+  background-image: url('assets/images/scene4/train_interior_day.png');
+}
+
+#interior-night {
+  background-image: url('assets/images/scene4/train_interior_night.png');
+}
+
+#glass-glare {
+  background-image: url('assets/images/scene4/window_glass_glare.png');
+  background-size: cover;
+  background-position: center;
+  opacity: 0.15;
+  transition: opacity 0.6s ease-in-out;
+}
+
+/* Glass reflection glow pulsing in night mode */
+@keyframes glarePulse {
+  0% { opacity: 0.18; }
+  100% { opacity: 0.28; }
+}
+
+.glare-night-active {
+  animation: glarePulse 4s infinite alternate ease-in-out;
+}
+
+/* Multi-speed scrolling rules */
+@keyframes parallaxScroll {
+  0% { transform: translate3d(0, 0, 0); }
+  100% { transform: translate3d(-50%, 0, 0); }
+}
+
+.scroll-slow { animation: parallaxScroll 120s linear infinite; animation-play-state: paused; }
+.scroll-mid  { animation: parallaxScroll 45s linear infinite; animation-play-state: paused; }
+.scroll-fast { animation: parallaxScroll 4s linear infinite; animation-play-state: paused; }
+
+.parallax-anim-active {
+  animation-play-state: running !important;
+}

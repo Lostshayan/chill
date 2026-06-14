@@ -40,7 +40,11 @@ let state = {
   soundscapeVols: { rain: 0, campfire: 0, keyboard: 0, cafe: 0, wind: 0 },
   lampOn: true,
   mugWarm: false,
-  blizzardOn: true,
+  isBlizzardActive: false,
+  currentTheme: 'scene2',
+  isForestLampOn: false,
+  isForestRainHeavy: false,
+  isTrainNightMode: false,
   todos: []
 };
 
@@ -79,13 +83,38 @@ const elProgressBar = document.getElementById('progressBar');
 const elProgressContainer = document.getElementById('progressContainer');
 const elTimeCurrent = document.getElementById('timeCurrent');
 const elTimeDuration = document.getElementById('timeDuration');
-const elTrackIcon = document.querySelector('.track-icon');
+const elTrackIcon = document.querySelector('.track-thumbnail');
 
 // Scene 2 Elements
+const elBgMountains = document.getElementById('bg-mountains');
 const elHotspotLamp2 = document.getElementById('hotspotLamp2');
 const elHotspotWindow2 = document.getElementById('hotspotWindow2');
-const elSteamContainer2 = document.getElementById('steamContainer2');
-const elLampLight2 = document.getElementById('lampLight2');
+const elFgCabinOff = document.getElementById('foreground-cabin-off');
+const elFgCabinOn = document.getElementById('foreground-cabin-on');
+
+// Scene 3 Elements
+const elScene2 = document.getElementById('scene2-container');
+const elScene3 = document.getElementById('scene3-container');
+const elForestDay = document.getElementById('forest-day');
+const elForestNight = document.getElementById('forest-night');
+const elLampOff = document.getElementById('lamp-off');
+const elLampOn = document.getElementById('lamp-on');
+const elHotspotLamp3 = document.getElementById('hotspotLamp3');
+const elHotspotWindow3 = document.getElementById('hotspotWindow3');
+
+// Scene 4 Elements
+const elScene4 = document.getElementById('scene4-container');
+const elSkyDay = document.getElementById('sky-dome-day');
+const elSkyNight = document.getElementById('sky-dome-night');
+const elMtnDay = document.getElementById('mountain-scroll-day');
+const elMtnNight = document.getElementById('mountain-scroll-night');
+const elForestDayL = document.getElementById('forest-scroll-day');
+const elForestNightL = document.getElementById('forest-scroll-night');
+const elUtilityScroll = document.getElementById('utility-scroll');
+const elInteriorDay = document.getElementById('interior-day');
+const elInteriorNight = document.getElementById('interior-night');
+const elGlassGlare = document.getElementById('glass-glare');
+const elBtnToggleTransit = document.getElementById('btnToggleTransit');
 
 const elRoomNameDisplay = document.getElementById('roomNameDisplay');
 const elSyncStatus = document.getElementById('syncStatus');
@@ -118,11 +147,14 @@ const elTodoList = document.getElementById('todoList');
 // Initialize interface on launch
 window.addEventListener('DOMContentLoaded', () => {
   setupInteractiveRoom();
+  setupScene3();
+  setupScene4();
+  setupThemeSwitcher();
   startClock();
   initParallax();
-  new BlizzardEngine('blizzard-canvas');
+  window.blizzardEngine = new BlizzardEngine('blizzard-canvas');
   if (USE_MOCK_MODE) {
-    elMockModeIndicator.style.display = 'block';
+    if (elMockModeIndicator) elMockModeIndicator.style.display = 'block';
   } else {
     if (elMockModeIndicator) {
       elMockModeIndicator.innerHTML = '<i class="fa-solid fa-cloud"></i> Firebase mode active. Enjoy real sync!';
@@ -248,8 +280,10 @@ async function startSession() {
       elSyncStatus.className = "sync-status online";
     } catch (e) {
       console.error("Firebase setup failed, reverting to local mock mode:", e);
-      elMockModeIndicator.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> Firebase failed to initialize. Reverting to Mock Mode.';
-      elMockModeIndicator.style.color = '#ffb74d';
+      if (elMockModeIndicator) {
+        elMockModeIndicator.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> Firebase failed to initialize. Reverting to Mock Mode.';
+        elMockModeIndicator.style.color = '#ffb74d';
+      }
       initAudio();
       initMockRoom();
     }
@@ -291,11 +325,11 @@ function handleRoomSyncUpdate(roomData) {
       musicAudio.currentTime = Math.max(0, elapsedSec % musicAudio.duration || 0);
       musicAudio.play().catch(e => console.log("User interaction required to start audio"));
       elBtnPlay.innerHTML = '<i class="fa-solid fa-pause"></i>';
-      elTrackIcon.style.animationPlayState = 'running';
+      if (elTrackIcon) elTrackIcon.style.animationPlayState = 'running';
     } else {
       musicAudio.pause();
       elBtnPlay.innerHTML = '<i class="fa-solid fa-play"></i>';
-      elTrackIcon.style.animationPlayState = 'paused';
+      if (elTrackIcon) elTrackIcon.style.animationPlayState = 'paused';
     }
   }
 }
@@ -391,11 +425,11 @@ function togglePlay() {
     if (state.isPlaying) {
       musicAudio.play().catch(e => console.log(e));
       elBtnPlay.innerHTML = '<i class="fa-solid fa-pause"></i>';
-      elTrackIcon.style.animationPlayState = 'running';
+      if (elTrackIcon) elTrackIcon.style.animationPlayState = 'running';
     } else {
       musicAudio.pause();
       elBtnPlay.innerHTML = '<i class="fa-solid fa-play"></i>';
-      elTrackIcon.style.animationPlayState = 'paused';
+      if (elTrackIcon) elTrackIcon.style.animationPlayState = 'paused';
     }
   }
 }
@@ -414,7 +448,7 @@ function playNextTrack() {
     musicAudio.play().catch(e => console.log(e));
     state.isPlaying = true;
     elBtnPlay.innerHTML = '<i class="fa-solid fa-pause"></i>';
-    elTrackIcon.style.animationPlayState = 'running';
+    if (elTrackIcon) elTrackIcon.style.animationPlayState = 'running';
   }
 }
 
@@ -435,7 +469,7 @@ function playPrevTrack() {
     musicAudio.play().catch(e => console.log(e));
     state.isPlaying = true;
     elBtnPlay.innerHTML = '<i class="fa-solid fa-pause"></i>';
-    elTrackIcon.style.animationPlayState = 'running';
+    if (elTrackIcon) elTrackIcon.style.animationPlayState = 'running';
   }
 }
 
@@ -510,24 +544,26 @@ function updateMuteIcon() {
   }
 }
 
+function applyScene2LampState() {
+  if (state.lampOn) {
+    if (elFgCabinOff) elFgCabinOff.style.opacity = '0';
+    if (elFgCabinOn) elFgCabinOn.style.opacity = '1';
+  } else {
+    if (elFgCabinOff) elFgCabinOff.style.opacity = '1';
+    if (elFgCabinOn) elFgCabinOn.style.opacity = '0';
+  }
+}
+
 // --- INTERACTIVE HOTSPOTS LOOPS ---
 function setupInteractiveRoom() {
-  // Set initial lamp state based on state
-  if (state.lampOn) {
-    if (elLampLight2) elLampLight2.classList.add('active');
-  } else {
-    if (elLampLight2) elLampLight2.classList.remove('active');
-  }
+  // Set initial lamp state — crossfade foreground layers
+  applyScene2LampState();
   updateWeatherVisuals();
 
   const toggleLamp = () => {
     state.lampOn = !state.lampOn;
-    if (state.lampOn) {
-      if (elLampLight2) elLampLight2.classList.add('active');
-    } else {
-      if (elLampLight2) elLampLight2.classList.remove('active');
-    }
-    updateWeatherVisuals(); // Toggle stars depending on day/night
+    applyScene2LampState();
+    updateWeatherVisuals();
   };
 
   // Lamp click handlers
@@ -536,7 +572,14 @@ function setupInteractiveRoom() {
   // Blizzard click handler
   if (elHotspotWindow2) {
     elHotspotWindow2.addEventListener('click', () => {
-      state.blizzardOn = !state.blizzardOn;
+      state.isBlizzardActive = !state.isBlizzardActive;
+      if (state.isBlizzardActive) {
+        if (elBgMountains) elBgMountains.classList.add('blizzard-fog');
+        if (window.blizzardEngine) window.blizzardEngine.activateBlizzard();
+      } else {
+        if (elBgMountains) elBgMountains.classList.remove('blizzard-fog');
+        if (window.blizzardEngine) window.blizzardEngine.deactivateBlizzard();
+      }
     });
   }
 
@@ -704,7 +747,7 @@ document.querySelectorAll('.vibe-btn').forEach(btn => {
       musicAudio.play().catch(e => console.log(e));
       state.isPlaying = true;
       elBtnPlay.innerHTML = '<i class="fa-solid fa-pause"></i>';
-      elTrackIcon.style.animationPlayState = 'running';
+      if (elTrackIcon) elTrackIcon.style.animationPlayState = 'running';
     }
   });
 });
@@ -781,67 +824,195 @@ function initParallax() {
 
   if (!room) return;
 
-  window.addEventListener('mousemove', (e) => {
-    // Calculate normalized coordinates (-1 to 1) relative to screen center
-    const xVal = (e.clientX - window.innerWidth / 2) / (window.innerWidth / 2);
-    const yVal = (e.clientY - window.innerHeight / 2) / (window.innerHeight / 2);
+  // window.addEventListener('mousemove', (e) => {
+  //   // Parallax effect removed at user request
+  // });
 
-    // Apply translation mapping with different speed multipliers for depth
-    // layerBg (Background): moves slowly (~ -6px max translation)
-    // layerMid (Midground character/desk): moves medium (~ -16px max translation)
-    // layerFore (Foreground frame/lamp): moves fastest (~ -32px max translation)
-    const bgX = xVal * -6;
-    const bgY = yVal * -6;
-    const midX = xVal * -16;
-    const midY = yVal * -16;
-    const foreX = xVal * -32;
-    const foreY = yVal * -32;
-
-    if (layerBg) layerBg.style.transform = `translate3d(${bgX}px, ${bgY}px, 0)`;
-    if (layerMid) layerMid.style.transform = `translate3d(${midX}px, ${midY}px, 0)`;
-    if (layerFore) layerFore.style.transform = `translate3d(${foreX}px, ${foreY}px, 0)`;
-
-    if (bgMtn) bgMtn.style.transform = `translate3d(${bgX}px, ${bgY}px, 0)`;
-    if (blizzard) blizzard.style.transform = `translate3d(${midX}px, ${midY}px, 0)`;
-    if (cabin) cabin.style.transform = `translate3d(${foreX}px, ${foreY}px, 0)`;
-  });
-
-  // Reset layers position on mouse leave
-  document.body.addEventListener('mouseleave', () => {
-    if (layerBg) layerBg.style.transform = 'translate3d(0, 0, 0)';
-    if (layerMid) layerMid.style.transform = 'translate3d(0, 0, 0)';
-    if (layerFore) layerFore.style.transform = 'translate3d(0, 0, 0)';
-    if (bgMtn) bgMtn.style.transform = 'translate3d(0, 0, 0)';
-    if (blizzard) blizzard.style.transform = 'translate3d(0, 0, 0)';
-    if (cabin) cabin.style.transform = 'translate3d(0, 0, 0)';
-  });
+  // // Reset layers position on mouse leave
+  // document.body.addEventListener('mouseleave', () => {
+  //   // Parallax effect removed at user request
+  // });
 }
 
 function initThemeSelector() {
-  const select = document.getElementById('themeSelector');
-  if (!select) return;
-  const scene1 = document.getElementById('scene1-container');
-  const scene2 = document.getElementById('scene2-container');
-  
-  select.addEventListener('change', (e) => {
-    if (e.target.value === 'scene1') {
-      if (scene1) scene1.style.display = 'block';
-      if (scene2) scene2.style.display = 'none';
-    } else {
-      if (scene1) scene1.style.display = 'none';
-      if (scene2) scene2.style.display = 'block';
-    }
+  // Legacy — kept for compatibility. Theme switching now uses setupThemeSwitcher().
+}
+
+// --- THEME SWITCHER ---
+function setupThemeSwitcher() {
+  const cards = document.querySelectorAll('.theme-card');
+  cards.forEach(card => {
+    card.addEventListener('click', () => {
+      const theme = card.dataset.theme;
+      if (theme === state.currentTheme) return;
+      switchTheme(theme);
+      cards.forEach(c => c.classList.remove('active'));
+      card.classList.add('active');
+    });
   });
 }
 
+function switchTheme(themeId) {
+  state.currentTheme = themeId;
+
+  // Toggle containers display
+  if (elScene2) elScene2.style.display = (themeId === 'scene2') ? 'block' : 'none';
+  if (elScene3) elScene3.style.display = (themeId === 'scene3') ? 'block' : 'none';
+  if (elScene4) elScene4.style.display = (themeId === 'scene4') ? 'block' : 'none';
+
+  // Toggle utility button display
+  if (elBtnToggleTransit) {
+    elBtnToggleTransit.style.display = (themeId === 'scene4') ? 'inline-flex' : 'none';
+  }
+
+  // Manage Blizzard engine
+  if (themeId === 'scene2') {
+    if (window.blizzardEngine) window.blizzardEngine.start();
+  } else {
+    if (window.blizzardEngine) window.blizzardEngine.stop();
+  }
+
+  // Manage Forest engines
+  if (themeId === 'scene3') {
+    if (!window.forestWeatherEngine) {
+      window.forestWeatherEngine = new ForestWeatherEngine('rain-canvas');
+    } else {
+      window.forestWeatherEngine.start();
+    }
+    if (!window.steamEngine) {
+      window.steamEngine = new SteamEngine('steam-canvas');
+    } else {
+      window.steamEngine.start();
+    }
+    applyForestState();
+  } else {
+    if (window.forestWeatherEngine) window.forestWeatherEngine.stop();
+    if (window.steamEngine) window.steamEngine.stop();
+  }
+
+  // Manage Train scenery loop animations
+  if (themeId === 'scene4') {
+    if (elMtnDay) elMtnDay.classList.add('parallax-anim-active');
+    if (elMtnNight) elMtnNight.classList.add('parallax-anim-active');
+    if (elForestDayL) elForestDayL.classList.add('parallax-anim-active');
+    if (elForestNightL) elForestNightL.classList.add('parallax-anim-active');
+    if (elUtilityScroll) elUtilityScroll.classList.add('parallax-anim-active');
+    applyTrainTransitState();
+  } else {
+    if (elMtnDay) elMtnDay.classList.remove('parallax-anim-active');
+    if (elMtnNight) elMtnNight.classList.remove('parallax-anim-active');
+    if (elForestDayL) elForestDayL.classList.remove('parallax-anim-active');
+    if (elForestNightL) elForestNightL.classList.remove('parallax-anim-active');
+    if (elUtilityScroll) elUtilityScroll.classList.remove('parallax-anim-active');
+  }
+}
+
+function applyForestState() {
+  if (state.isForestLampOn) {
+    // Night mode
+    if (elForestDay) elForestDay.style.opacity = '0';
+    if (elForestNight) elForestNight.style.opacity = '1';
+    if (elLampOff) elLampOff.style.opacity = '0';
+    if (elLampOn) elLampOn.style.opacity = '1';
+    if (window.forestWeatherEngine) window.forestWeatherEngine.setNightMode(true);
+    if (window.steamEngine) window.steamEngine.setActive(true);
+  } else {
+    // Day mode
+    if (elForestDay) elForestDay.style.opacity = '1';
+    if (elForestNight) elForestNight.style.opacity = '0';
+    if (elLampOff) elLampOff.style.opacity = '1';
+    if (elLampOn) elLampOn.style.opacity = '0';
+    if (window.forestWeatherEngine) window.forestWeatherEngine.setNightMode(false);
+    if (window.steamEngine) window.steamEngine.setActive(false);
+  }
+}
+
+// --- SCENE 3 SETUP ---
+function setupScene3() {
+  // Lamp toggle (day/night)
+  if (elHotspotLamp3) {
+    elHotspotLamp3.addEventListener('click', () => {
+      state.isForestLampOn = !state.isForestLampOn;
+      applyForestState();
+    });
+  }
+
+  // Rain intensity toggle
+  if (elHotspotWindow3) {
+    elHotspotWindow3.addEventListener('click', () => {
+      state.isForestRainHeavy = !state.isForestRainHeavy;
+      if (window.forestWeatherEngine) {
+        window.forestWeatherEngine.setHeavyRain(state.isForestRainHeavy);
+      }
+    });
+  }
+}
+
+// --- SCENE 4 SETUP (Train Window) ---
+function setupScene4() {
+  if (elBtnToggleTransit) {
+    elBtnToggleTransit.addEventListener('click', () => {
+      state.isTrainNightMode = !state.isTrainNightMode;
+      applyTrainTransitState();
+    });
+  }
+}
+
+function applyTrainTransitState() {
+  if (state.isTrainNightMode) {
+    // Night Mode
+    if (elSkyDay) elSkyDay.style.opacity = '0';
+    if (elSkyNight) elSkyNight.style.opacity = '1';
+    if (elMtnDay) elMtnDay.style.opacity = '0';
+    if (elMtnNight) elMtnNight.style.opacity = '1';
+    if (elForestDayL) elForestDayL.style.opacity = '0';
+    if (elForestNightL) elForestNightL.style.opacity = '1';
+    if (elInteriorDay) elInteriorDay.style.opacity = '0';
+    if (elInteriorNight) elInteriorNight.style.opacity = '1';
+    
+    // Glass reflection glow pulsing in night mode
+    if (elGlassGlare) {
+      elGlassGlare.classList.add('glare-night-active');
+    }
+    
+    // Update button text / icon to show Sun icon (switching to Day)
+    if (elBtnToggleTransit) {
+      elBtnToggleTransit.innerHTML = '<i class="fa-solid fa-sun"></i> Switch to Day';
+    }
+  } else {
+    // Day Mode
+    if (elSkyDay) elSkyDay.style.opacity = '1';
+    if (elSkyNight) elSkyNight.style.opacity = '0';
+    if (elMtnDay) elMtnDay.style.opacity = '1';
+    if (elMtnNight) elMtnNight.style.opacity = '0';
+    if (elForestDayL) elForestDayL.style.opacity = '1';
+    if (elForestNightL) elForestNightL.style.opacity = '0';
+    if (elInteriorDay) elInteriorDay.style.opacity = '1';
+    if (elInteriorNight) elInteriorNight.style.opacity = '0';
+    
+    // Glass reflection is static faint in day mode
+    if (elGlassGlare) {
+      elGlassGlare.classList.remove('glare-night-active');
+    }
+    
+    // Update button text / icon to show Moon icon (switching to Night)
+    if (elBtnToggleTransit) {
+      elBtnToggleTransit.innerHTML = '<i class="fa-solid fa-moon"></i> Switch to Night';
+    }
+  }
+}
+
+// --- BLIZZARD ENGINE (Scene 2) ---
 class BlizzardEngine {
   constructor(canvasId) {
     this.canvas = document.getElementById(canvasId);
     if (!this.canvas) return;
     this.ctx = this.canvas.getContext('2d');
     this.particles = [];
-    this.numParticles = 300;
-    this.wind = 2; // Horizontal wind force
+    this.numParticles = 35;
+    this.wind = 0.2;
+    this.isActive = false;
+    this.running = true;
     this.resize();
     window.addEventListener('resize', () => this.resize());
     this.init();
@@ -858,50 +1029,310 @@ class BlizzardEngine {
   init() {
     this.particles = [];
     for (let i = 0; i < this.numParticles; i++) {
-      this.particles.push({
+      this.particles.push(this.createParticle());
+    }
+  }
+
+  createParticle() {
+    if (this.isActive) {
+      return {
         x: Math.random() * this.width,
         y: Math.random() * this.height,
         size: Math.random() * 2 + 1,
-        speedY: Math.random() * 3 + 2,
-        speedX: Math.random() * 2 - 1,
+        speedY: Math.random() * 4 + 4,
+        speedX: Math.random() * 5 + 5,
         opacity: Math.random() * 0.5 + 0.3
-      });
+      };
+    } else {
+      return {
+        x: Math.random() * this.width,
+        y: Math.random() * this.height,
+        size: Math.random() * 2 + 1,
+        speedY: Math.random() * 1 + 0.5,
+        speedX: Math.random() * 0.5 - 0.25,
+        opacity: Math.random() * 0.5 + 0.3
+      };
+    }
+  }
+
+  activateBlizzard() {
+    this.isActive = true;
+    this.numParticles = 500;
+    this.wind = 8;
+    this.init();
+  }
+
+  deactivateBlizzard() {
+    this.isActive = false;
+    this.numParticles = 35;
+    this.wind = 0.2;
+    this.init();
+  }
+
+  stop() { this.running = false; }
+  start() {
+    if (!this.running) {
+      this.running = true;
+      this.animate();
     }
   }
 
   animate() {
+    if (!this.running) return;
     this.ctx.clearRect(0, 0, this.width, this.height);
-    
-    if (!state.blizzardOn) {
-      requestAnimationFrame(() => this.animate());
-      return;
-    }
-
     this.ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
-    
     for (let p of this.particles) {
       this.ctx.globalAlpha = p.opacity;
       this.ctx.beginPath();
       this.ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
       this.ctx.fill();
-
-      // Move
       p.y += p.speedY;
       p.x += p.speedX + this.wind;
+      if (p.y > this.height) { p.y = -10; p.x = Math.random() * this.width; }
+      if (p.x > this.width) { p.x = -10; p.y = Math.random() * this.height; }
+      else if (p.x < -10) { p.x = this.width + 10; p.y = Math.random() * this.height; }
+    }
+    requestAnimationFrame(() => this.animate());
+  }
+}
 
-      // Wrap
-      if (p.y > this.height) {
-        p.y = -10;
-        p.x = Math.random() * this.width;
+// --- FOREST WEATHER ENGINE (Scene 3: Rain + Fireflies) ---
+class ForestWeatherEngine {
+  constructor(canvasId) {
+    this.canvas = document.getElementById(canvasId);
+    if (!this.canvas) return;
+    this.ctx = this.canvas.getContext('2d');
+    this.raindrops = [];
+    this.fireflies = [];
+    this.numRain = 150;
+    this.numFireflies = 20;
+    this.isNight = false;
+    this.isHeavy = false;
+    this.running = true;
+    this.resize();
+    window.addEventListener('resize', () => this.resize());
+    this.initRain();
+    this.initFireflies();
+    this.animate();
+  }
+
+  resize() {
+    this.width = window.innerWidth;
+    this.height = window.innerHeight;
+    this.canvas.width = this.width;
+    this.canvas.height = this.height;
+  }
+
+  initRain() {
+    this.raindrops = [];
+    const count = this.isHeavy ? 750 : this.numRain;
+    for (let i = 0; i < count; i++) {
+      this.raindrops.push(this.createRaindrop());
+    }
+  }
+
+  createRaindrop() {
+    const speed = this.isHeavy ? (Math.random() * 12 + 16) : (Math.random() * 4 + 4);
+    const len = this.isHeavy ? (Math.random() * 25 + 25) : (Math.random() * 15 + 10);
+    const weight = this.isHeavy ? (Math.random() * 0.8 + 1.2) : 1.0;
+    const opacity = this.isHeavy ? (Math.random() * 0.35 + 0.2) : (Math.random() * 0.2 + 0.08);
+    return {
+      x: Math.random() * this.width,
+      y: Math.random() * this.height,
+      length: len,
+      speed: speed,
+      weight: weight,
+      opacity: opacity,
+      windX: this.isHeavy ? (Math.random() * 4 + 3) : (Math.random() * 0.5)
+    };
+  }
+
+  initFireflies() {
+    this.fireflies = [];
+    for (let i = 0; i < this.numFireflies; i++) {
+      this.fireflies.push({
+        x: Math.random() * this.width,
+        y: Math.random() * this.height * 0.7,
+        size: Math.random() * 2 + 1.5,
+        pulsePhase: Math.random() * Math.PI * 2,
+        pulseSpeed: Math.random() * 0.03 + 0.01,
+        driftX: (Math.random() - 0.5) * 0.4,
+        driftY: (Math.random() - 0.5) * 0.3
+      });
+    }
+  }
+
+  setNightMode(isNight) {
+    this.isNight = isNight;
+  }
+
+  setHeavyRain(isHeavy) {
+    this.isHeavy = isHeavy;
+    this.initRain();
+  }
+
+  stop() { this.running = false; }
+  start() {
+    if (!this.running) {
+      this.running = true;
+      this.animate();
+    }
+  }
+
+  animate() {
+    if (!this.running) return;
+    this.ctx.clearRect(0, 0, this.width, this.height);
+
+    // Draw rain
+    for (let r of this.raindrops) {
+      this.ctx.strokeStyle = `rgba(174, 219, 255, ${r.opacity})`;
+      this.ctx.lineWidth = r.weight || 1.2;
+      this.ctx.beginPath();
+      this.ctx.moveTo(r.x, r.y);
+      this.ctx.lineTo(r.x + r.windX, r.y + r.length);
+      this.ctx.stroke();
+
+      r.y += r.speed;
+      r.x += r.windX;
+
+      if (r.y > this.height) {
+        r.y = -r.length;
+        r.x = Math.random() * this.width;
       }
-      if (p.x > this.width) {
-        p.x = -10;
-        p.y = Math.random() * this.height;
-      } else if (p.x < -10) {
-        p.x = this.width + 10;
-        p.y = Math.random() * this.height;
+      if (r.x > this.width) r.x = 0;
+    }
+
+    // Draw fireflies (only at night)
+    if (this.isNight) {
+      for (let f of this.fireflies) {
+        f.pulsePhase += f.pulseSpeed;
+        const glow = (Math.sin(f.pulsePhase) + 1) / 2; // 0 to 1
+        const alpha = 0.3 + glow * 0.7;
+        const radius = f.size * (0.8 + glow * 0.4);
+
+        // Outer glow
+        const gradient = this.ctx.createRadialGradient(f.x, f.y, 0, f.x, f.y, radius * 4);
+        gradient.addColorStop(0, `rgba(212, 255, 0, ${alpha * 0.6})`);
+        gradient.addColorStop(0.5, `rgba(180, 255, 50, ${alpha * 0.2})`);
+        gradient.addColorStop(1, 'rgba(180, 255, 50, 0)');
+        this.ctx.fillStyle = gradient;
+        this.ctx.beginPath();
+        this.ctx.arc(f.x, f.y, radius * 4, 0, Math.PI * 2);
+        this.ctx.fill();
+
+        // Core dot
+        this.ctx.fillStyle = `rgba(230, 255, 100, ${alpha})`;
+        this.ctx.beginPath();
+        this.ctx.arc(f.x, f.y, radius, 0, Math.PI * 2);
+        this.ctx.fill();
+
+        // Drift
+        f.x += f.driftX;
+        f.y += f.driftY;
+
+        // Wrap
+        if (f.x < 0) f.x = this.width;
+        if (f.x > this.width) f.x = 0;
+        if (f.y < 0) f.y = this.height * 0.7;
+        if (f.y > this.height * 0.7) f.y = 0;
       }
     }
+
+    requestAnimationFrame(() => this.animate());
+  }
+}
+
+// --- STEAM ENGINE (Scene 3: Coffee Mug Steam) ---
+class SteamEngine {
+  constructor(canvasId) {
+    this.canvas = document.getElementById(canvasId);
+    if (!this.canvas) return;
+    this.ctx = this.canvas.getContext('2d');
+    this.wisps = [];
+    this.numWisps = 5;
+    this.active = false;
+    this.running = true;
+    this.resize();
+    window.addEventListener('resize', () => this.resize());
+    this.initWisps();
+    this.animate();
+  }
+
+  resize() {
+    this.width = window.innerWidth;
+    this.height = window.innerHeight;
+    this.canvas.width = this.width;
+    this.canvas.height = this.height;
+    // Mug position (approximate — right side of desk, ~62% from left, ~78% from top)
+    this.mugX = this.width * 0.62;
+    this.mugY = this.height * 0.72;
+  }
+
+  initWisps() {
+    this.wisps = [];
+    for (let i = 0; i < this.numWisps; i++) {
+      this.wisps.push(this.createWisp());
+    }
+  }
+
+  createWisp() {
+    return {
+      x: this.mugX + (Math.random() - 0.5) * 16,
+      y: this.mugY,
+      size: Math.random() * 4 + 3,
+      opacity: Math.random() * 0.3 + 0.15,
+      speedY: -(Math.random() * 0.6 + 0.3),
+      sway: Math.random() * Math.PI * 2,
+      swaySpeed: Math.random() * 0.02 + 0.01,
+      swayAmp: Math.random() * 6 + 3,
+      life: 0,
+      maxLife: Math.random() * 120 + 80
+    };
+  }
+
+  setActive(active) {
+    this.active = active;
+  }
+
+  stop() { this.running = false; }
+  start() {
+    if (!this.running) {
+      this.running = true;
+      this.animate();
+    }
+  }
+
+  animate() {
+    if (!this.running) return;
+    this.ctx.clearRect(0, 0, this.width, this.height);
+
+    if (this.active) {
+      for (let i = 0; i < this.wisps.length; i++) {
+        const w = this.wisps[i];
+        w.life++;
+        w.sway += w.swaySpeed;
+
+        const progress = w.life / w.maxLife;
+        const fadeOut = progress > 0.6 ? 1 - ((progress - 0.6) / 0.4) : 1;
+        const alpha = w.opacity * fadeOut;
+        const xOffset = Math.sin(w.sway) * w.swayAmp;
+        const expandedSize = w.size * (1 + progress * 1.5);
+
+        this.ctx.globalAlpha = alpha;
+        this.ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+        this.ctx.beginPath();
+        this.ctx.arc(w.x + xOffset, w.y, expandedSize, 0, Math.PI * 2);
+        this.ctx.fill();
+
+        w.y += w.speedY;
+
+        if (w.life >= w.maxLife) {
+          this.wisps[i] = this.createWisp();
+        }
+      }
+      this.ctx.globalAlpha = 1;
+    }
+
     requestAnimationFrame(() => this.animate());
   }
 }

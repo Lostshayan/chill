@@ -22,27 +22,75 @@
 
 
     <!-- SCENE 2: Winter Cabin -->
-    <div id="scene2-container" class="scene-container" style="display: block; position: absolute; top: 0; left: 0; width: 100%; height: 100%;">
-      <div id="bg-mountains" style="z-index: 1;"></div>
-      <canvas id="blizzard-canvas" style="z-index: 2;"></canvas>
-      <div id="foreground-cabin" style="z-index: 3;">
-        <div class="hotspot-ring lamp" id="hotspotLamp2" style="left: 28%; top: 52%; z-index: 20;" title="Toggle Desk Lamp">
-          <div class="ring-pulse"></div>
-        </div>
-        <div class="hotspot-ring window" id="hotspotWindow2" style="left: 70%; top: 40%; z-index: 20;" title="Toggle Blizzard">
-          <div class="ring-pulse"></div>
-        </div>
-        
-        <div class="steam-container" id="steamContainer2" style="left: 27%; top: 72%;">
-          <span style="--i:1;"></span>
-          <span style="--i:3;"></span>
-          <span style="--i:2;"></span>
-          <span style="--i:5;"></span>
-          <span style="--i:4;"></span>
-        </div>
-        
-        <div class="lamp-light2" id="lampLight2"></div>
+    <div id="scene2-container" class="scene-container" style="display: block; position: absolute; top: 0; left: 0; width: 100vw; height: 100vh;">
+      <div id="bg-mountains" style="z-index: 1; position: absolute; width: 100%; height: 100%; background-size: cover; background-position: center;"></div>
+      <canvas id="blizzard-canvas" style="z-index: 2; position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;"></canvas>
+      
+      <!-- Stacked foreground layers for lamp crossfade -->
+      <div id="foreground-cabin-off" class="scene2-fg-layer" style="z-index: 3; opacity: 1;"></div>
+      <div id="foreground-cabin-on" class="scene2-fg-layer" style="z-index: 3; opacity: 0;"></div>
+      
+      <!-- Hotspots -->
+      <div class="hotspot-ring lamp" id="hotspotLamp2" style="left: 15%; top: 58%; z-index: 20;" title="Toggle Desk Lamp">
+        <div class="ring-pulse"></div>
       </div>
+      <div class="hotspot-ring window" id="hotspotWindow2" style="left: 70%; top: 40%; z-index: 20;" title="Toggle Blizzard">
+        <div class="ring-pulse"></div>
+      </div>
+    </div>
+
+    <!-- SCENE 3: Forest Cabin -->
+    <div id="scene3-container" class="scene-container" style="display: none; position: absolute; top: 0; left: 0; width: 100vw; height: 100vh;">
+      <!-- Background layers (stacked for day/night crossfade) -->
+      <div id="forest-day" class="scene3-bg-layer" style="z-index: 1; opacity: 1;"></div>
+      <div id="forest-night" class="scene3-bg-layer" style="z-index: 1; opacity: 0;"></div>
+      
+      <!-- Rain + Firefly canvas -->
+      <canvas id="rain-canvas" style="z-index: 2; position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;"></canvas>
+      
+      <!-- Interior layers (stacked for lamp on/off crossfade) -->
+      <div id="lamp-off" class="scene3-interior-layer" style="z-index: 3; opacity: 1;"></div>
+      <div id="lamp-on" class="scene3-interior-layer" style="z-index: 3; opacity: 0;"></div>
+      
+      <!-- Steam canvas (over coffee mug area) -->
+      <canvas id="steam-canvas" style="z-index: 4; position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;"></canvas>
+      
+      <!-- Hotspots -->
+      <div class="hotspot-ring lamp" id="hotspotLamp3" style="left: 15%; top: 58%; z-index: 20;" title="Toggle Lamp (Day/Night)">
+        <div class="ring-pulse"></div>
+      </div>
+      </div>
+    </div>
+
+    <!-- SCENE 4: Train Window -->
+    <div id="scene4-container" class="scene-container" style="display: none; position: absolute; top: 0; left: 0; width: 100vw; height: 100vh;">
+      <!-- Endless Scenery Viewport -->
+      <div id="scenery-viewport" style="z-index: 1; position: absolute; width: 100%; height: 100%; overflow: hidden;">
+        
+        <!-- Tier 1: Static Sky Dome -->
+        <div id="sky-dome-day" class="sky-dome-layer" style="z-index: 1; opacity: 1;"></div>
+        <div id="sky-dome-night" class="sky-dome-layer" style="z-index: 1; opacity: 0;"></div>
+        
+        <!-- Tier 2: Distant Mountains (Slow scroll) -->
+        <div id="mountain-scroll-day" class="moving-scenery-layer scroll-slow" style="z-index: 2; opacity: 1;"></div>
+        <div id="mountain-scroll-night" class="moving-scenery-layer scroll-slow" style="z-index: 2; opacity: 0;"></div>
+        
+        <!-- Tier 3: Midground Forest (Medium scroll) -->
+        <div id="forest-scroll-day" class="moving-scenery-layer scroll-mid" style="z-index: 3; opacity: 1;"></div>
+        <div id="forest-scroll-night" class="moving-scenery-layer scroll-mid" style="z-index: 3; opacity: 0;"></div>
+        
+        <!-- Tier 4: Foreground Blur Elements (Fast scroll) -->
+        <div id="utility-scroll" class="moving-scenery-layer scroll-fast" style="z-index: 4; filter: blur(3px);"></div>
+      </div>
+      
+      <!-- Tier 5: Train Interior Frame -->
+      <div id="train-interior-container" style="z-index: 5; position: absolute; width: 100%; height: 100%;">
+        <div id="interior-day" class="train-interior-layer" style="z-index: 1; opacity: 1;"></div>
+        <div id="interior-night" class="train-interior-layer" style="z-index: 1; opacity: 0;"></div>
+      </div>
+      
+      <!-- Tier 6: Window Glass Glare & Reflections -->
+      <div id="glass-glare" style="z-index: 6; position: absolute; width: 100%; height: 100%; pointer-events: none;"></div>
     </div>
 
     <!-- Cozy Ambient Lighting Overlay (covers all layers for unified coloring) -->
@@ -100,6 +148,10 @@
         <input type="range" min="0" max="1" step="0.05" value="0.7" class="slider volume-slider" id="slider-master">
       </div>
 
+      <button class="bar-utility-btn" id="btnToggleTransit" title="Toggle Transit Mode (Day/Night)" style="display: none; padding: 0 12px; font-size: 0.8rem; height: 32px; border-radius: 16px; border: 1px solid var(--panel-border); background: var(--button-bg); color: var(--text-main); cursor: pointer; transition: all 0.3s ease; align-items: center; gap: 6px;">
+        <i class="fa-solid fa-moon"></i> Toggle Transit
+      </button>
+
       <div class="divider"></div>
 
       <!-- Toggle buttons for panels -->
@@ -125,7 +177,24 @@
       </div>
     </div>
 
-
+    <!-- Theme Switcher -->
+    <div class="theme-switcher-section">
+      <h3 class="section-label"><i class="fa-solid fa-palette"></i> Room Theme</h3>
+      <div class="theme-cards">
+        <button class="theme-card active" data-theme="scene2" id="themeCardWinter">
+          <span class="theme-card-icon">❄️</span>
+          <span class="theme-card-label">Winter Cabin</span>
+        </button>
+        <button class="theme-card" data-theme="scene3" id="themeCardForest">
+          <span class="theme-card-icon">🌲</span>
+          <span class="theme-card-label">Forest Cabin</span>
+        </button>
+        <button class="theme-card" data-theme="scene4" id="themeCardTrain">
+          <span class="theme-card-icon">🚇</span>
+          <span class="theme-card-label">Train Window</span>
+        </button>
+      </div>
+    </div>
 
     <!-- Soundscape Mixer -->
     <div class="mixer-section">
