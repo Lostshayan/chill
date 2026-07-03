@@ -42,9 +42,7 @@ let state = {
   mugWarm: false,
   isBlizzardActive: false,
   currentTheme: 'scene2',
-  isForestLampOn: false,
-  isForestRainHeavy: false,
-  isTrainNightMode: false,
+  isRainActive: false,
   todos: []
 };
 
@@ -92,29 +90,12 @@ const elHotspotWindow2 = document.getElementById('hotspotWindow2');
 const elFgCabinOff = document.getElementById('foreground-cabin-off');
 const elFgCabinOn = document.getElementById('foreground-cabin-on');
 
-// Scene 3 Elements
+// Scene 3 Elements (Greenhouse Sanctuary)
 const elScene2 = document.getElementById('scene2-container');
 const elScene3 = document.getElementById('scene3-container');
-const elForestDay = document.getElementById('forest-day');
-const elForestNight = document.getElementById('forest-night');
-const elLampOff = document.getElementById('lamp-off');
-const elLampOn = document.getElementById('lamp-on');
-const elHotspotLamp3 = document.getElementById('hotspotLamp3');
-const elHotspotWindow3 = document.getElementById('hotspotWindow3');
-
-// Scene 4 Elements
-const elScene4 = document.getElementById('scene4-container');
-const elSkyDay = document.getElementById('sky-dome-day');
-const elSkyNight = document.getElementById('sky-dome-night');
-const elMtnDay = document.getElementById('mountain-scroll-day');
-const elMtnNight = document.getElementById('mountain-scroll-night');
-const elForestDayL = document.getElementById('forest-scroll-day');
-const elForestNightL = document.getElementById('forest-scroll-night');
-const elUtilityScroll = document.getElementById('utility-scroll');
-const elInteriorDay = document.getElementById('interior-day');
-const elInteriorNight = document.getElementById('interior-night');
-const elGlassGlare = document.getElementById('glass-glare');
-const elBtnToggleTransit = document.getElementById('btnToggleTransit');
+const elSceneSunny = document.getElementById('scene-sunny');
+const elSceneRainy = document.getElementById('scene-rainy');
+const elToggleWeatherBtn = document.getElementById('toggle-weather-btn');
 
 const elRoomNameDisplay = document.getElementById('roomNameDisplay');
 const elSyncStatus = document.getElementById('syncStatus');
@@ -148,7 +129,6 @@ const elTodoList = document.getElementById('todoList');
 window.addEventListener('DOMContentLoaded', () => {
   setupInteractiveRoom();
   setupScene3();
-  setupScene4();
   setupThemeSwitcher();
   startClock();
   initParallax();
@@ -858,12 +838,6 @@ function switchTheme(themeId) {
   // Toggle containers display
   if (elScene2) elScene2.style.display = (themeId === 'scene2') ? 'block' : 'none';
   if (elScene3) elScene3.style.display = (themeId === 'scene3') ? 'block' : 'none';
-  if (elScene4) elScene4.style.display = (themeId === 'scene4') ? 'block' : 'none';
-
-  // Toggle utility button display
-  if (elBtnToggleTransit) {
-    elBtnToggleTransit.style.display = (themeId === 'scene4') ? 'inline-flex' : 'none';
-  }
 
   // Manage Blizzard engine
   if (themeId === 'scene2') {
@@ -872,133 +846,63 @@ function switchTheme(themeId) {
     if (window.blizzardEngine) window.blizzardEngine.stop();
   }
 
-  // Manage Forest engines
+  // Manage Greenhouse engines
   if (themeId === 'scene3') {
-    if (!window.forestWeatherEngine) {
-      window.forestWeatherEngine = new ForestWeatherEngine('rain-canvas');
-    } else {
-      window.forestWeatherEngine.start();
+    if (!window.greenhouseRainEngine) {
+      window.greenhouseRainEngine = new BoundedRainEngine('rain-canvas');
     }
-    if (!window.steamEngine) {
-      window.steamEngine = new SteamEngine('steam-canvas');
+    if (state.isRainActive) {
+      window.greenhouseRainEngine.start();
     } else {
-      window.steamEngine.start();
+      window.greenhouseRainEngine.stop();
     }
-    applyForestState();
   } else {
-    if (window.forestWeatherEngine) window.forestWeatherEngine.stop();
-    if (window.steamEngine) window.steamEngine.stop();
-  }
-
-  // Manage Train scenery loop animations
-  if (themeId === 'scene4') {
-    if (elMtnDay) elMtnDay.classList.add('parallax-anim-active');
-    if (elMtnNight) elMtnNight.classList.add('parallax-anim-active');
-    if (elForestDayL) elForestDayL.classList.add('parallax-anim-active');
-    if (elForestNightL) elForestNightL.classList.add('parallax-anim-active');
-    if (elUtilityScroll) elUtilityScroll.classList.add('parallax-anim-active');
-    applyTrainTransitState();
-  } else {
-    if (elMtnDay) elMtnDay.classList.remove('parallax-anim-active');
-    if (elMtnNight) elMtnNight.classList.remove('parallax-anim-active');
-    if (elForestDayL) elForestDayL.classList.remove('parallax-anim-active');
-    if (elForestNightL) elForestNightL.classList.remove('parallax-anim-active');
-    if (elUtilityScroll) elUtilityScroll.classList.remove('parallax-anim-active');
+    if (window.greenhouseRainEngine) window.greenhouseRainEngine.stop();
   }
 }
 
-function applyForestState() {
-  if (state.isForestLampOn) {
-    // Night mode
-    if (elForestDay) elForestDay.style.opacity = '0';
-    if (elForestNight) elForestNight.style.opacity = '1';
-    if (elLampOff) elLampOff.style.opacity = '0';
-    if (elLampOn) elLampOn.style.opacity = '1';
-    if (window.forestWeatherEngine) window.forestWeatherEngine.setNightMode(true);
-    if (window.steamEngine) window.steamEngine.setActive(true);
-  } else {
-    // Day mode
-    if (elForestDay) elForestDay.style.opacity = '1';
-    if (elForestNight) elForestNight.style.opacity = '0';
-    if (elLampOff) elLampOff.style.opacity = '1';
-    if (elLampOn) elLampOn.style.opacity = '0';
-    if (window.forestWeatherEngine) window.forestWeatherEngine.setNightMode(false);
-    if (window.steamEngine) window.steamEngine.setActive(false);
-  }
-}
-
-// --- SCENE 3 SETUP ---
+// --- SCENE 3 SETUP (Greenhouse Sanctuary) ---
 function setupScene3() {
-  // Lamp toggle (day/night)
-  if (elHotspotLamp3) {
-    elHotspotLamp3.addEventListener('click', () => {
-      state.isForestLampOn = !state.isForestLampOn;
-      applyForestState();
-    });
-  }
-
-  // Rain intensity toggle
-  if (elHotspotWindow3) {
-    elHotspotWindow3.addEventListener('click', () => {
-      state.isForestRainHeavy = !state.isForestRainHeavy;
-      if (window.forestWeatherEngine) {
-        window.forestWeatherEngine.setHeavyRain(state.isForestRainHeavy);
+  if (elToggleWeatherBtn && elSceneRainy) {
+    elToggleWeatherBtn.addEventListener('click', () => {
+      state.isRainActive = !state.isRainActive;
+      
+      if (state.isRainActive) {
+        elSceneRainy.style.opacity = '1';
+        if (window.greenhouseRainEngine) {
+          window.greenhouseRainEngine.start();
+        }
+        elToggleWeatherBtn.innerHTML = '<i class="fa-solid fa-cloud-showers-water"></i> Rainy Mode';
+      } else {
+        elSceneRainy.style.opacity = '0';
+        if (window.greenhouseRainEngine) {
+          window.greenhouseRainEngine.stop();
+        }
+        elToggleWeatherBtn.innerHTML = '<i class="fa-solid fa-cloud-sun"></i> Sunny Mode';
       }
     });
   }
-}
 
-// --- SCENE 4 SETUP (Train Window) ---
-function setupScene4() {
-  if (elBtnToggleTransit) {
-    elBtnToggleTransit.addEventListener('click', () => {
-      state.isTrainNightMode = !state.isTrainNightMode;
-      applyTrainTransitState();
-    });
+  // Set initial text
+  if (elToggleWeatherBtn) {
+    elToggleWeatherBtn.innerHTML = '<i class="fa-solid fa-cloud-sun"></i> Sunny Mode';
   }
-}
 
-function applyTrainTransitState() {
-  if (state.isTrainNightMode) {
-    // Night Mode
-    if (elSkyDay) elSkyDay.style.opacity = '0';
-    if (elSkyNight) elSkyNight.style.opacity = '1';
-    if (elMtnDay) elMtnDay.style.opacity = '0';
-    if (elMtnNight) elMtnNight.style.opacity = '1';
-    if (elForestDayL) elForestDayL.style.opacity = '0';
-    if (elForestNightL) elForestNightL.style.opacity = '1';
-    if (elInteriorDay) elInteriorDay.style.opacity = '0';
-    if (elInteriorNight) elInteriorNight.style.opacity = '1';
-    
-    // Glass reflection glow pulsing in night mode
-    if (elGlassGlare) {
-      elGlassGlare.classList.add('glare-night-active');
+  // Update Scene 3 local clock
+  const greenhouseClock = document.getElementById('digital-clock');
+  if (greenhouseClock) {
+    function updateGreenhouseTime() {
+      const now = new Date();
+      let hours = now.getHours();
+      let minutes = now.getMinutes();
+      const ampm = hours >= 12 ? 'PM' : 'AM';
+      hours = hours % 12;
+      hours = hours ? hours : 12;
+      minutes = minutes < 10 ? '0' + minutes : minutes;
+      greenhouseClock.textContent = `${hours}:${minutes} ${ampm}`;
     }
-    
-    // Update button text / icon to show Sun icon (switching to Day)
-    if (elBtnToggleTransit) {
-      elBtnToggleTransit.innerHTML = '<i class="fa-solid fa-sun"></i> Switch to Day';
-    }
-  } else {
-    // Day Mode
-    if (elSkyDay) elSkyDay.style.opacity = '1';
-    if (elSkyNight) elSkyNight.style.opacity = '0';
-    if (elMtnDay) elMtnDay.style.opacity = '1';
-    if (elMtnNight) elMtnNight.style.opacity = '0';
-    if (elForestDayL) elForestDayL.style.opacity = '1';
-    if (elForestNightL) elForestNightL.style.opacity = '0';
-    if (elInteriorDay) elInteriorDay.style.opacity = '1';
-    if (elInteriorNight) elInteriorNight.style.opacity = '0';
-    
-    // Glass reflection is static faint in day mode
-    if (elGlassGlare) {
-      elGlassGlare.classList.remove('glare-night-active');
-    }
-    
-    // Update button text / icon to show Moon icon (switching to Night)
-    if (elBtnToggleTransit) {
-      elBtnToggleTransit.innerHTML = '<i class="fa-solid fa-moon"></i> Switch to Night';
-    }
+    updateGreenhouseTime();
+    setInterval(updateGreenhouseTime, 1000);
   }
 }
 
@@ -1096,243 +1000,93 @@ class BlizzardEngine {
   }
 }
 
-// --- FOREST WEATHER ENGINE (Scene 3: Rain + Fireflies) ---
-class ForestWeatherEngine {
+// --- BOUNDED RAIN ENGINE (Scene 3: Greenhouse) ---
+class BoundedRainEngine {
   constructor(canvasId) {
     this.canvas = document.getElementById(canvasId);
     if (!this.canvas) return;
     this.ctx = this.canvas.getContext('2d');
-    this.raindrops = [];
-    this.fireflies = [];
-    this.numRain = 150;
-    this.numFireflies = 20;
-    this.isNight = false;
-    this.isHeavy = false;
-    this.running = true;
+    this.particles = [];
+    this.numParticles = 180;
+    this.active = false;
+    this.animationId = null;
+    
+    this.maskImage = new Image();
+    this.maskImage.src = 'assets/images/scene_greenhouse/interior_mask.png';
+    
     this.resize();
     window.addEventListener('resize', () => this.resize());
-    this.initRain();
-    this.initFireflies();
-    this.animate();
+    this.init();
   }
 
   resize() {
-    this.width = window.innerWidth;
-    this.height = window.innerHeight;
-    this.canvas.width = this.width;
-    this.canvas.height = this.height;
+    this.canvas.width = window.innerWidth;
+    this.canvas.height = window.innerHeight;
   }
 
-  initRain() {
-    this.raindrops = [];
-    const count = this.isHeavy ? 750 : this.numRain;
-    for (let i = 0; i < count; i++) {
-      this.raindrops.push(this.createRaindrop());
+  init() {
+    this.particles = [];
+    for (let i = 0; i < this.numParticles; i++) {
+      this.particles.push(this.createParticle(true));
     }
   }
 
-  createRaindrop() {
-    const speed = this.isHeavy ? (Math.random() * 12 + 16) : (Math.random() * 4 + 4);
-    const len = this.isHeavy ? (Math.random() * 25 + 25) : (Math.random() * 15 + 10);
-    const weight = this.isHeavy ? (Math.random() * 0.8 + 1.2) : 1.0;
-    const opacity = this.isHeavy ? (Math.random() * 0.35 + 0.2) : (Math.random() * 0.2 + 0.08);
+  createParticle(randomY = false) {
+    const w = this.canvas.width;
+    const h = this.canvas.height;
     return {
-      x: Math.random() * this.width,
-      y: Math.random() * this.height,
-      length: len,
-      speed: speed,
-      weight: weight,
-      opacity: opacity,
-      windX: this.isHeavy ? (Math.random() * 4 + 3) : (Math.random() * 0.5)
+      x: Math.random() * w,
+      y: randomY ? Math.random() * h : -25,
+      length: Math.random() * 25 + 18,
+      speed: Math.random() * 14 + 14,
+      opacity: Math.random() * 0.16 + 0.08,
+      wind: Math.random() * 2.5 + 1.5
     };
   }
 
-  initFireflies() {
-    this.fireflies = [];
-    for (let i = 0; i < this.numFireflies; i++) {
-      this.fireflies.push({
-        x: Math.random() * this.width,
-        y: Math.random() * this.height * 0.7,
-        size: Math.random() * 2 + 1.5,
-        pulsePhase: Math.random() * Math.PI * 2,
-        pulseSpeed: Math.random() * 0.03 + 0.01,
-        driftX: (Math.random() - 0.5) * 0.4,
-        driftY: (Math.random() - 0.5) * 0.3
-      });
-    }
-  }
-
-  setNightMode(isNight) {
-    this.isNight = isNight;
-  }
-
-  setHeavyRain(isHeavy) {
-    this.isHeavy = isHeavy;
-    this.initRain();
-  }
-
-  stop() { this.running = false; }
   start() {
-    if (!this.running) {
-      this.running = true;
-      this.animate();
+    if (this.active) return;
+    this.active = true;
+    this.animate();
+  }
+
+  stop() {
+    this.active = false;
+    if (this.animationId) {
+      cancelAnimationFrame(this.animationId);
+      this.animationId = null;
     }
+    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
   }
 
   animate() {
-    if (!this.running) return;
-    this.ctx.clearRect(0, 0, this.width, this.height);
+    if (!this.active) return;
+    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
-    // Draw rain
-    for (let r of this.raindrops) {
-      this.ctx.strokeStyle = `rgba(174, 219, 255, ${r.opacity})`;
-      this.ctx.lineWidth = r.weight || 1.2;
+    // 1. Draw the active rain particles moving diagonally
+    for (let p of this.particles) {
+      this.ctx.strokeStyle = `rgba(174, 219, 255, ${p.opacity})`;
+      this.ctx.lineWidth = 1.3;
       this.ctx.beginPath();
-      this.ctx.moveTo(r.x, r.y);
-      this.ctx.lineTo(r.x + r.windX, r.y + r.length);
+      this.ctx.moveTo(p.x, p.y);
+      this.ctx.lineTo(p.x + p.wind, p.y + p.length);
       this.ctx.stroke();
 
-      r.y += r.speed;
-      r.x += r.windX;
+      p.y += p.speed;
+      p.x += p.wind;
 
-      if (r.y > this.height) {
-        r.y = -r.length;
-        r.x = Math.random() * this.width;
-      }
-      if (r.x > this.width) r.x = 0;
-    }
-
-    // Draw fireflies (only at night)
-    if (this.isNight) {
-      for (let f of this.fireflies) {
-        f.pulsePhase += f.pulseSpeed;
-        const glow = (Math.sin(f.pulsePhase) + 1) / 2; // 0 to 1
-        const alpha = 0.3 + glow * 0.7;
-        const radius = f.size * (0.8 + glow * 0.4);
-
-        // Outer glow
-        const gradient = this.ctx.createRadialGradient(f.x, f.y, 0, f.x, f.y, radius * 4);
-        gradient.addColorStop(0, `rgba(212, 255, 0, ${alpha * 0.6})`);
-        gradient.addColorStop(0.5, `rgba(180, 255, 50, ${alpha * 0.2})`);
-        gradient.addColorStop(1, 'rgba(180, 255, 50, 0)');
-        this.ctx.fillStyle = gradient;
-        this.ctx.beginPath();
-        this.ctx.arc(f.x, f.y, radius * 4, 0, Math.PI * 2);
-        this.ctx.fill();
-
-        // Core dot
-        this.ctx.fillStyle = `rgba(230, 255, 100, ${alpha})`;
-        this.ctx.beginPath();
-        this.ctx.arc(f.x, f.y, radius, 0, Math.PI * 2);
-        this.ctx.fill();
-
-        // Drift
-        f.x += f.driftX;
-        f.y += f.driftY;
-
-        // Wrap
-        if (f.x < 0) f.x = this.width;
-        if (f.x > this.width) f.x = 0;
-        if (f.y < 0) f.y = this.height * 0.7;
-        if (f.y > this.height * 0.7) f.y = 0;
+      if (p.y > this.canvas.height) {
+        Object.assign(p, this.createParticle(false));
       }
     }
 
-    requestAnimationFrame(() => this.animate());
-  }
-}
-
-// --- STEAM ENGINE (Scene 3: Coffee Mug Steam) ---
-class SteamEngine {
-  constructor(canvasId) {
-    this.canvas = document.getElementById(canvasId);
-    if (!this.canvas) return;
-    this.ctx = this.canvas.getContext('2d');
-    this.wisps = [];
-    this.numWisps = 5;
-    this.active = false;
-    this.running = true;
-    this.resize();
-    window.addEventListener('resize', () => this.resize());
-    this.initWisps();
-    this.animate();
-  }
-
-  resize() {
-    this.width = window.innerWidth;
-    this.height = window.innerHeight;
-    this.canvas.width = this.width;
-    this.canvas.height = this.height;
-    // Mug position (approximate — right side of desk, ~62% from left, ~78% from top)
-    this.mugX = this.width * 0.62;
-    this.mugY = this.height * 0.72;
-  }
-
-  initWisps() {
-    this.wisps = [];
-    for (let i = 0; i < this.numWisps; i++) {
-      this.wisps.push(this.createWisp());
-    }
-  }
-
-  createWisp() {
-    return {
-      x: this.mugX + (Math.random() - 0.5) * 16,
-      y: this.mugY,
-      size: Math.random() * 4 + 3,
-      opacity: Math.random() * 0.3 + 0.15,
-      speedY: -(Math.random() * 0.6 + 0.3),
-      sway: Math.random() * Math.PI * 2,
-      swaySpeed: Math.random() * 0.02 + 0.01,
-      swayAmp: Math.random() * 6 + 3,
-      life: 0,
-      maxLife: Math.random() * 120 + 80
-    };
-  }
-
-  setActive(active) {
-    this.active = active;
-  }
-
-  stop() { this.running = false; }
-  start() {
-    if (!this.running) {
-      this.running = true;
-      this.animate();
-    }
-  }
-
-  animate() {
-    if (!this.running) return;
-    this.ctx.clearRect(0, 0, this.width, this.height);
-
-    if (this.active) {
-      for (let i = 0; i < this.wisps.length; i++) {
-        const w = this.wisps[i];
-        w.life++;
-        w.sway += w.swaySpeed;
-
-        const progress = w.life / w.maxLife;
-        const fadeOut = progress > 0.6 ? 1 - ((progress - 0.6) / 0.4) : 1;
-        const alpha = w.opacity * fadeOut;
-        const xOffset = Math.sin(w.sway) * w.swayAmp;
-        const expandedSize = w.size * (1 + progress * 1.5);
-
-        this.ctx.globalAlpha = alpha;
-        this.ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
-        this.ctx.beginPath();
-        this.ctx.arc(w.x + xOffset, w.y, expandedSize, 0, Math.PI * 2);
-        this.ctx.fill();
-
-        w.y += w.speedY;
-
-        if (w.life >= w.maxLife) {
-          this.wisps[i] = this.createWisp();
-        }
-      }
-      this.ctx.globalAlpha = 1;
+    // 2. Apply the composite mask to cut out the indoor shapes
+    if (this.maskImage.complete && this.maskImage.naturalWidth !== 0) {
+      this.ctx.globalCompositeOperation = 'destination-in';
+      this.ctx.drawImage(this.maskImage, 0, 0, this.canvas.width, this.canvas.height);
+      this.ctx.globalCompositeOperation = 'source-over';
     }
 
-    requestAnimationFrame(() => this.animate());
+    this.animationId = requestAnimationFrame(() => this.animate());
   }
 }

@@ -1324,154 +1324,98 @@ body {
   white-space: nowrap;
 }
 
-/* --- SCENE 3: Forest Cabin --- */
-
+/* --- SCENE 3: Greenhouse Sanctuary --- */
 #scene3-container {
   overflow: hidden;
 }
 
-.scene3-bg-layer {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  background-size: cover;
-  background-position: center;
-  pointer-events: none;
-  transition: opacity 0.5s ease-in-out;
-}
-
-.scene3-interior-layer {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  background-size: cover;
-  background-position: center;
-  pointer-events: none;
-  transition: opacity 0.5s ease-in-out;
-}
-
-#forest-day {
-  background-image: url('assets/images/scene3/forest_day.png');
-}
-
-#forest-night {
-  background-image: url('assets/images/scene3/forest_night.png');
-}
-
-#lamp-off {
-  background-image: url('assets/images/scene3/interior_lamp_off.png');
-}
-
-#lamp-on {
-  background-image: url('assets/images/scene3/interior_lamp_on.png');
-}
-
-/* --- SCENE 4: Train Window --- */
-
-#scene4-container {
-  overflow: hidden;
-}
-
-.sky-dome-layer {
+#scene3-container .scene-frame {
   position: absolute;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
+  width: 100vw;
+  height: 100vh;
   background-size: cover;
   background-position: center;
-  transition: opacity 0.6s ease-in-out;
-  pointer-events: none;
+  transition: opacity 0.8s ease-in-out;
 }
 
-#sky-dome-day {
-  background-image: url('assets/images/scene4/sky_dome_day.png');
+#scene-sunny {
+  z-index: 1;
+  background-image: url('assets/images/scene_greenhouse/scene_sunny.png');
+  opacity: 1;
 }
 
-#sky-dome-night {
-  background-image: url('assets/images/scene4/sky_dome_night.png');
+#scene-rainy {
+  z-index: 2;
+  background-image: url('assets/images/scene_greenhouse/scene_rainy.png');
+  opacity: 0;
 }
 
-.moving-scenery-layer {
+/* Precised window-pane clipped rain canvas */
+#scene3-container #rain-canvas {
+  z-index: 3;
   position: absolute;
   top: 0;
   left: 0;
-  width: 200vw; /* Double width for repeat scroll */
-  height: 100%;
-  background-repeat: repeat-x;
-  background-size: auto 100%;
-  transition: opacity 0.6s ease-in-out;
+  width: 100vw;
+  height: 100vh;
   pointer-events: none;
 }
 
-#mountain-scroll-day {
-  background-image: url('assets/images/scene4/distant_mountains_day.png');
-}
-
-#mountain-scroll-night {
-  background-image: url('assets/images/scene4/distant_mountains_night.png');
-}
-
-#forest-scroll-day {
-  background-image: url('assets/images/scene4/midground_forest_day.png');
-}
-
-#forest-scroll-night {
-  background-image: url('assets/images/scene4/midground_forest_night.png');
-}
-
-#utility-scroll {
-  background-image: url('assets/images/scene4/foreground_blur_elements.png');
-}
-
-.train-interior-layer {
+/* Digital Clock Styling */
+#clock-container {
+  z-index: 4;
   position: absolute;
-  top: 0;
-  left: 0;
+  top: 15%;
   width: 100%;
-  height: 100%;
-  background-size: cover;
-  background-position: center;
+  text-align: center;
   pointer-events: none;
-  transition: opacity 0.6s ease-in-out;
 }
 
-#interior-day {
-  background-image: url('assets/images/scene4/train_interior_day.png');
+#digital-clock {
+  font-size: 5.5rem;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: 0.12em;
+  text-shadow: 0 4px 12px rgba(0, 0, 0, 0.45), 0 12px 36px rgba(0, 0, 0, 0.25);
+  font-feature-settings: "tnum";
 }
 
-#interior-night {
-  background-image: url('assets/images/scene4/train_interior_night.png');
+/* Floating weather toggle controls */
+#toggle-weather-btn {
+  z-index: 10;
+  position: absolute;
+  bottom: 12%;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #ffffff;
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 50px;
+  padding: 13px 28px;
+  cursor: pointer;
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  letter-spacing: 0.02em;
+  pointer-events: auto;
 }
 
-#glass-glare {
-  background-image: url('assets/images/scene4/window_glass_glare.png');
-  background-size: cover;
-  background-position: center;
-  opacity: 0.15;
-  transition: opacity 0.6s ease-in-out;
+#toggle-weather-btn:hover {
+  background: rgba(255, 255, 255, 0.16);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  transform: translateX(-50%) translateY(-2px);
+  box-shadow: 0 12px 40px 0 rgba(255, 255, 255, 0.1);
 }
 
-/* Glass reflection glow pulsing in night mode */
-@keyframes glarePulse {
-  0% { opacity: 0.18; }
-  100% { opacity: 0.28; }
-}
-
-.glare-night-active {
-  animation: glarePulse 4s infinite alternate ease-in-out;
-}
-
-/* Multi-speed scrolling rules */
-@keyframes parallaxScroll {
-  0% { transform: translate3d(0, 0, 0); }
-  100% { transform: translate3d(-50%, 0, 0); }
-}
-
-.scroll-slow { animation: parallaxScroll 120s linear infinite; animation-play-state: paused; }
-.scroll-mid  { animation: parallaxScroll 45s linear infinite; animation-play-state: paused; }
-.scroll-fast { animation: parallaxScroll 4s linear infinite; animation-play-state: paused; }
-
-.parallax-anim-active {
-  animation-play-state: running !important;
+#toggle-weather-btn:active {
+  transform: translateX(-50%) translateY(1px);
 }
