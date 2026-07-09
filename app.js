@@ -48,7 +48,17 @@ let state = {
 
 // Audio Nodes/Context
 let audioContext = null;
-let musicAudio = null; // HTML5 Audio Element for track
+let musicAudio = {
+  src: "",
+  currentTime: 0,
+  duration: 180,
+  volume: 1,
+  play: async () => {},
+  pause: () => {},
+  load: () => {},
+  addEventListener: (event, callback) => {},
+  removeEventListener: () => {}
+};
 let musicSource = null;
 let soundscapeElements = {}; // Map of audio tags for soundscapes
 let soundscapeGainNodes = {}; // Volume nodes for soundscapes
@@ -532,54 +542,7 @@ function initMockRoom() {
 
 // --- AUDIO CONFIGURATION (WEB AUDIO API) ---
 function initAudio() {
-  audioContext = new (window.AudioContext || window.webkitAudioContext)();
-  
-  // Master Gain control
-  masterGainNode = audioContext.createGain();
-  masterGainNode.gain.setValueAtTime(0.7, audioContext.currentTime);
-  masterGainNode.connect(audioContext.destination);
-  
-  // Music Audio Element
-  musicAudio = new Audio();
-  musicAudio.crossOrigin = "anonymous";
-  musicAudio.loop = false; // We handle track ending to play next track
-  
-  musicSource = audioContext.createMediaElementSource(musicAudio);
-  musicSource.connect(masterGainNode);
-  
-  // Handle Track ending
-  musicAudio.addEventListener('ended', () => {
-    if (!USE_MOCK_MODE) {
-      const nextIndex = (state.currentTrackIndex + 1) % PLAYLISTS[state.currentVibe].length;
-      window.updateFirebaseRoomState({
-        currentTrackIndex: nextIndex,
-        trackStartTime: Date.now(),
-        isPlaying: true
-      });
-    } else {
-      playNextTrack();
-    }
-  });
-
-  // Keep progress bar updated
-  musicAudio.addEventListener('timeupdate', updateProgressBar);
-  
-  // Initialize Soundscape overlay audio loops
-  for (const soundName in SOUNDSCAPES) {
-    const audio = new Audio(SOUNDSCAPES[soundName]);
-    audio.crossOrigin = "anonymous";
-    audio.loop = true;
-    
-    const source = audioContext.createMediaElementSource(audio);
-    const gainNode = audioContext.createGain();
-    gainNode.gain.setValueAtTime(0, audioContext.currentTime);
-    
-    source.connect(gainNode);
-    gainNode.connect(masterGainNode);
-    
-    soundscapeElements[soundName] = audio;
-    soundscapeGainNodes[soundName] = gainNode;
-  }
+  console.log("Audio systems disabled at user request.");
 }
 
 function loadTrack(vibe, index) {
@@ -676,13 +639,15 @@ function adjustSoundscapeVolume(name, volume) {
   const audio = soundscapeElements[name];
   const gainNode = soundscapeGainNodes[name];
   
-  if (volume > 0) {
-    if (audio.paused) {
-      audio.play().catch(e => console.log("Audio play blocked until interaction"));
+  if (audio && gainNode) {
+    if (volume > 0) {
+      if (audio.paused) {
+        audio.play().catch(e => console.log("Audio play blocked until interaction"));
+      }
+      gainNode.gain.setTargetAtTime(volume, audioContext.currentTime, 0.1);
+    } else {
+      gainNode.gain.setTargetAtTime(0, audioContext.currentTime, 0.1);
     }
-    gainNode.gain.setTargetAtTime(volume, audioContext.currentTime, 0.1);
-  } else {
-    gainNode.gain.setTargetAtTime(0, audioContext.currentTime, 0.1);
   }
 
   // Trigger weather & lights visual mapping
