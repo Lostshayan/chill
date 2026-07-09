@@ -131,6 +131,7 @@ window.addEventListener('DOMContentLoaded', () => {
   setupInteractiveRoom();
   setupScene3();
   setupThemeSwitcher();
+  setupTvBezelControls();
   startClock();
   initParallax();
   window.blizzardEngine = new BlizzardEngine('blizzard-canvas');
@@ -312,6 +313,7 @@ function handleRoomSyncUpdate(roomData) {
       elBtnPlay.innerHTML = '<i class="fa-solid fa-play"></i>';
       if (elTrackIcon) elTrackIcon.style.animationPlayState = 'paused';
     }
+    updateTvPowerLed();
   }
 }
 
@@ -412,6 +414,7 @@ function togglePlay() {
       elBtnPlay.innerHTML = '<i class="fa-solid fa-play"></i>';
       if (elTrackIcon) elTrackIcon.style.animationPlayState = 'paused';
     }
+    updateTvPowerLed();
   }
 }
 
@@ -516,6 +519,7 @@ function toggleMute() {
 }
 
 function updateMuteIcon() {
+  if (!elBtnMute) return;
   if (isMuted) {
     elBtnMute.innerHTML = '<i class="fa-solid fa-volume-xmark"></i>';
   } else if (elSliderMaster.value < 0.35) {
@@ -677,11 +681,15 @@ elTodoForm.addEventListener('submit', (e) => {
 elBtnPlay.addEventListener('click', togglePlay);
 elBtnPrev.addEventListener('click', playPrevTrack);
 elBtnNext.addEventListener('click', playNextTrack);
-elBtnMute.addEventListener('click', toggleMute);
+if (elBtnMute) {
+  elBtnMute.addEventListener('click', toggleMute);
+}
 
-elSliderMaster.addEventListener('input', (e) => {
-  handleMasterVolume(parseFloat(e.target.value));
-});
+if (elSliderMaster) {
+  elSliderMaster.addEventListener('input', (e) => {
+    handleMasterVolume(parseFloat(e.target.value));
+  });
+}
 
 // Wire slider changes for soundscapes
 document.querySelectorAll('.mixer-item input').forEach(slider => {
@@ -835,6 +843,13 @@ function setupThemeSwitcher() {
 
 function switchTheme(themeId) {
   state.currentTheme = themeId;
+
+  // Sync retro TV knob angle
+  const tvChannelKnob = document.getElementById('tvChannelKnob');
+  if (tvChannelKnob) {
+    const angle = (themeId === 'scene2') ? -45 : 45;
+    tvChannelKnob.style.transform = `rotate(${angle}deg)`;
+  }
 
   // Toggle containers display
   if (elScene2) elScene2.style.display = (themeId === 'scene2') ? 'block' : 'none';
@@ -1189,3 +1204,121 @@ function drawRoomForeground() {
 window.addEventListener('resize', () => {
   drawRoomForeground();
 });
+
+// --- RETRO TV BEZEL CONTROLS INTERACTIVE HANDLERS ---
+function updateTvPowerLed() {
+  const elTvPowerLed = document.getElementById('tvPowerLed');
+  if (elTvPowerLed) {
+    if (state.isPlaying) {
+      elTvPowerLed.classList.add('glow-red');
+    } else {
+      elTvPowerLed.classList.remove('glow-red');
+    }
+  }
+}
+
+function setupTvBezelControls() {
+  const tvVolumeKnob = document.getElementById('tvVolumeKnob');
+  const tvChannelKnob = document.getElementById('tvChannelKnob');
+  const tvWeatherSwitch = document.getElementById('tvWeatherSwitch');
+
+  // Initial power LED state
+  updateTvPowerLed();
+
+  // 1. Volume Knob Rotation Cycles (Linear Step volume control)
+  const volLevels = [0.0, 0.25, 0.5, 0.75, 1.0];
+  const volAngles = [-120, -60, 0, 60, 120];
+  let currentVolIndex = 3; // start at 75% volume
+
+  if (elSliderMaster) {
+    const initVol = parseFloat(elSliderMaster.value);
+    let closestIdx = 2;
+    let minDiff = 100;
+    for (let i = 0; i < volLevels.length; i++) {
+      let diff = Math.abs(volLevels[i] - initVol);
+      if (diff < minDiff) {
+        minDiff = diff;
+        closestIdx = i;
+      }
+    }
+    currentVolIndex = closestIdx;
+    if (tvVolumeKnob) {
+      tvVolumeKnob.style.transform = `rotate(${volAngles[currentVolIndex]}deg)`;
+    }
+  }
+
+  if (tvVolumeKnob) {
+    tvVolumeKnob.addEventListener('click', () => {
+      currentVolIndex = (currentVolIndex + 1) % volLevels.length;
+      tvVolumeKnob.style.transform = `rotate(${volAngles[currentVolIndex]}deg)`;
+      
+      const targetVol = volLevels[currentVolIndex];
+      if (elSliderMaster) {
+        elSliderMaster.value = targetVol;
+      }
+      handleMasterVolume(targetVol);
+      
+      isMuted = (targetVol === 0);
+      updateMuteIcon();
+    });
+  }
+
+  // 2. Channel Switcher Knob Rotation Cycles (Switch Themes)
+  if (tvChannelKnob) {
+    const initialAngle = (state.currentTheme === 'scene2') ? -45 : 45;
+    tvChannelKnob.style.transform = `rotate(${initialAngle}deg)`;
+
+    tvChannelKnob.addEventListener('click', () => {
+      const nextTheme = (state.currentTheme === 'scene2') ? 'scene3' : 'scene2';
+      switchTheme(nextTheme);
+
+      document.querySelectorAll('.theme-card').forEach(card => {
+        if (card.dataset.theme === nextTheme) {
+          card.classList.add('active');
+        } else {
+          card.classList.remove('active');
+        }
+      });
+    });
+  }
+
+  // 3. Weather Toggle Switch (Slides up and down)
+  if (tvWeatherSwitch) {
+    // Initial switch position
+    if (state.isRainActive) {
+      tvWeatherSwitch.classList.add('switch-up');
+    } else {
+      tvWeatherSwitch.classList.remove('switch-up');
+    }
+
+    tvWeatherSwitch.addEventListener('click', () => {
+      state.isRainActive = !state.isRainActive;
+      
+      if (state.isRainActive) {
+        tvWeatherSwitch.classList.add('switch-up');
+      } else {
+        tvWeatherSwitch.classList.remove('switch-up');
+      }
+
+      // Sync active weather states
+      if (state.currentTheme === 'scene3') {
+        if (elForestRainy) elForestRainy.style.opacity = state.isRainActive ? '1' : '0';
+        if (window.greenhouseRainEngine) {
+          if (state.isRainActive) window.greenhouseRainEngine.start();
+          else window.greenhouseRainEngine.stop();
+        }
+      } else if (state.currentTheme === 'scene2') {
+        state.isBlizzardActive = state.isRainActive;
+        if (window.blizzardEngine) {
+          if (state.isBlizzardActive) window.blizzardEngine.start();
+          else window.blizzardEngine.stop();
+        }
+        const fogBg = document.getElementById('bg-mountains');
+        if (fogBg) {
+          if (state.isBlizzardActive) fogBg.classList.add('blizzard-fog');
+          else fogBg.classList.remove('blizzard-fog');
+        }
+      }
+    });
+  }
+}

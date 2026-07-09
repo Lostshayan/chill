@@ -1431,3 +1431,336 @@ body {
 #toggle-weather-btn:active {
   transform: translateX(-50%) translateY(1px);
 }
+
+/* --- RETRO TELEVISION SET HOUSED VIEWPORT --- */
+#tv-set {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #2e2620 0%, #15100d 100%); /* Walnut wood grain finish vibe */
+  border: 12px solid #3c322b;
+  border-radius: 20px;
+  box-shadow: 
+    inset 0 0 20px rgba(0, 0, 0, 0.9),
+    0 25px 60px rgba(0, 0, 0, 0.95),
+    0 0 100px rgba(0, 0, 0, 0.4);
+  padding: 18px 18px 0 18px;
+  box-sizing: border-box;
+  width: 94vw;
+  max-width: 1100px;
+  margin: auto;
+  position: relative;
+  border-bottom: 24px solid #1a1512; /* Sturdier wood base */
+}
+
+/* Screen bezel overlay frame */
+.tv-screen-bezel {
+  width: 100%;
+  background: #121214;
+  border: 16px solid #232328; /* Thick retro dark plastic bezel */
+  border-radius: 12px;
+  box-shadow: 
+    inset 0 6px 12px rgba(0, 0, 0, 0.8),
+    inset 0 -6px 12px rgba(255, 255, 255, 0.05);
+  box-sizing: border-box;
+  overflow: hidden;
+  position: relative;
+}
+
+/* Constrained room container inside the bezel */
+.room-container {
+  width: 100% !important;
+  height: auto !important;
+  aspect-ratio: 16/9;
+  border-radius: 0 !important; /* Screen matches the bezel edges */
+  box-shadow: none !important;
+}
+
+/* CRT Screen overlay: scanlines, phosphor mask, glass glare */
+.crt-screen-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 100;
+  /* Scanline gradient + vignette */
+  background: 
+    radial-gradient(circle, rgba(255,255,255,0.08) 0%, rgba(0,0,0,0.35) 100%),
+    linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.22) 50%);
+  background-size: 100% 100%, 100% 4px;
+  opacity: 0.85;
+  box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.95); /* Deep screen boundary border shadow */
+}
+
+/* Simulated glare reflection across the screen */
+.crt-screen-overlay::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 200%;
+  height: 100%;
+  background: linear-gradient(35deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0) 30%);
+  transform: translateX(-50%);
+}
+
+/* TV Bezel Control Panel (Bottom) */
+.tv-control-panel {
+  width: 100%;
+  height: 90px;
+  background: linear-gradient(180deg, #1c1c20 0%, #101012 100%);
+  border-top: 6px solid #2d2d35;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  border-radius: 0 0 8px 8px;
+  color: #c9c5bc;
+}
+
+/* Retro Speaker Grille */
+.tv-speaker {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 55px;
+  width: 120px;
+  opacity: 0.65;
+}
+
+.grille-line {
+  height: 3px;
+  width: 100%;
+  background: #000;
+  border-radius: 2px;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+/* Bezel Controls Middle Group */
+.tv-knobs-group {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+}
+
+/* LED Digital Track Screen on bezel */
+.tv-screen-display {
+  background: #09090b;
+  border: 2px solid #232328;
+  border-radius: 4px;
+  width: 180px;
+  height: 48px;
+  padding: 6px 12px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  font-family: monospace;
+  box-shadow: inset 0 0 10px rgba(255, 0, 0, 0.2);
+}
+
+.tv-led-text {
+  color: #ff3333; /* Neon Red LED text */
+  font-size: 0.75rem;
+  font-weight: bold;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  letter-spacing: 0.05em;
+  text-shadow: 0 0 6px rgba(255, 51, 51, 0.8);
+}
+
+.tv-led-subtext {
+  color: #ff3333;
+  font-size: 0.6rem;
+  opacity: 0.7;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-shadow: 0 0 4px rgba(255, 51, 51, 0.5);
+}
+
+/* Bezel push buttons */
+.tv-push-buttons {
+  display: flex;
+  gap: 12px;
+}
+
+.tv-push-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #7a7a7a 0%, #3a3a3a 100%);
+  border: 1px solid #1c1c1c;
+  box-shadow: 
+    0 3px 0 #181818,
+    inset 0 1px 0 rgba(255,255,255,0.2),
+    0 4px 6px rgba(0,0,0,0.5);
+  color: #d1d1d1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  transition: all 0.1s ease;
+}
+
+.tv-push-btn:active {
+  transform: translateY(2px);
+  box-shadow: 
+    0 1px 0 #181818,
+    inset 0 1px 2px rgba(0,0,0,0.5);
+}
+
+/* Volume and Channel Knobs */
+.tv-knob-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.tv-knob-label {
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: #8a8880;
+  text-shadow: 0 -1px 0 #000;
+}
+
+.tv-knob {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #555 40%, #282828 100%);
+  border: 3px solid #1c1c20;
+  box-shadow: 
+    0 4px 8px rgba(0,0,0,0.6),
+    inset 0 1px 0 rgba(255,255,255,0.15);
+  position: relative;
+  cursor: pointer;
+  transition: transform 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.knob-marker {
+  width: 3px;
+  height: 12px;
+  background: #e2dfd5;
+  position: absolute;
+  top: 3px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-radius: 1px;
+}
+
+/* Bezel Switch and indicators group (Right) */
+.tv-right-group {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+}
+
+/* Toggle Switch */
+.tv-switch-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.tv-switch-label {
+  font-size: 0.55rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: #8a8880;
+}
+
+.tv-toggle-switch {
+  width: 16px;
+  height: 36px;
+  background: #09090b;
+  border-radius: 4px;
+  border: 2px solid #232328;
+  position: relative;
+  cursor: pointer;
+}
+
+.switch-handle {
+  width: 10px;
+  height: 14px;
+  background: linear-gradient(90deg, #b5b5b5, #757575);
+  border: 1px solid #1f1f1f;
+  border-radius: 2px;
+  position: absolute;
+  left: 1px;
+  top: 18px; /* Default (Down) */
+  box-shadow: 0 2px 4px rgba(0,0,0,0.4);
+  transition: top 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* Switch active state (up position) */
+.tv-toggle-switch.switch-up .switch-handle {
+  top: 1px;
+}
+
+/* Power Indicator LED */
+.tv-led-indicator {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #330000;
+  border: 1px solid #121212;
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.8);
+  transition: all 0.3s ease;
+}
+
+.tv-led-indicator.glow-red {
+  background: #ff3333;
+  box-shadow: 
+    0 0 12px #ff3333,
+    inset 0 1px 0 rgba(255,255,255,0.4);
+}
+
+/* Extra small utility buttons on bezel */
+.tv-buttons-extra {
+  display: flex;
+  gap: 8px;
+}
+
+.tv-small-btn {
+  width: 28px;
+  height: 28px;
+  background: #232328;
+  border: 1px solid #121212;
+  border-radius: 4px;
+  color: #a8a8af;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  box-shadow: 
+    0 2px 0 #0f0f10,
+    inset 0 1px 0 rgba(255,255,255,0.05);
+  transition: all 0.1s ease;
+}
+
+.tv-small-btn:active {
+  transform: translateY(1px);
+  box-shadow: 
+    0 1px 0 #0f0f10,
+    inset 0 1px 1px rgba(0,0,0,0.5);
+}
+
+/* Align panels and other overlays relative to TV bezel limits if needed */
+body {
+  background-color: #0c0b0e !important;
+}
+
+.top-center-overlay {
+  top: 2% !important;
+}
