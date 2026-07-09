@@ -1479,6 +1479,7 @@ body {
 
 /* CRT Screen overlay: scanlines, phosphor mask, glass glare */
 .crt-screen-overlay {
+  display: none;
   position: absolute;
   top: 0;
   left: 0;

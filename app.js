@@ -857,7 +857,10 @@ function switchTheme(themeId) {
 
   // Manage Blizzard engine
   if (themeId === 'scene2') {
-    if (window.blizzardEngine) window.blizzardEngine.start();
+    if (window.blizzardEngine) {
+      window.blizzardEngine.resize();
+      window.blizzardEngine.start();
+    }
   } else {
     if (window.blizzardEngine) window.blizzardEngine.stop();
   }
@@ -867,6 +870,8 @@ function switchTheme(themeId) {
     if (!window.greenhouseRainEngine) {
       window.greenhouseRainEngine = new BoundedRainEngine('rain-canvas');
     }
+    window.greenhouseRainEngine.resize();
+    drawRoomForeground();
     if (state.isRainActive) {
       window.greenhouseRainEngine.start();
     } else {
@@ -1309,16 +1314,23 @@ function setupTvBezelControls() {
         }
       } else if (state.currentTheme === 'scene2') {
         state.isBlizzardActive = state.isRainActive;
-        if (window.blizzardEngine) {
-          if (state.isBlizzardActive) window.blizzardEngine.start();
-          else window.blizzardEngine.stop();
-        }
         const fogBg = document.getElementById('bg-mountains');
         if (fogBg) {
           if (state.isBlizzardActive) fogBg.classList.add('blizzard-fog');
           else fogBg.classList.remove('blizzard-fog');
         }
+        if (window.blizzardEngine) {
+          if (state.isBlizzardActive) window.blizzardEngine.activateBlizzard();
+          else window.blizzardEngine.deactivateBlizzard();
+        }
       }
     });
   }
 }
+
+// Trigger initial canvas resizes once the layout is fully rendered on window load
+window.addEventListener('load', () => {
+  if (window.blizzardEngine) window.blizzardEngine.resize();
+  if (window.greenhouseRainEngine) window.greenhouseRainEngine.resize();
+  drawRoomForeground();
+});
