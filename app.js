@@ -126,6 +126,204 @@ const elTodoForm = document.getElementById('todoForm');
 const elTodoInput = document.getElementById('todoInput');
 const elTodoList = document.getElementById('todoList');
 
+// --- RETRO ENGINE CLASSES (Hoisted to avoid TDZ errors) ---
+
+class BlizzardEngine {
+  constructor(canvasId) {
+    this.canvas = document.getElementById(canvasId);
+    if (!this.canvas) return;
+    this.ctx = this.canvas.getContext('2d');
+    this.particles = [];
+    this.numParticles = 35;
+    this.wind = 0.2;
+    this.isActive = false;
+    this.running = true;
+    this.resize();
+    window.addEventListener('resize', () => this.resize());
+    this.init();
+    this.animate();
+  }
+
+  resize() {
+    const container = document.getElementById('roomContainer');
+    if (container) {
+      this.width = container.clientWidth;
+      this.height = container.clientHeight;
+    } else {
+      this.width = window.innerWidth;
+      this.height = window.innerHeight;
+    }
+    this.canvas.width = this.width;
+    this.canvas.height = this.height;
+  }
+
+  init() {
+    this.particles = [];
+    for (let i = 0; i < this.numParticles; i++) {
+      this.particles.push(this.createParticle());
+    }
+  }
+
+  createParticle() {
+    if (this.isActive) {
+      return {
+        x: Math.random() * this.width,
+        y: Math.random() * this.height,
+        size: Math.random() * 2 + 1,
+        speedY: Math.random() * 4 + 4,
+        speedX: Math.random() * 5 + 5,
+        opacity: Math.random() * 0.5 + 0.3
+      };
+    } else {
+      return {
+        x: Math.random() * this.width,
+        y: Math.random() * this.height,
+        size: Math.random() * 2 + 1,
+        speedY: Math.random() * 1 + 0.5,
+        speedX: Math.random() * 0.5 - 0.25,
+        opacity: Math.random() * 0.5 + 0.3
+      };
+    }
+  }
+
+  activateBlizzard() {
+    this.isActive = true;
+    this.numParticles = 500;
+    this.wind = 8;
+    this.init();
+  }
+
+  deactivateBlizzard() {
+    this.isActive = false;
+    this.numParticles = 35;
+    this.wind = 0.2;
+    this.init();
+  }
+
+  stop() { this.running = false; }
+  start() {
+    if (!this.running) {
+      this.running = true;
+      this.animate();
+    }
+  }
+
+  animate() {
+    if (!this.running) return;
+    this.ctx.clearRect(0, 0, this.width, this.height);
+    this.ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+    for (let p of this.particles) {
+      this.ctx.globalAlpha = p.opacity;
+      this.ctx.beginPath();
+      this.ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+      this.ctx.fill();
+      p.y += p.speedY;
+      p.x += p.speedX + this.wind;
+      if (p.y > this.height) { p.y = -10; p.x = Math.random() * this.width; }
+      if (p.x > this.width) { p.x = -10; p.y = Math.random() * this.height; }
+      else if (p.x < -10) { p.x = this.width + 10; p.y = Math.random() * this.height; }
+    }
+    requestAnimationFrame(() => this.animate());
+  }
+}
+
+class BoundedRainEngine {
+  constructor(canvasId) {
+    this.canvas = document.getElementById(canvasId);
+    if (!this.canvas) return;
+    this.ctx = this.canvas.getContext('2d');
+    this.particles = [];
+    this.numParticles = 180;
+    this.active = false;
+    this.animationId = null;
+    
+    this.resize();
+    window.addEventListener('resize', () => this.resize());
+    this.init();
+  }
+
+  resize() {
+    const container = document.getElementById('roomContainer');
+    if (container) {
+      this.canvas.width = container.clientWidth;
+      this.canvas.height = container.clientHeight;
+    } else {
+      this.canvas.width = window.innerWidth;
+      this.canvas.height = window.innerHeight;
+    }
+  }
+
+  init() {
+    this.particles = [];
+    for (let i = 0; i < this.numParticles; i++) {
+      this.particles.push(this.createParticle(true));
+    }
+  }
+
+  createParticle(randomY = false) {
+    const w = this.canvas.width;
+    const h = this.canvas.height;
+    return {
+      x: Math.random() * w,
+      y: randomY ? Math.random() * h : -25,
+      length: Math.random() * 25 + 18,
+      speed: Math.random() * 14 + 14,
+      opacity: Math.random() * 0.16 + 0.08,
+      wind: Math.random() * 2.5 + 1.5
+    };
+  }
+
+  start() {
+    if (this.active) return;
+    this.active = true;
+    this.animate();
+  }
+
+  stop() {
+    this.active = false;
+    if (this.animationId) {
+      cancelAnimationFrame(this.animationId);
+      this.animationId = null;
+    }
+    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+  }
+
+  animate() {
+    if (!this.active) return;
+    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+    // 1. Draw the active rain particles moving diagonally
+    for (let p of this.particles) {
+      this.ctx.strokeStyle = `rgba(174, 219, 255, ${p.opacity})`;
+      this.ctx.lineWidth = 1.3;
+      this.ctx.beginPath();
+      this.ctx.moveTo(p.x, p.y);
+      this.ctx.lineTo(p.x + p.wind, p.y + p.length);
+      this.ctx.stroke();
+
+      p.y += p.speed;
+      p.x += p.wind;
+
+      if (p.y > this.canvas.height) {
+        Object.assign(p, this.createParticle(false));
+      }
+    }
+
+    // 2. Apply the composite mask to cut out the indoor shapes
+    if (window.rainMaskCanvas) {
+      this.ctx.globalCompositeOperation = 'destination-in';
+      drawCoverImage(this.ctx, window.rainMaskCanvas, this.canvas.width, this.canvas.height);
+      this.ctx.globalCompositeOperation = 'source-over';
+    }
+
+    this.animationId = requestAnimationFrame(() => this.animate());
+  }
+}
+
+let roomForegroundProcessed = false;
+window.foregroundRoomCanvas = null;
+window.rainMaskCanvas = null;
+
 // Initialize interface on launch
 window.addEventListener('DOMContentLoaded', () => {
   setupInteractiveRoom();
@@ -587,10 +785,10 @@ function updateVibeButtonsUI() {
 function updateProgressBar() {
   if (!musicAudio.duration) return;
   const percent = (musicAudio.currentTime / musicAudio.duration) * 100;
-  elProgressBar.style.width = `${percent}%`;
+  if (elProgressBar) elProgressBar.style.width = `${percent}%`;
   
-  elTimeCurrent.textContent = formatTime(musicAudio.currentTime);
-  elTimeDuration.textContent = formatTime(musicAudio.duration);
+  if (elTimeCurrent) elTimeCurrent.textContent = formatTime(musicAudio.currentTime);
+  if (elTimeDuration) elTimeDuration.textContent = formatTime(musicAudio.duration);
 }
 
 function formatTime(seconds) {
@@ -742,20 +940,22 @@ document.querySelectorAll('.vibe-btn').forEach(btn => {
 });
 
 // Audio Progress Seek
-elProgressContainer.addEventListener('click', (e) => {
-  if (!musicAudio.duration) return;
-  const rect = elProgressContainer.getBoundingClientRect();
-  const percentage = (e.clientX - rect.left) / rect.width;
-  const seekTime = percentage * musicAudio.duration;
-  
-  if (!USE_MOCK_MODE) {
-    window.updateFirebaseRoomState({
-      trackStartTime: Date.now() - (seekTime * 1000)
-    });
-  } else {
-    musicAudio.currentTime = seekTime;
-  }
-});
+if (elProgressContainer) {
+  elProgressContainer.addEventListener('click', (e) => {
+    if (!musicAudio.duration) return;
+    const rect = elProgressContainer.getBoundingClientRect();
+    const percentage = (e.clientX - rect.left) / rect.width;
+    const seekTime = percentage * musicAudio.duration;
+    
+    if (!USE_MOCK_MODE) {
+      window.updateFirebaseRoomState({
+        trackStartTime: Date.now() - (seekTime * 1000)
+      });
+    } else {
+      musicAudio.currentTime = seekTime;
+    }
+  });
+}
 
 // Digital Clock Logic
 function startClock() {
@@ -913,198 +1113,7 @@ function setupScene3() {
   }
 }
 
-// --- BLIZZARD ENGINE (Scene 2) ---
-class BlizzardEngine {
-  constructor(canvasId) {
-    this.canvas = document.getElementById(canvasId);
-    if (!this.canvas) return;
-    this.ctx = this.canvas.getContext('2d');
-    this.particles = [];
-    this.numParticles = 35;
-    this.wind = 0.2;
-    this.isActive = false;
-    this.running = true;
-    this.resize();
-    window.addEventListener('resize', () => this.resize());
-    this.init();
-    this.animate();
-  }
-
-  resize() {
-    this.width = window.innerWidth;
-    this.height = window.innerHeight;
-    this.canvas.width = this.width;
-    this.canvas.height = this.height;
-  }
-
-  init() {
-    this.particles = [];
-    for (let i = 0; i < this.numParticles; i++) {
-      this.particles.push(this.createParticle());
-    }
-  }
-
-  createParticle() {
-    if (this.isActive) {
-      return {
-        x: Math.random() * this.width,
-        y: Math.random() * this.height,
-        size: Math.random() * 2 + 1,
-        speedY: Math.random() * 4 + 4,
-        speedX: Math.random() * 5 + 5,
-        opacity: Math.random() * 0.5 + 0.3
-      };
-    } else {
-      return {
-        x: Math.random() * this.width,
-        y: Math.random() * this.height,
-        size: Math.random() * 2 + 1,
-        speedY: Math.random() * 1 + 0.5,
-        speedX: Math.random() * 0.5 - 0.25,
-        opacity: Math.random() * 0.5 + 0.3
-      };
-    }
-  }
-
-  activateBlizzard() {
-    this.isActive = true;
-    this.numParticles = 500;
-    this.wind = 8;
-    this.init();
-  }
-
-  deactivateBlizzard() {
-    this.isActive = false;
-    this.numParticles = 35;
-    this.wind = 0.2;
-    this.init();
-  }
-
-  stop() { this.running = false; }
-  start() {
-    if (!this.running) {
-      this.running = true;
-      this.animate();
-    }
-  }
-
-  animate() {
-    if (!this.running) return;
-    this.ctx.clearRect(0, 0, this.width, this.height);
-    this.ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
-    for (let p of this.particles) {
-      this.ctx.globalAlpha = p.opacity;
-      this.ctx.beginPath();
-      this.ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-      this.ctx.fill();
-      p.y += p.speedY;
-      p.x += p.speedX + this.wind;
-      if (p.y > this.height) { p.y = -10; p.x = Math.random() * this.width; }
-      if (p.x > this.width) { p.x = -10; p.y = Math.random() * this.height; }
-      else if (p.x < -10) { p.x = this.width + 10; p.y = Math.random() * this.height; }
-    }
-    requestAnimationFrame(() => this.animate());
-  }
-}
-
-// --- BOUNDED RAIN ENGINE (Scene 3: Greenhouse) ---
-class BoundedRainEngine {
-  constructor(canvasId) {
-    this.canvas = document.getElementById(canvasId);
-    if (!this.canvas) return;
-    this.ctx = this.canvas.getContext('2d');
-    this.particles = [];
-    this.numParticles = 180;
-    this.active = false;
-    this.animationId = null;
-    
-    this.resize();
-    window.addEventListener('resize', () => this.resize());
-    this.init();
-  }
-
-  resize() {
-    const container = document.getElementById('roomContainer');
-    if (container) {
-      this.canvas.width = container.clientWidth;
-      this.canvas.height = container.clientHeight;
-    } else {
-      this.canvas.width = window.innerWidth;
-      this.canvas.height = window.innerHeight;
-    }
-  }
-
-  init() {
-    this.particles = [];
-    for (let i = 0; i < this.numParticles; i++) {
-      this.particles.push(this.createParticle(true));
-    }
-  }
-
-  createParticle(randomY = false) {
-    const w = this.canvas.width;
-    const h = this.canvas.height;
-    return {
-      x: Math.random() * w,
-      y: randomY ? Math.random() * h : -25,
-      length: Math.random() * 25 + 18,
-      speed: Math.random() * 14 + 14,
-      opacity: Math.random() * 0.16 + 0.08,
-      wind: Math.random() * 2.5 + 1.5
-    };
-  }
-
-  start() {
-    if (this.active) return;
-    this.active = true;
-    this.animate();
-  }
-
-  stop() {
-    this.active = false;
-    if (this.animationId) {
-      cancelAnimationFrame(this.animationId);
-      this.animationId = null;
-    }
-    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-  }
-
-  animate() {
-    if (!this.active) return;
-    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-
-    // 1. Draw the active rain particles moving diagonally
-    for (let p of this.particles) {
-      this.ctx.strokeStyle = `rgba(174, 219, 255, ${p.opacity})`;
-      this.ctx.lineWidth = 1.3;
-      this.ctx.beginPath();
-      this.ctx.moveTo(p.x, p.y);
-      this.ctx.lineTo(p.x + p.wind, p.y + p.length);
-      this.ctx.stroke();
-
-      p.y += p.speed;
-      p.x += p.wind;
-
-      if (p.y > this.canvas.height) {
-        Object.assign(p, this.createParticle(false));
-      }
-    }
-
-    // 2. Apply the composite mask to cut out the indoor shapes
-    if (window.rainMaskCanvas) {
-      this.ctx.globalCompositeOperation = 'destination-in';
-      drawCoverImage(this.ctx, window.rainMaskCanvas, this.canvas.width, this.canvas.height);
-      this.ctx.globalCompositeOperation = 'source-over';
-    }
-
-    this.animationId = requestAnimationFrame(() => this.animate());
-  }
-}
-
-// --- CHROMACUT MASKING & CANVAS COMPOSITING HELPER FUNCTIONS ---
-let roomForegroundProcessed = false;
-window.foregroundRoomCanvas = null;
-window.rainMaskCanvas = null;
+// Engines classes and composting globals moved to the top of the file to prevent Temporal Dead Zone errors.
 
 function processGreenScreen() {
   const img = new Image();
