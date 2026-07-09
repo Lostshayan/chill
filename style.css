@@ -1337,24 +1337,34 @@ body {
   height: 100vh;
   background-size: cover;
   background-position: center;
-  transition: opacity 0.8s ease-in-out;
+  transition: opacity 0.5s ease-in-out;
 }
 
-#scene-sunny {
+#forest-sunny {
   z-index: 1;
-  background-image: url('assets/images/scene_greenhouse/scene_sunny.png');
+  background-image: url('assets/images/scene_greenhouse/forest_sunny.png');
   opacity: 1;
 }
 
-#scene-rainy {
+#forest-rainy {
   z-index: 2;
-  background-image: url('assets/images/scene_greenhouse/scene_rainy.png');
+  background-image: url('assets/images/scene_greenhouse/forest_rainy.png');
   opacity: 0;
 }
 
-/* Precised window-pane clipped rain canvas */
+/* Rain Engine Canvas (drawing behind room interior) */
 #scene3-container #rain-canvas {
   z-index: 3;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+}
+
+#room-foreground-layer {
+  z-index: 4;
   position: absolute;
   top: 0;
   left: 0;

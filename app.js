@@ -93,8 +93,9 @@ const elFgCabinOn = document.getElementById('foreground-cabin-on');
 // Scene 3 Elements (Greenhouse Sanctuary)
 const elScene2 = document.getElementById('scene2-container');
 const elScene3 = document.getElementById('scene3-container');
-const elSceneSunny = document.getElementById('scene-sunny');
-const elSceneRainy = document.getElementById('scene-rainy');
+const elForestSunny = document.getElementById('forest-sunny');
+const elForestRainy = document.getElementById('forest-rainy');
+const elRoomForegroundLayer = document.getElementById('room-foreground-layer');
 const elToggleWeatherBtn = document.getElementById('toggle-weather-btn');
 
 const elRoomNameDisplay = document.getElementById('roomNameDisplay');
@@ -863,18 +864,21 @@ function switchTheme(themeId) {
 
 // --- SCENE 3 SETUP (Greenhouse Sanctuary) ---
 function setupScene3() {
-  if (elToggleWeatherBtn && elSceneRainy) {
+  // Start chromakey loading and processing
+  processGreenScreen();
+
+  if (elToggleWeatherBtn && elForestRainy) {
     elToggleWeatherBtn.addEventListener('click', () => {
       state.isRainActive = !state.isRainActive;
       
       if (state.isRainActive) {
-        elSceneRainy.style.opacity = '1';
+        elForestRainy.style.opacity = '1';
         if (window.greenhouseRainEngine) {
           window.greenhouseRainEngine.start();
         }
         elToggleWeatherBtn.innerHTML = '<i class="fa-solid fa-cloud-showers-water"></i> Rainy Mode';
       } else {
-        elSceneRainy.style.opacity = '0';
+        elForestRainy.style.opacity = '0';
         if (window.greenhouseRainEngine) {
           window.greenhouseRainEngine.stop();
         }
@@ -886,23 +890,6 @@ function setupScene3() {
   // Set initial text
   if (elToggleWeatherBtn) {
     elToggleWeatherBtn.innerHTML = '<i class="fa-solid fa-cloud-sun"></i> Sunny Mode';
-  }
-
-  // Update Scene 3 local clock
-  const greenhouseClock = document.getElementById('digital-clock');
-  if (greenhouseClock) {
-    function updateGreenhouseTime() {
-      const now = new Date();
-      let hours = now.getHours();
-      let minutes = now.getMinutes();
-      const ampm = hours >= 12 ? 'PM' : 'AM';
-      hours = hours % 12;
-      hours = hours ? hours : 12;
-      minutes = minutes < 10 ? '0' + minutes : minutes;
-      greenhouseClock.textContent = `${hours}:${minutes} ${ampm}`;
-    }
-    updateGreenhouseTime();
-    setInterval(updateGreenhouseTime, 1000);
   }
 }
 
@@ -1011,9 +998,6 @@ class BoundedRainEngine {
     this.active = false;
     this.animationId = null;
     
-    this.maskImage = new Image();
-    this.maskImage.src = 'assets/images/scene_greenhouse/interior_mask.png';
-    
     this.resize();
     window.addEventListener('resize', () => this.resize());
     this.init();
@@ -1081,12 +1065,119 @@ class BoundedRainEngine {
     }
 
     // 2. Apply the composite mask to cut out the indoor shapes
-    if (this.maskImage.complete && this.maskImage.naturalWidth !== 0) {
+    if (window.rainMaskCanvas) {
       this.ctx.globalCompositeOperation = 'destination-in';
-      this.ctx.drawImage(this.maskImage, 0, 0, this.canvas.width, this.canvas.height);
+      drawCoverImage(this.ctx, window.rainMaskCanvas, this.canvas.width, this.canvas.height);
       this.ctx.globalCompositeOperation = 'source-over';
     }
 
     this.animationId = requestAnimationFrame(() => this.animate());
   }
 }
+
+// --- CHROMACUT MASKING & CANVAS COMPOSITING HELPER FUNCTIONS ---
+let roomForegroundProcessed = false;
+window.foregroundRoomCanvas = null;
+window.rainMaskCanvas = null;
+
+function processGreenScreen() {
+  const img = new Image();
+  img.onload = () => {
+    const w = img.naturalWidth;
+    const h = img.naturalHeight;
+
+    // 1. Process Foreground layer (remove green)
+    window.foregroundRoomCanvas = document.createElement('canvas');
+    window.foregroundRoomCanvas.width = w;
+    window.foregroundRoomCanvas.height = h;
+    const fgCtx = window.foregroundRoomCanvas.getContext('2d');
+    fgCtx.drawImage(img, 0, 0);
+
+    const fgImgData = fgCtx.getImageData(0, 0, w, h);
+    const fgData = fgImgData.data;
+
+    // 2. Process Rain Mask layer (green becomes solid, non-green transparent)
+    window.rainMaskCanvas = document.createElement('canvas');
+    window.rainMaskCanvas.width = w;
+    window.rainMaskCanvas.height = h;
+    const maskCtx = window.rainMaskCanvas.getContext('2d');
+    const maskImgData = maskCtx.createImageData(w, h);
+    const maskData = maskImgData.data;
+
+    for (let i = 0; i < fgData.length; i += 4) {
+      const r = fgData[i];
+      const g = fgData[i + 1];
+      const b = fgData[i + 2];
+
+      // Chrome-Green: R around 0, G near 255, B around 0.
+      // Tolerance buffer ±30: R <= 30, G >= 225, B <= 30.
+      // We also check green dominance to clean up fuzzy leaf edges where light bleeds.
+      const isGreen = (r <= 60 && g >= 160 && b <= 60) || (g > 100 && g > r * 1.4 && g > b * 1.4);
+
+      if (isGreen) {
+        // Clear from room foreground
+        fgData[i + 3] = 0;
+
+        // Make solid white in rain mask
+        maskData[i] = 255;
+        maskData[i + 1] = 255;
+        maskData[i + 2] = 255;
+        maskData[i + 3] = 255;
+      } else {
+        // Keep original room foreground pixel
+        // Make transparent in rain mask
+        maskData[i] = 0;
+        maskData[i + 1] = 0;
+        maskData[i + 2] = 0;
+        maskData[i + 3] = 0;
+      }
+    }
+
+    fgCtx.putImageData(fgImgData, 0, 0);
+    maskCtx.putImageData(maskImgData, 0, 0);
+
+    roomForegroundProcessed = true;
+    drawRoomForeground();
+  };
+  img.src = 'assets/images/scene_greenhouse/room_green_screen.png';
+}
+
+function drawCoverImage(ctx, source, targetW, targetH) {
+  const srcW = source.width;
+  const srcH = source.height;
+  const srcRatio = srcW / srcH;
+  const targetRatio = targetW / targetH;
+
+  let sx, sy, sw, sh;
+  if (targetRatio > srcRatio) {
+    sw = srcW;
+    sh = srcW / targetRatio;
+    sx = 0;
+    sy = (srcH - sh) / 2;
+  } else {
+    sw = srcH * targetRatio;
+    sh = srcH;
+    sx = (srcW - sw) / 2;
+    sy = 0;
+  }
+
+  ctx.drawImage(source, sx, sy, sw, sh, 0, 0, targetW, targetH);
+}
+
+function drawRoomForeground() {
+  if (!roomForegroundProcessed || !window.foregroundRoomCanvas) return;
+  const canvas = document.getElementById('room-foreground-layer');
+  if (!canvas) return;
+
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  drawCoverImage(ctx, window.foregroundRoomCanvas, canvas.width, canvas.height);
+}
+
+// Bind resize events to redraw the room foreground dynamically
+window.addEventListener('resize', () => {
+  drawRoomForeground();
+});

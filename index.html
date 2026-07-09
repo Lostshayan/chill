@@ -41,16 +41,15 @@
 
     <!-- SCENE 3: Greenhouse Sanctuary -->
     <div id="scene3-container" class="scene-container" style="display: none; position: absolute; top: 0; left: 0; width: 100vw; height: 100vh;">
-      <div id="scene-sunny" class="scene-frame"></div>
-      <div id="scene-rainy" class="scene-frame"></div>
+      <div id="forest-sunny" class="scene-frame"></div>
+      <div id="forest-rainy" class="scene-frame"></div>
 
-      <!-- Rain Engine Canvas (clipped via CSS) -->
+      <!-- Rain Engine Canvas (drawing behind room interior) -->
       <canvas id="rain-canvas"></canvas>
 
-      <!-- Centered Digital Clock Overlay -->
-      <div id="clock-container">
-        <div id="digital-clock">12:00 PM</div>
-      </div>
+      <!-- Programmatically green-cut transparent room interior -->
+      <canvas id="room-foreground-layer"></canvas>
+
 
       <!-- Floating Glassmorphic Weather Control Button -->
       <button id="toggle-weather-btn" title="Toggle Weather Mode">
