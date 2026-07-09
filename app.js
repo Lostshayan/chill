@@ -1004,8 +1004,14 @@ class BoundedRainEngine {
   }
 
   resize() {
-    this.canvas.width = window.innerWidth;
-    this.canvas.height = window.innerHeight;
+    const container = document.getElementById('roomContainer');
+    if (container) {
+      this.canvas.width = container.clientWidth;
+      this.canvas.height = container.clientHeight;
+    } else {
+      this.canvas.width = window.innerWidth;
+      this.canvas.height = window.innerHeight;
+    }
   }
 
   init() {
@@ -1168,9 +1174,11 @@ function drawRoomForeground() {
   if (!roomForegroundProcessed || !window.foregroundRoomCanvas) return;
   const canvas = document.getElementById('room-foreground-layer');
   if (!canvas) return;
+  const container = document.getElementById('roomContainer');
+  if (!container) return;
 
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
+  canvas.width = container.clientWidth;
+  canvas.height = container.clientHeight;
   const ctx = canvas.getContext('2d');
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
