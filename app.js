@@ -387,7 +387,7 @@ async function startSession() {
       const app = firebase.initializeApp(firebaseConfig);
       db = firebase.firestore();
 
-      elSyncText.textContent = "Syncing...";
+      if (elSyncText) elSyncText.textContent = "Syncing...";
       initAudio();
       
       // Sync Room State
@@ -466,8 +466,8 @@ async function startSession() {
         await db.collection("rooms").doc(state.roomId).collection("todos").doc(id).delete();
       };
 
-      elSyncText.textContent = "Synced Live";
-      elSyncStatus.className = "sync-status online";
+      if (elSyncText) elSyncText.textContent = "Synced Live";
+      if (elSyncStatus) elSyncStatus.className = "sync-status online";
     } catch (e) {
       console.error("Firebase setup failed, reverting to local mock mode:", e);
       if (elMockModeIndicator) {
@@ -527,8 +527,8 @@ function handleRoomSyncUpdate(roomData) {
 
 // --- MOCK MODE SIMULATOR ---
 function initMockRoom() {
-  elSyncText.textContent = "Simulation Mode";
-  elSyncStatus.className = "sync-status online";
+  if (elSyncText) elSyncText.textContent = "Simulation Mode";
+  if (elSyncStatus) elSyncStatus.className = "sync-status online";
   
   // Setup Mock Members
   const list = [{ displayName: state.username, avatar: "🥑" }, ...mockPeers];
@@ -950,15 +950,19 @@ elClosePanelLeft.addEventListener('click', () => {
   elPlaylistDrawer.classList.remove('open'); // Also hide sub-drawer
 });
 
-elToggleRightPanelBtn.addEventListener('click', () => {
-  elPanelRight.classList.toggle('open');
-  elToggleRightPanelBtn.classList.toggle('active');
-});
+if (elToggleRightPanelBtn) {
+  elToggleRightPanelBtn.addEventListener('click', () => {
+    if (elPanelRight) elPanelRight.classList.toggle('open');
+    elToggleRightPanelBtn.classList.toggle('active');
+  });
+}
 
-elClosePanelRight.addEventListener('click', () => {
-  elPanelRight.classList.remove('open');
-  elToggleRightPanelBtn.classList.remove('active');
-});
+if (elClosePanelRight) {
+  elClosePanelRight.addEventListener('click', () => {
+    if (elPanelRight) elPanelRight.classList.remove('open');
+    if (elToggleRightPanelBtn) elToggleRightPanelBtn.classList.remove('active');
+  });
+}
 
 // To-Do list modal trigger via bottom bar
 elToggleTodoBtn.addEventListener('click', () => {

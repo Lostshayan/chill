@@ -131,9 +131,6 @@
         <button class="tv-small-btn" id="toggleLeftPanelBtn" title="Soundscape Layers & Vibes">
           <i class="fa-solid fa-sliders"></i>
         </button>
-        <button class="tv-small-btn" id="toggleRightPanelBtn" title="Room Lobby">
-          <i class="fa-solid fa-users"></i>
-        </button>
         <button class="tv-small-btn" id="toggleTodoBtn" title="Study Checklist">
           <i class="fa-solid fa-list-check"></i>
         </button>
@@ -142,18 +139,9 @@
   </div>
   </div> <!-- closes tv-set -->
 
-  <!-- Digital Clock & Room Badge (Top Center) -->
+  <!-- Digital Clock (Top Center) -->
   <div class="top-center-overlay">
     <div class="digital-clock" id="digitalClock">12:00 PM</div>
-    <div class="room-heading-badge glass-panel">
-      <div class="sync-status online" id="syncStatus">
-        <span class="pulse-dot"></span>
-        <span id="syncText">Syncing...</span>
-      </div>
-      <div class="room-info-label">
-        Room: <span class="room-name-display" id="roomNameDisplay">Lobby</span>
-      </div>
-    </div>
   </div>
 
   <!-- LEFT SLIDE-IN PANEL: Audio Mixer & Vibes -->
@@ -247,21 +235,7 @@
     </div>
   </aside>
 
-  <!-- RIGHT SLIDE-IN PANEL: Room Lobby -->
-  <aside class="slide-panel slide-panel-right glass-panel" id="panelRight">
-    <div class="panel-header">
-      <h2><i class="fa-solid fa-users"></i> Room Lobby</h2>
-      <button class="ctrl-btn" id="closePanelRight" title="Close"><i class="fa-solid fa-xmark"></i></button>
-    </div>
-
-    <!-- Online Listeners List -->
-    <div class="listeners-section">
-      <h3>Active Listeners (<span id="listenersCount">0</span>)</h3>
-      <div class="listeners-list" id="listenersList">
-        <!-- Populated dynamically -->
-      </div>
-    </div>
-  </aside>
+  <!-- RIGHT SLIDE-IN PANEL: Room Lobby (Removed for now) -->
 
   <!-- SHARED TO-DO LIST MODAL (Triggered by Laptop Hotspot) -->
   <div class="modal-overlay" id="todoModal">
