@@ -14,7 +14,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   
   <!-- Core Styles -->
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css?v=mobile_responsive_v1">
 </head>
 <body>
   <!-- Retro Television Housing Set -->
@@ -25,35 +25,84 @@
 
 
     <!-- SCENE 2: Winter Cabin -->
-    <div id="scene2-container" class="scene-container" style="display: block; position: absolute; top: 0; left: 0; width: 100%; height: 100%;">
-      <div id="bg-mountains" style="z-index: 1; position: absolute; width: 100%; height: 100%; background-size: cover; background-position: center;"></div>
+    <div id="scene2-container" class="scene-container" style="display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%;">
+      <!-- Background mountain landscape -->
+      <div id="bg-mountains" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1;"></div>
+
+      <!-- Blizzard particle canvas -->
       <canvas id="blizzard-canvas" style="z-index: 2; position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;"></canvas>
-      
-      <!-- Stacked foreground layers for lamp crossfade -->
-      <div id="foreground-cabin-off" class="scene2-fg-layer" style="z-index: 3; opacity: 1;"></div>
-      <div id="foreground-cabin-on" class="scene2-fg-layer" style="z-index: 3; opacity: 0;"></div>
-      
-      <!-- Hotspots -->
-      <div class="hotspot-ring lamp" id="hotspotLamp2" style="left: 15%; top: 58%; z-index: 20;" title="Toggle Desk Lamp">
-        <div class="ring-pulse"></div>
-      </div>
-      <div class="hotspot-ring window" id="hotspotWindow2" style="left: 70%; top: 40%; z-index: 20;" title="Toggle Blizzard">
-        <div class="ring-pulse"></div>
-      </div>
+
+      <!-- Green-cut transparent room foreground (chromakeyed) -->
+      <canvas id="cabin-foreground-layer" style="z-index: 3; position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;"></canvas>
     </div>
 
-    <!-- SCENE 3: Greenhouse Sanctuary -->
-    <div id="scene3-container" class="scene-container" style="display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%;">
-      <div id="forest-sunny" class="scene-frame"></div>
-      <div id="forest-rainy" class="scene-frame"></div>
+    <!-- SCENE LIBRARY: Grand Library -->
+    <div id="scene-library-container" class="scene-container" style="display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%;">
+      <!-- Background town/night sky -->
+      <div id="bg-library" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1;"></div>
 
-      <!-- Rain Engine Canvas (drawing behind room interior) -->
-      <canvas id="rain-canvas"></canvas>
+      <!-- Rain canvas for upper windows -->
+      <canvas id="library-rain-canvas" class="rain-canvas" style="z-index: 2; position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;"></canvas>
 
-      <!-- Programmatically green-cut transparent room interior -->
-      <canvas id="room-foreground-layer"></canvas>
+      <!-- Chromakeyed library room interior -->
+      <canvas id="library-foreground-layer" style="z-index: 3; position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;"></canvas>
+    </div>
 
+    <!-- SCENE FOREST: Forest House -->
+    <div id="scene-forest-container" class="scene-container" style="display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%;">
+      <!-- Background forest house (Sunny or Rainy) -->
+      <div id="bg-forest" class="forest-bg" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1;"></div>
 
+      <!-- Firefly canvas for Sunny Forest House -->
+      <canvas id="forest-firefly-canvas" class="forest-fx-canvas" style="z-index: 2; position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;"></canvas>
+
+      <!-- Rain canvas for Forest House -->
+      <canvas id="forest-rain-canvas" class="rain-canvas" style="z-index: 3; position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;"></canvas>
+    </div>
+
+    <!-- SCENE FOREST CABIN: Study Desk in the Woods -->
+    <div id="scene-forest-cabin-container" class="scene-container" style="display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%;">
+      <!-- Background outside window (Sunny or Rainy) -->
+      <div id="bg-forest-cabin" class="forest-cabin-bg" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1;"></div>
+
+      <!-- Firefly canvas for Sunny Forest Cabin -->
+      <canvas id="forest-cabin-firefly-canvas" class="forest-fx-canvas" style="z-index: 2; position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;"></canvas>
+
+      <!-- Rain canvas for Rainy Forest Cabin (behind window mullions) -->
+      <canvas id="forest-cabin-rain-canvas" class="rain-canvas" style="z-index: 3; position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;"></canvas>
+
+      <!-- Desk Room Foreground layer (transparent window cutout) -->
+      <div id="forest-cabin-foreground" class="forest-cabin-fg" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 4; pointer-events: none;"></div>
+    </div>
+
+    <!-- SCENE DURGA PUJA: Kolkata Pandal & Evening Street -->
+    <div id="scene-durga-puja-container" class="scene-container" style="display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%;">
+      <!-- Background street scene -->
+      <div id="bg-durga-puja" class="durga-puja-bg" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1;"></div>
+
+      <!-- Festive golden floating embers / sparkles for clear evening -->
+      <canvas id="durga-sparkles-canvas" class="durga-fx-canvas" style="z-index: 2; position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;"></canvas>
+
+      <!-- Soft evening rain canvas for rainy mode -->
+      <canvas id="durga-rain-canvas" class="rain-canvas" style="z-index: 3; position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;"></canvas>
+    </div>
+
+    <!-- SCENE KALI PUJA: Night Sky, Fireworks & Illuminated Pandal -->
+    <div id="scene-kali-puja-container" class="scene-container" style="display: block; position: absolute; top: 0; left: 0; width: 100%; height: 100%;">
+      <!-- Layer 1: Background Night Sky with Twilight Clouds & Stars -->
+      <div id="bg-kali-sky" class="kali-sky-bg" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1;"></div>
+
+      <!-- Layer 2: Fireworks in designated portion of the sky -->
+      <div id="kali-fireworks-container" class="kali-fireworks-box" style="position: absolute; top: 0; left: 0; width: 55%; height: 48%; z-index: 2; pointer-events: auto;"></div>
+
+      <!-- Layer 3: Floating Paper Sky Lanterns (Fanush) -->
+      <div id="kali-lanterns" class="kali-lanterns-layer" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 3; pointer-events: none;"></div>
+
+      <!-- Layer 4: Foreground Illuminated Kali Puja Pandal with Diyas & Courtyard -->
+      <div id="kali-pandal-fg" class="kali-pandal-layer" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 4; pointer-events: none;"></div>
+
+      <!-- Optional Layer 5: Rain Canvas for weather toggle -->
+      <canvas id="kali-rain-canvas" class="rain-canvas" style="z-index: 5; position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;"></canvas>
     </div>
 
     <!-- Cozy Ambient Lighting Overlay (covers all layers for unified coloring) -->
@@ -62,6 +111,405 @@
     
     <!-- CRT Screen Overlay with scanlines and reflection -->
     <div class="crt-screen-overlay"></div>
+
+    <!-- Focus & Rest Timer Widget (Inside CRT Screen, Top Center) -->
+    <div class="screen-timer-widget" id="screenTimerWidget">
+      <!-- Main Timer Pill Display -->
+      <div class="timer-pill" id="timerPill">
+        <div class="timer-phase-badge rest" id="timerPhaseBadge" style="display: none;">
+          <span class="timer-phase-dot"></span>
+          <span id="timerPhaseText"></span>
+        </div>
+        <div class="timer-time-display" id="timerDisplay" title="Click to set timer">25:00</div>
+        <div class="timer-controls">
+          <button class="timer-action-btn" id="timerPlayBtn" title="Start / Pause Timer">
+            <i class="fa-solid fa-play" id="timerPlayIcon"></i>
+          </button>
+          <button class="timer-action-btn" id="timerResetBtn" title="Reset Timer">
+            <i class="fa-solid fa-rotate-left"></i>
+          </button>
+          <button class="timer-action-btn" id="timerSettingsBtn" title="Timer Settings">
+            <i class="fa-solid fa-sliders"></i>
+          </button>
+          <button class="timer-action-btn close" id="closeTimerBtn" title="Hide Timer">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Settings Dropdown / Popover -->
+      <div class="timer-settings-modal" id="timerSettingsModal">
+        <div class="timer-settings-header">
+          <span><i class="fa-solid fa-stopwatch"></i> TIMER SETTINGS</span>
+          <button class="timer-settings-close-btn" id="closeTimerSettingsBtn" title="Close Settings"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+
+        <!-- Presets -->
+        <div class="timer-preset-group">
+          <div class="timer-preset-label">PRESETS</div>
+          <div class="timer-preset-buttons">
+            <button class="timer-preset-btn active" data-focus="25" data-rest="5" id="preset25_5">
+              <span class="preset-name">Standard</span>
+              <span class="preset-detail">25m + 5m Rest</span>
+            </button>
+            <button class="timer-preset-btn" data-focus="50" data-rest="10" id="preset50_10">
+              <span class="preset-name">Deep Work</span>
+              <span class="preset-detail">50m + 10m Rest</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Custom Inputs -->
+        <div class="timer-custom-inputs">
+          <div class="timer-input-item">
+            <label for="focusTimeInput"><i class="fa-solid fa-stopwatch"></i> Study (min)</label>
+            <div class="time-stepper">
+              <button type="button" class="stepper-btn" id="focusDecBtn">-</button>
+              <input type="number" id="focusTimeInput" min="1" max="180" value="25">
+              <button type="button" class="stepper-btn" id="focusIncBtn">+</button>
+            </div>
+          </div>
+          <div class="timer-input-item">
+            <label for="restTimeInput"><i class="fa-solid fa-mug-hot"></i> Rest (min)</label>
+            <div class="time-stepper">
+              <button type="button" class="stepper-btn" id="restDecBtn">-</button>
+              <input type="number" id="restTimeInput" min="1" max="60" value="5">
+              <button type="button" class="stepper-btn" id="restIncBtn">+</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Start & Apply Button -->
+        <button class="timer-start-apply-btn" id="timerStartApplyBtn">
+          <i class="fa-solid fa-play"></i> Start Timer
+        </button>
+      </div>
+    </div>
+
+    <!-- Digital Clock Widget (Inside CRT Screen, Top Right Corner - Permanent) -->
+    <div class="screen-clock-widget" id="screenClockWidget">
+      <i class="fa-regular fa-clock clock-icon"></i>
+      <div class="digital-clock" id="digitalClock">12:00 PM</div>
+    </div>
+
+    <!-- On-Screen TV Theme Selector Menu -->
+    <div class="screen-theme-menu" id="screenThemeMenu">
+      <div class="screen-theme-header">
+        <div class="screen-theme-title">
+          <span class="screen-theme-headline"><i class="fa-solid fa-palette"></i> SELECT THEME</span>
+        </div>
+        <button class="screen-theme-close-btn" id="closeThemeMenuBtn" title="Close Themes Menu">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="screen-theme-track-container">
+        <button class="theme-scroll-nav-btn prev" id="themeScrollPrevBtn" title="Scroll Left">
+          <i class="fa-solid fa-chevron-left"></i>
+        </button>
+
+        <div class="screen-theme-track" id="screenThemeTrack">
+          <!-- Theme 1: Winter Cabin -->
+          <div class="screen-theme-card" data-theme="scene2" title="Winter Cabin">
+            <div class="theme-card-preview">
+              <img src="assets/images/scene2/thumbnail.jpg?v=comp1" alt="Winter Cabin" loading="lazy">
+              <span class="channel-num-badge">01</span>
+              <span class="active-badge"><i class="fa-solid fa-circle"></i> ON AIR</span>
+            </div>
+            <div class="theme-card-info">
+              <div class="theme-card-title">Winter Cabin</div>
+              <div class="theme-card-tag">Blizzard & Hearth</div>
+            </div>
+          </div>
+
+          <!-- Theme 2: Grand Library -->
+          <div class="screen-theme-card" data-theme="scene_library" title="Grand Library">
+            <div class="theme-card-preview">
+              <img src="assets/images/scene_library/thumbnail.jpg?v=comp1" alt="Grand Library" loading="lazy">
+              <span class="channel-num-badge">02</span>
+              <span class="active-badge"><i class="fa-solid fa-circle"></i> ON AIR</span>
+            </div>
+            <div class="theme-card-info">
+              <div class="theme-card-title">Grand Library</div>
+              <div class="theme-card-tag">Rainy Study Loft</div>
+            </div>
+          </div>
+
+          <!-- Theme 3: Forest House -->
+          <div class="screen-theme-card" data-theme="scene_forest" title="Forest House">
+            <div class="theme-card-preview">
+              <img src="assets/images/scene_forest/forest_sunny.png?v=new_v2" alt="Forest House" loading="lazy">
+              <span class="channel-num-badge">03</span>
+              <span class="active-badge"><i class="fa-solid fa-circle"></i> ON AIR</span>
+            </div>
+            <div class="theme-card-info">
+              <div class="theme-card-title">Forest House</div>
+              <div class="theme-card-tag">Sunlight & Rainfall</div>
+            </div>
+          </div>
+
+          <!-- Theme 4: Forest Cabin -->
+          <div class="screen-theme-card" data-theme="scene_forest_cabin" title="Forest Cabin">
+            <div class="theme-card-preview">
+              <img src="assets/images/scene_forest_cabin/thumbnail.jpg?v=fc1" alt="Forest Cabin" loading="lazy">
+              <span class="channel-num-badge">04</span>
+              <span class="active-badge"><i class="fa-solid fa-circle"></i> ON AIR</span>
+            </div>
+            <div class="theme-card-info">
+              <div class="theme-card-title">Forest Cabin</div>
+              <div class="theme-card-tag">Sunlit Desk & Storm</div>
+            </div>
+          </div>
+
+          <!-- Theme 5: Durga Puja -->
+          <div class="screen-theme-card" data-theme="scene_durga_puja" title="Durga Puja">
+            <div class="theme-card-preview">
+              <img src="assets/images/scene_durga_puja/thumbnail.jpg?v=dp1" alt="Durga Puja" loading="lazy">
+              <span class="channel-num-badge">05</span>
+              <span class="active-badge"><i class="fa-solid fa-circle"></i> ON AIR</span>
+            </div>
+            <div class="theme-card-info">
+              <div class="theme-card-title">Durga Puja</div>
+              <div class="theme-card-tag">Pandal & Evening Glow</div>
+            </div>
+          </div>
+
+          <!-- Theme 6: Kali Puja -->
+          <div class="screen-theme-card active" data-theme="scene_kali_puja" title="Kali Puja">
+            <div class="theme-card-preview">
+              <img src="assets/images/scene_kali_puja/thumbnail.jpg?v=kp1" alt="Kali Puja" loading="lazy">
+              <span class="channel-num-badge">06</span>
+              <span class="active-badge"><i class="fa-solid fa-circle"></i> ON AIR</span>
+            </div>
+            <div class="theme-card-info">
+              <div class="theme-card-title">Kali Puja</div>
+              <div class="theme-card-tag">Night Sky & Fireworks</div>
+            </div>
+          </div>
+        </div>
+
+        <button class="theme-scroll-nav-btn next" id="themeScrollNextBtn" title="Scroll Right">
+          <i class="fa-solid fa-chevron-right"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- On-Screen TV Music Tracklist Menu -->
+    <div class="screen-music-menu" id="screenMusicMenu">
+      <div class="screen-music-header">
+        <div class="screen-music-title">
+          <span class="crt-channel-badge"><i class="fa-solid fa-music"></i> CHILL-AUDIO</span>
+          <span class="screen-music-headline">TRACKLIST // SELECT SONG</span>
+        </div>
+        <button class="screen-music-close-btn" id="closeMusicMenuBtn" title="Close Song Menu">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <!-- Filter tabs -->
+      <div class="screen-music-tabs">
+        <button class="music-tab-btn active" data-tab="all">All Songs</button>
+        <button class="music-tab-btn" data-tab="festive">Festivals (Dhak & Shyama Sangeet)</button>
+        <button class="music-tab-btn" data-tab="lofi">Lofi & Chillhop</button>
+      </div>
+
+      <!-- Scrollable list of tracks -->
+      <div class="screen-music-list" id="screenMusicList">
+        <!-- Rendered dynamically via JavaScript -->
+      </div>
+    </div>
+
+    <!-- On-Screen TV Profile & Analytics Panel (Inside CRT Screen) -->
+    <div class="screen-profile-panel" id="panelProfile">
+      <div class="panel-header">
+        <h2><i class="fa-solid fa-chart-pie"></i> Profile & Analytics</h2>
+        <button class="ctrl-btn" id="closePanelProfile" title="Close"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <div class="profile-scroll-body">
+        <!-- Profile Header Card -->
+        <div class="profile-card">
+          <div class="profile-avatar-wrapper">
+            <div class="profile-avatar" id="profileAvatarDisplay">🎧</div>
+            <button class="profile-avatar-change-btn" id="changeAvatarBtn" title="Choose Avatar">
+              <i class="fa-solid fa-camera"></i>
+            </button>
+          </div>
+          <div class="profile-details">
+            <div class="profile-name-row">
+              <span class="profile-username" id="profileUsernameDisplay">Chill Scholar</span>
+              <button class="profile-edit-name-btn" id="editUsernameBtn" title="Edit Name"><i class="fa-solid fa-pen"></i></button>
+            </div>
+            <div class="profile-badge-row">
+              <span class="profile-badge level-badge" id="profileLevelBadge">Lv. 1 Scholar</span>
+              <span class="profile-badge streak-badge" id="profileStreakBadge">🔥 1 Day Streak</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Avatar Picker Drawer (Toggled inline) -->
+        <div class="avatar-picker-dropdown hidden" id="avatarPickerDropdown">
+          <div class="avatar-picker-title">Pick your avatar</div>
+          <div class="avatar-options-grid">
+            <button class="avatar-opt" data-avatar="🎧">🎧</button>
+            <button class="avatar-opt" data-avatar="📚">📚</button>
+            <button class="avatar-opt" data-avatar="☕">☕</button>
+            <button class="avatar-opt" data-avatar="🐱">🐱</button>
+            <button class="avatar-opt" data-avatar="🐼">🐼</button>
+            <button class="avatar-opt" data-avatar="🦊">🦊</button>
+            <button class="avatar-opt" data-avatar="🦉">🦉</button>
+            <button class="avatar-opt" data-avatar="🌿">🌿</button>
+            <button class="avatar-opt" data-avatar="🌙">🌙</button>
+            <button class="avatar-opt" data-avatar="💻">💻</button>
+            <button class="avatar-opt" data-avatar="🎨">🎨</button>
+            <button class="avatar-opt" data-avatar="✨">✨</button>
+          </div>
+        </div>
+
+        <!-- Level XP Progress -->
+        <div class="profile-xp-section">
+          <div class="xp-header">
+            <span class="xp-label"><i class="fa-solid fa-bolt"></i> Level Progress</span>
+            <span class="xp-values" id="xpValues">0 / 60 min</span>
+          </div>
+          <div class="xp-bar-bg">
+            <div class="xp-bar-fill" id="xpBarFill" style="width: 5%;"></div>
+          </div>
+        </div>
+
+        <!-- Quick Stats Grid (4 Cards) -->
+        <div class="analytics-stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon-wrap focus-icon"><i class="fa-solid fa-hourglass-half"></i></div>
+            <div class="stat-meta">
+              <div class="stat-val" id="statTotalFocus">0m</div>
+              <div class="stat-lbl">Focus Time</div>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon-wrap session-icon"><i class="fa-solid fa-circle-check"></i></div>
+            <div class="stat-meta">
+              <div class="stat-val" id="statSessionsCount">0</div>
+              <div class="stat-lbl">Sessions Done</div>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon-wrap tasks-icon"><i class="fa-solid fa-list-check"></i></div>
+            <div class="stat-meta">
+              <div class="stat-val" id="statTasksCount">0</div>
+              <div class="stat-lbl">Tasks Done</div>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon-wrap streak-icon"><i class="fa-solid fa-fire"></i></div>
+            <div class="stat-meta">
+              <div class="stat-val" id="statStreakCount">1 day</div>
+              <div class="stat-lbl">Study Streak</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Daily Goal Progress -->
+        <div class="daily-goal-card">
+          <div class="daily-goal-header">
+            <div class="goal-title"><i class="fa-solid fa-bullseye"></i> Today's Focus Goal</div>
+            <span class="goal-fraction" id="goalFraction">0 / 60m</span>
+          </div>
+          <div class="daily-goal-bar">
+            <div class="daily-goal-fill" id="dailyGoalFill" style="width: 0%;"></div>
+          </div>
+        </div>
+
+        <!-- Weekly Activity Bar Chart (Mon - Sun) -->
+        <div class="analytics-chart-section">
+          <div class="chart-header">
+            <span class="chart-title"><i class="fa-solid fa-chart-simple"></i> Weekly Activity</span>
+            <span class="chart-subtitle" id="chartTotalWeek">0m logged</span>
+          </div>
+          <div class="weekly-bars-container" id="weeklyBarsContainer">
+            <!-- Mon through Sun bars rendered dynamically -->
+          </div>
+        </div>
+
+        <!-- Favorite Environment & Vibe Breakdown -->
+        <div class="analytics-breakdown-section">
+          <div class="breakdown-title"><i class="fa-solid fa-headphones"></i> Room Theme Breakdown</div>
+          
+          <div class="breakdown-item">
+            <div class="breakdown-info">
+              <span>❄️ Winter Cabin</span>
+              <span id="breakdownCabinPct">25%</span>
+            </div>
+            <div class="breakdown-bar-bg">
+              <div class="breakdown-bar-fill cabin-fill" id="breakdownCabinBar" style="width: 25%;"></div>
+            </div>
+          </div>
+
+          <div class="breakdown-item">
+            <div class="breakdown-info">
+              <span>📚 Grand Library</span>
+              <span id="breakdownLibraryPct">25%</span>
+            </div>
+            <div class="breakdown-bar-bg">
+              <div class="breakdown-bar-fill library-fill" id="breakdownLibraryBar" style="width: 25%;"></div>
+            </div>
+          </div>
+
+          <div class="breakdown-item">
+            <div class="breakdown-info">
+              <span>🌲 Forest House</span>
+              <span id="breakdownForestPct">25%</span>
+            </div>
+            <div class="breakdown-bar-bg">
+              <div class="breakdown-bar-fill forest-fill" id="breakdownForestBar" style="width: 25%;"></div>
+            </div>
+          </div>
+
+          <div class="breakdown-item">
+            <div class="breakdown-info">
+              <span>🏡 Forest Cabin</span>
+              <span id="breakdownForestCabinPct">20%</span>
+            </div>
+            <div class="breakdown-bar-bg">
+              <div class="breakdown-bar-fill forest-cabin-fill" id="breakdownForestCabinBar" style="width: 20%;"></div>
+            </div>
+          </div>
+
+          <div class="breakdown-item">
+            <div class="breakdown-info">
+              <span>🪔 Durga Puja</span>
+              <span id="breakdownDurgaPct">16%</span>
+            </div>
+            <div class="breakdown-bar-bg">
+              <div class="breakdown-bar-fill durga-puja-fill" id="breakdownDurgaBar" style="width: 16%;"></div>
+            </div>
+          </div>
+
+          <div class="breakdown-item">
+            <div class="breakdown-info">
+              <span>🎆 Kali Puja</span>
+              <span id="breakdownKaliPct">20%</span>
+            </div>
+            <div class="breakdown-bar-bg">
+              <div class="breakdown-bar-fill kali-puja-fill" id="breakdownKaliBar" style="width: 20%;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Action Buttons -->
+        <div class="analytics-actions">
+          <button class="analytics-sub-btn" id="addQuickFocusBtn" title="Log a 25m Focus Session">
+            <i class="fa-solid fa-plus"></i> +25m Focus
+          </button>
+          <button class="analytics-sub-btn logout-btn" id="logoutBtn" title="Log Out">
+            <i class="fa-solid fa-right-from-bracket"></i> Log Out
+          </button>
+        </div>
+      </div>
+    </div>
   </div> <!-- closes room-container -->
   </div> <!-- closes tv-screen-bezel -->
 
@@ -81,23 +529,29 @@
 
     <!-- TV Controls Section (Middle) -->
     <div class="tv-knobs-group">
-      <!-- LED Track Display Screen -->
-      <div class="tv-screen-display">
+      <!-- LED Track Display Screen (Clickable to browse all songs) -->
+      <div class="tv-screen-display" id="tvScreenDisplay" title="Click to browse & select songs">
+        <div class="tv-led-status-line" id="tvLedStatusLine">
+          <span class="tv-led-dot"></span>
+          <span class="tv-led-tag">(now playing)</span>
+          <i class="fa-solid fa-list-ul tv-led-menu-hint" title="Browse songs"></i>
+        </div>
         <div class="tv-led-text" id="trackTitle">Loading beats...</div>
         <div class="tv-led-subtext" id="trackArtist">Chill Station</div>
       </div>
 
-      <!-- Physical Push Buttons (Prev, Play, Next) -->
+      <!-- Physical Push Buttons (Prev, Play, Next, Mute) -->
       <div class="tv-push-buttons">
         <button class="tv-push-btn" id="btnPrev" title="Previous Track"><i class="fa-solid fa-backward"></i></button>
         <button class="tv-push-btn play-btn" id="btnPlay" title="Play / Pause"><i class="fa-solid fa-play"></i></button>
         <button class="tv-push-btn" id="btnNext" title="Next Track"><i class="fa-solid fa-forward"></i></button>
+        <button class="tv-push-btn mute-btn" id="btnMute" title="Mute / Unmute"><i class="fa-solid fa-volume-high"></i></button>
       </div>
 
       <!-- Volume Knob Dial -->
       <div class="tv-knob-container">
         <div class="tv-knob-label">VOL</div>
-        <div class="tv-knob" id="tvVolumeKnob" style="transform: rotate(120deg);">
+        <div class="tv-knob" id="tvVolumeKnob" style="transform: rotate(60deg);">
           <div class="knob-marker"></div>
         </div>
         <!-- Hidden slider for master volume state -->
@@ -107,12 +561,12 @@
 
     <!-- Right Side Controls (Knobs & Switches) -->
     <div class="tv-right-group">
-      <!-- Channel Switcher Knob (Scene selection) -->
-      <div class="tv-knob-container">
-        <div class="tv-knob-label">CH</div>
-        <div class="tv-knob" id="tvChannelKnob" style="transform: rotate(0deg);">
-          <div class="knob-marker"></div>
-        </div>
+      <!-- Channel Switcher Button (On-screen Theme Menu) -->
+      <div class="tv-channel-btn-container">
+        <div class="tv-knob-label">THEMES</div>
+        <button class="tv-channel-btn" id="tvChannelBtn" title="Themes Menu">
+          <i class="fa-solid fa-palette"></i>
+        </button>
       </div>
 
       <!-- Weather Toggle Switch -->
@@ -124,118 +578,22 @@
       </div>
 
       <!-- Glowing LED Power Indicator -->
-      <div class="tv-led-indicator glow-red" id="tvPowerLed" title="Power Indicator"></div>
+      <div class="tv-led-indicator" id="tvPowerLed" title="Power Indicator"></div>
 
       <!-- Extra Bezel Buttons -->
       <div class="tv-buttons-extra">
-        <button class="tv-small-btn" id="toggleLeftPanelBtn" title="Soundscape Layers & Vibes">
-          <i class="fa-solid fa-sliders"></i>
+        <button class="tv-small-btn" id="toggleTimerBtn" title="Toggle Timer">
+          <i class="fa-solid fa-stopwatch"></i>
         </button>
-        <button class="tv-small-btn" id="toggleTodoBtn" title="Study Checklist">
-          <i class="fa-solid fa-list-check"></i>
+        <button class="tv-small-btn" id="toggleProfileBtn" title="Profile & Analytics">
+          <i class="fa-solid fa-user"></i>
         </button>
       </div>
     </div>
   </div>
   </div> <!-- closes tv-set -->
 
-  <!-- Digital Clock (Top Center) -->
-  <div class="top-center-overlay">
-    <div class="digital-clock" id="digitalClock">12:00 PM</div>
-  </div>
 
-  <!-- LEFT SLIDE-IN PANEL: Audio Mixer & Vibes -->
-  <aside class="slide-panel slide-panel-left glass-panel" id="panelLeft">
-    <div class="panel-header">
-      <h2><i class="fa-solid fa-sliders"></i> Soundscape Mixer</h2>
-      <div class="panel-header-actions">
-        <button class="ctrl-btn" id="togglePlaylistBtn" title="Change Playlist Vibe"><i class="fa-solid fa-music"></i> Select Vibe</button>
-        <button class="ctrl-btn" id="closePanelLeft" title="Close"><i class="fa-solid fa-xmark"></i></button>
-      </div>
-    </div>
-
-    <!-- Theme Switcher -->
-    <div class="theme-switcher-section">
-      <h3 class="section-label"><i class="fa-solid fa-palette"></i> Room Theme</h3>
-      <div class="theme-cards">
-        <button class="theme-card active" data-theme="scene2" id="themeCardWinter">
-          <span class="theme-card-icon">❄️</span>
-          <span class="theme-card-label">Winter Cabin</span>
-        </button>
-        <button class="theme-card" data-theme="scene3" id="themeCardForest">
-          <span class="theme-card-icon">🌿</span>
-          <span class="theme-card-label">Greenhouse</span>
-        </button>
-      </div>
-    </div>
-
-    <!-- Soundscape Mixer -->
-    <div class="mixer-section">
-      <div class="mixer-item">
-        <div class="mixer-label">
-          <span><i class="fa-solid fa-cloud-showers-heavy"></i> Rain & Storm</span>
-          <span class="value" id="val-rain">Off</span>
-        </div>
-        <input type="range" min="0" max="1" step="0.05" value="0" class="slider" id="slider-rain">
-      </div>
-
-      <div class="mixer-item">
-        <div class="mixer-label">
-          <span><i class="fa-solid fa-fire"></i> Cozy Campfire</span>
-          <span class="value" id="val-campfire">Off</span>
-        </div>
-        <input type="range" min="0" max="1" step="0.05" value="0" class="slider" id="slider-campfire">
-      </div>
-
-      <div class="mixer-item">
-        <div class="mixer-label">
-          <span><i class="fa-solid fa-keyboard"></i> Keyboard Clicks</span>
-          <span class="value" id="val-keyboard">Off</span>
-        </div>
-        <input type="range" min="0" max="1" step="0.05" value="0" class="slider" id="slider-keyboard">
-      </div>
-
-      <div class="mixer-item">
-        <div class="mixer-label">
-          <span><i class="fa-solid fa-mug-hot"></i> Coffee Shop Ambient</span>
-          <span class="value" id="val-cafe">Off</span>
-        </div>
-        <input type="range" min="0" max="1" step="0.05" value="0" class="slider" id="slider-cafe">
-      </div>
-
-      <div class="mixer-item">
-        <div class="mixer-label">
-          <span><i class="fa-solid fa-wind"></i> Autumn Wind</span>
-          <span class="value" id="val-wind">Off</span>
-        </div>
-        <input type="range" min="0" max="1" step="0.05" value="0" class="slider" id="slider-wind">
-      </div>
-    </div>
-
-    <!-- Playlist sub-drawer inside left panel -->
-    <div class="playlist-drawer" id="playlistDrawer">
-      <div class="playlist-drawer-header">
-        <h3><i class="fa-solid fa-compact-disc"></i> Select Vibe</h3>
-        <button class="ctrl-btn" id="closePlaylistBtn" title="Close"><i class="fa-solid fa-xmark"></i></button>
-      </div>
-      <div class="playlist-drawer-items">
-        <button class="vibe-btn active" data-vibe="focus">
-          <i class="fa-solid fa-brain"></i> Focus Beats
-        </button>
-        <button class="vibe-btn" data-vibe="cafe">
-          <i class="fa-solid fa-coffee"></i> Cozy Cafe
-        </button>
-        <button class="vibe-btn" data-vibe="dream">
-          <i class="fa-solid fa-moon"></i> Sleepy Dreams
-        </button>
-        <button class="vibe-btn" data-vibe="jazz">
-          <i class="fa-solid fa-guitar"></i> Midnight Jazz
-        </button>
-      </div>
-    </div>
-  </aside>
-
-  <!-- RIGHT SLIDE-IN PANEL: Room Lobby (Removed for now) -->
 
   <!-- SHARED TO-DO LIST MODAL (Triggered by Laptop Hotspot) -->
   <div class="modal-overlay" id="todoModal">
@@ -258,7 +616,15 @@
 
 
 
+  <!-- crashmax-dev/fireworks-js official library -->
+  <script src="https://unpkg.com/fireworks-js@2.x/dist/index.umd.js"></script>
+  <script>
+    if (!window.Fireworks) {
+      document.write('<script src="assets/js/fireworks.js"><\/script>');
+    }
+  </script>
+
   <script src="config.js" defer></script>
-  <script src="app.js" defer></script>
+  <script src="app.js?v=slow_fireworks_v1" defer></script>
 </body>
 </html>
