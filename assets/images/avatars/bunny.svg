@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100%" height="100%">
+  <!-- Background Circle: Soft Mint Mist -->
+  <circle cx="50" cy="50" r="48" fill="#E8F0E6" stroke="#C2D6C0" stroke-width="2"/>
+  
+  <!-- Bunny Long Ears -->
+  <!-- Left Ear -->
+  <path d="M36 40 C30 18 36 6 42 6 C48 6 46 22 42 40 Z" fill="#FFFFFF" stroke="#D3C5B4" stroke-width="1.8"/>
+  <path d="M37 36 C34 20 37 10 41 10 C44 10 44 22 41 36 Z" fill="#F8B4A5"/>
+  <!-- Right Ear (cute slight floppy tilt) -->
+  <path d="M64 40 C70 18 64 6 58 6 C52 6 54 22 58 40 Z" fill="#FFFFFF" stroke="#D3C5B4" stroke-width="1.8"/>
+  <path d="M63 36 C66 20 63 10 59 10 C56 10 56 22 59 36 Z" fill="#F8B4A5"/>
+  
+  <!-- Little Daisy on Left Ear Base -->
+  <circle cx="34" cy="38" r="4" fill="#FFFFFF" stroke="#E0C688" stroke-width="0.8"/>
+  <circle cx="34" cy="38" r="1.8" fill="#F4B251"/>
+  
+  <!-- Bunny Head -->
+  <ellipse cx="50" cy="58" rx="27" ry="24" fill="#FFFFFF"/>
+  
+  <!-- Eyes (big sparkling anime/chibi eyes) -->
+  <ellipse cx="40" cy="56" rx="3.5" ry="4.5" fill="#3D2B1F"/>
+  <circle cx="41.5" cy="54.5" r="1.4" fill="#FFFFFF"/>
+  <circle cx="39" cy="57.5" r="0.7" fill="#FFFFFF"/>
+  
+  <ellipse cx="60" cy="56" rx="3.5" ry="4.5" fill="#3D2B1F"/>
+  <circle cx="61.5" cy="54.5" r="1.4" fill="#FFFFFF"/>
+  <circle cx="59" cy="57.5" r="0.7" fill="#FFFFFF"/>
+  
+  <!-- Nose & Mouth -->
+  <polygon points="50,62 48,60 52,60" fill="#E2847A"/>
+  <path d="M47 63 Q50 66 50 64 Q50 66 53 63" fill="none" stroke="#3D2B1F" stroke-width="1.5" stroke-linecap="round"/>
+  
+  <!-- Blush Cheeks -->
+  <ellipse cx="31" cy="62" rx="4.5" ry="2.6" fill="#FFAAA6" opacity="0.6"/>
+  <ellipse cx="69" cy="62" rx="4.5" ry="2.6" fill="#FFAAA6" opacity="0.6"/>
+</svg>

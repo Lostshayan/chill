@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100%" height="100%">
+  <!-- Background Circle: Soft Parchment Sage -->
+  <circle cx="50" cy="50" r="48" fill="#EBF0EB" stroke="#A3B18A" stroke-width="2"/>
+  
+  <!-- Big Fluffy Koala Ears -->
+  <circle cx="24" cy="38" r="14" fill="#B0B9BE"/>
+  <circle cx="24" cy="38" r="8" fill="#FFFFFF"/>
+  <circle cx="76" cy="38" r="14" fill="#B0B9BE"/>
+  <circle cx="76" cy="38" r="8" fill="#FFFFFF"/>
+  
+  <!-- Head -->
+  <ellipse cx="50" cy="54" rx="28" ry="24" fill="#B0B9BE"/>
+  
+  <!-- Inner White Cheeks -->
+  <ellipse cx="37" cy="58" rx="8" ry="6" fill="#FFFFFF" opacity="0.6"/>
+  <ellipse cx="63" cy="58" rx="8" ry="6" fill="#FFFFFF" opacity="0.6"/>
+  
+  <!-- Iconic Big Dark Koala Nose -->
+  <ellipse cx="50" cy="52" rx="7" ry="11" fill="#3A4045"/>
+  <ellipse cx="48" cy="48" rx="2" ry="3.5" fill="#586168"/>
+  
+  <!-- Sleepy/Cute Eyes -->
+  <ellipse cx="36" cy="48" rx="3" ry="3.5" fill="#24282B"/>
+  <circle cx="37" cy="47" r="1" fill="#FFFFFF"/>
+  <ellipse cx="64" cy="48" rx="3" ry="3.5" fill="#24282B"/>
+  <circle cx="65" cy="47" r="1" fill="#FFFFFF"/>
+  
+  <!-- Blush Cheeks -->
+  <ellipse cx="28" cy="56" rx="4.5" ry="2.6" fill="#FFAAA6" opacity="0.6"/>
+  <ellipse cx="72" cy="56" rx="4.5" ry="2.6" fill="#FFAAA6" opacity="0.6"/>
+  
+  <!-- Eucalyptus Leaf in mouth -->
+  <path d="M54 62 Q68 62 70 54 Q60 52 52 60 Z" fill="#588157" stroke="#3A5A40" stroke-width="1"/>
+  <line x1="53" y1="61" x2="68" y2="54" stroke="#344E41" stroke-width="0.8"/>
+</svg>

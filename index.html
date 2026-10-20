@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Cozy Lo-Fi Study Room - Sync & Chill</title>
+  <title>lofify - Study, Sync & Chill</title>
   
   <!-- Modern Font -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -13,10 +13,125 @@
   <!-- Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="assets/images/logo.svg?v=lofify1">
+
   <!-- Core Styles -->
-  <link rel="stylesheet" href="style.css?v=mobile_responsive_v1">
+  <link rel="stylesheet" href="style.css?v=lofify_hotspots_v7">
 </head>
 <body>
+  <!-- MINIMAL VIBE-CODED AESTHETIC LANDING -->
+  <div class="landing-page" id="landingPage">
+    <!-- Atmospheric Ambient Lighting -->
+    <div class="vibe-bg-glow">
+      <div class="glow-sphere sphere-warm-amber"></div>
+      <div class="glow-sphere sphere-soft-sage"></div>
+      <div class="glow-sphere sphere-warm-sand"></div>
+    </div>
+
+    <!-- Minimal Aesthetic Header -->
+    <header class="vibe-navbar">
+      <div class="vibe-brand">
+        <img src="assets/images/logo.svg?v=lofify1" alt="lofify" class="brand-logo-img">
+        <span class="brand-name">lofify</span>
+      </div>
+      <button class="vibe-ghost-btn" id="landingNavLoginBtn">
+        <svg class="google-icon" viewBox="0 0 24 24" width="14" height="14">
+          <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+          <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+          <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+          <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+        </svg>
+        <span>sign in</span>
+      </button>
+    </header>
+
+    <!-- Center Hero Box -->
+    <main class="vibe-main">
+      <div class="vibe-hero">
+        <div class="vibe-badge">
+          <span>your cozy corner to study & chill</span>
+        </div>
+
+        <h1 class="vibe-title">
+          focus together, <br><span class="vibe-gradient">wherever you are.</span>
+        </h1>
+
+        <p class="vibe-tagline">
+          Ambient weather, curated lo-fi beats, and live shared rooms with friends.
+        </p>
+
+        <!-- Google Sign-in Button -->
+        <div class="vibe-cta-box">
+          <button class="vibe-google-btn" id="landingGoogleLoginBtn">
+            <svg class="google-icon" viewBox="0 0 24 24" width="20" height="20">
+              <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+              <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+              <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+              <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+            </svg>
+            <span>Continue with Google</span>
+          </button>
+          <button class="vibe-guest-link" id="landingGuestBtn">or enter as guest →</button>
+        </div>
+      </div>
+
+      <!-- Aesthetic Theme Filmstrip (Visual Glimpses) -->
+      <div class="vibe-carousel-wrapper">
+        <div class="vibe-carousel-title">
+          <span>// 6 immersive scenes</span>
+        </div>
+        <div class="vibe-strip">
+          <div class="vibe-card">
+            <img src="assets/images/scene2/thumbnail.jpg?v=comp1" alt="Winter Cabin" loading="lazy">
+            <div class="vibe-card-overlay">
+              <span>❄️ Winter Cabin</span>
+            </div>
+          </div>
+          <div class="vibe-card">
+            <img src="assets/images/scene_library/thumbnail.jpg?v=comp1" alt="Grand Library" loading="lazy">
+            <div class="vibe-card-overlay">
+              <span>📚 Grand Library</span>
+            </div>
+          </div>
+          <div class="vibe-card">
+            <img src="assets/images/scene_forest/forest_sunny.png?v=new_v2" alt="Forest House" loading="lazy">
+            <div class="vibe-card-overlay">
+              <span>🌲 Forest House</span>
+            </div>
+          </div>
+          <div class="vibe-card">
+            <img src="assets/images/scene_forest_cabin/thumbnail.jpg?v=fc1" alt="Forest Cabin" loading="lazy">
+            <div class="vibe-card-overlay">
+              <span>🏡 Forest Cabin</span>
+            </div>
+          </div>
+          <div class="vibe-card">
+            <img src="assets/images/scene_durga_puja/thumbnail.jpg?v=dp1" alt="Durga Puja" loading="lazy">
+            <div class="vibe-card-overlay">
+              <span>🪔 Durga Puja</span>
+            </div>
+          </div>
+          <div class="vibe-card">
+            <img src="assets/images/scene_kali_puja/thumbnail.jpg?v=kp1" alt="Kali Puja" loading="lazy">
+            <div class="vibe-card-overlay">
+              <span>🎆 Kali Puja</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Minimal Features Pill Strip -->
+      <div class="vibe-features-strip">
+        <span class="vibe-pill-item"><i class="fa-solid fa-users"></i> Live Study Rooms</span>
+        <span class="vibe-pill-item"><i class="fa-solid fa-headphones"></i> Lo-Fi & Festive Beats</span>
+        <span class="vibe-pill-item"><i class="fa-solid fa-cloud-rain"></i> Weather FX</span>
+        <span class="vibe-pill-item"><i class="fa-solid fa-stopwatch"></i> Focus Pomodoro</span>
+        <span class="vibe-pill-item"><i class="fa-solid fa-fire"></i> Streaks & XP</span>
+      </div>
+    </main>
+  </div>
+
   <!-- Retro Television Housing Set -->
   <div id="tv-set">
     <div class="tv-screen-bezel">
@@ -34,6 +149,18 @@
 
       <!-- Green-cut transparent room foreground (chromakeyed) -->
       <canvas id="cabin-foreground-layer" style="z-index: 3; position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;"></canvas>
+
+      <!-- Interactive Hotspot: Window Blizzard & Sound -->
+      <div class="scene-hotspot-wrap" id="wrapWinterBlizzard" style="top: 32%; left: 48%;">
+        <button type="button" class="scene-hotspot" id="hotspotWinterBlizzard" aria-label="Toggle Blizzard Weather & Sound">
+          <span class="hotspot-dot"></span>
+          <span class="hotspot-tooltip">Blizzard Wind</span>
+        </button>
+        <div class="hotspot-vol-bar" id="volBarWinterBlizzard">
+          <i class="fa-solid fa-volume-low"></i>
+          <input type="range" class="hotspot-vol-slider" data-hotspot="blizzard" min="0" max="1" step="0.02" value="0.7" title="Blizzard Volume">
+        </div>
+      </div>
     </div>
 
     <!-- SCENE LIBRARY: Grand Library -->
@@ -46,6 +173,30 @@
 
       <!-- Chromakeyed library room interior -->
       <canvas id="library-foreground-layer" style="z-index: 3; position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;"></canvas>
+
+      <!-- Interactive Hotspot: Furnace Fire Sound (Positioned right inside the fireplace hearth) -->
+      <div class="scene-hotspot-wrap" id="wrapLibraryFurnace" style="top: 58%; left: 64%;">
+        <button type="button" class="scene-hotspot" id="hotspotLibraryFurnace" aria-label="Toggle Furnace Fireplace Sound">
+          <span class="hotspot-dot"></span>
+          <span class="hotspot-tooltip">Furnace Fire</span>
+        </button>
+        <div class="hotspot-vol-bar" id="volBarLibraryFurnace">
+          <i class="fa-solid fa-volume-low"></i>
+          <input type="range" class="hotspot-vol-slider" data-hotspot="fireplace" min="0" max="1" step="0.02" value="0.7" title="Furnace Volume">
+        </div>
+      </div>
+
+      <!-- Interactive Hotspot: Upper Window Rain & Sound -->
+      <div class="scene-hotspot-wrap" id="wrapLibraryRain" style="top: 20%; left: 63%;">
+        <button type="button" class="scene-hotspot" id="hotspotLibraryRain" aria-label="Toggle Rain & Sound">
+          <span class="hotspot-dot"></span>
+          <span class="hotspot-tooltip">Rainy Window</span>
+        </button>
+        <div class="hotspot-vol-bar" id="volBarLibraryRain">
+          <i class="fa-solid fa-volume-low"></i>
+          <input type="range" class="hotspot-vol-slider" data-hotspot="libraryRain" min="0" max="1" step="0.02" value="0.7" title="Rain Volume">
+        </div>
+      </div>
     </div>
 
     <!-- SCENE FOREST: Forest House -->
@@ -58,6 +209,18 @@
 
       <!-- Rain canvas for Forest House -->
       <canvas id="forest-rain-canvas" class="rain-canvas" style="z-index: 3; position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;"></canvas>
+
+      <!-- Interactive Hotspot: Left Side Forest Rain & Sound -->
+      <div class="scene-hotspot-wrap" id="wrapForestRain" style="top: 48%; left: 20%;">
+        <button type="button" class="scene-hotspot" id="hotspotForestRain" aria-label="Toggle Forest Rain & Sound">
+          <span class="hotspot-dot"></span>
+          <span class="hotspot-tooltip">Forest Rain</span>
+        </button>
+        <div class="hotspot-vol-bar" id="volBarForestRain">
+          <i class="fa-solid fa-volume-low"></i>
+          <input type="range" class="hotspot-vol-slider" data-hotspot="forestRain" min="0" max="1" step="0.02" value="0.7" title="Rain Volume">
+        </div>
+      </div>
     </div>
 
     <!-- SCENE FOREST CABIN: Study Desk in the Woods -->
@@ -73,6 +236,18 @@
 
       <!-- Desk Room Foreground layer (transparent window cutout) -->
       <div id="forest-cabin-foreground" class="forest-cabin-fg" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 4; pointer-events: none;"></div>
+
+      <!-- Interactive Hotspot: Window Rain & Sound -->
+      <div class="scene-hotspot-wrap" id="wrapForestCabinRain" style="top: 26%; left: 47%;">
+        <button type="button" class="scene-hotspot" id="hotspotForestCabinRain" aria-label="Toggle Cabin Rain & Sound">
+          <span class="hotspot-dot"></span>
+          <span class="hotspot-tooltip">Cabin Rain</span>
+        </button>
+        <div class="hotspot-vol-bar" id="volBarForestCabinRain">
+          <i class="fa-solid fa-volume-low"></i>
+          <input type="range" class="hotspot-vol-slider" data-hotspot="forestCabinRain" min="0" max="1" step="0.02" value="0.7" title="Rain Volume">
+        </div>
+      </div>
     </div>
 
     <!-- SCENE DURGA PUJA: Kolkata Pandal & Evening Street -->
@@ -83,8 +258,17 @@
       <!-- Festive golden floating embers / sparkles for clear evening -->
       <canvas id="durga-sparkles-canvas" class="durga-fx-canvas" style="z-index: 2; position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;"></canvas>
 
-      <!-- Soft evening rain canvas for rainy mode -->
-      <canvas id="durga-rain-canvas" class="rain-canvas" style="z-index: 3; position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;"></canvas>
+      <!-- Interactive Hotspot: Mandap Dhak Music -->
+      <div class="scene-hotspot-wrap" id="wrapDurgaDhak" style="top: 58%; left: 60%;">
+        <button type="button" class="scene-hotspot" id="hotspotDurgaDhak" aria-label="Toggle Dhak Rhythms">
+          <span class="hotspot-dot"></span>
+          <span class="hotspot-tooltip">Dhak Rhythms</span>
+        </button>
+        <div class="hotspot-vol-bar" id="volBarDurgaDhak">
+          <i class="fa-solid fa-volume-low"></i>
+          <input type="range" class="hotspot-vol-slider" data-hotspot="durgaDhak" min="0" max="1" step="0.02" value="0.7" title="Dhak Volume">
+        </div>
+      </div>
     </div>
 
     <!-- SCENE KALI PUJA: Night Sky, Fireworks & Illuminated Pandal -->
@@ -93,7 +277,7 @@
       <div id="bg-kali-sky" class="kali-sky-bg" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1;"></div>
 
       <!-- Layer 2: Fireworks in designated portion of the sky -->
-      <div id="kali-fireworks-container" class="kali-fireworks-box" style="position: absolute; top: 0; left: 0; width: 55%; height: 48%; z-index: 2; pointer-events: auto;"></div>
+      <div id="kali-fireworks-container" class="kali-fireworks-box" style="position: absolute; top: 0; left: 0; width: 65%; height: 55%; z-index: 2; pointer-events: none;"></div>
 
       <!-- Layer 3: Floating Paper Sky Lanterns (Fanush) -->
       <div id="kali-lanterns" class="kali-lanterns-layer" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 3; pointer-events: none;"></div>
@@ -101,8 +285,29 @@
       <!-- Layer 4: Foreground Illuminated Kali Puja Pandal with Diyas & Courtyard -->
       <div id="kali-pandal-fg" class="kali-pandal-layer" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 4; pointer-events: none;"></div>
 
-      <!-- Optional Layer 5: Rain Canvas for weather toggle -->
-      <canvas id="kali-rain-canvas" class="rain-canvas" style="z-index: 5; position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;"></canvas>
+      <!-- Interactive Hotspot: Sky Fireworks Display & Sound -->
+      <div class="scene-hotspot-wrap" id="wrapKaliFireworks" style="top: 20%; left: 26%;">
+        <button type="button" class="scene-hotspot" id="hotspotKaliFireworks" aria-label="Toggle Fireworks Display & Sound">
+          <span class="hotspot-dot"></span>
+          <span class="hotspot-tooltip">Fireworks</span>
+        </button>
+        <div class="hotspot-vol-bar" id="volBarKaliFireworks">
+          <i class="fa-solid fa-volume-low"></i>
+          <input type="range" class="hotspot-vol-slider" data-hotspot="kaliFireworks" min="0" max="1" step="0.02" value="0.7" title="Fireworks Volume">
+        </div>
+      </div>
+
+      <!-- Interactive Hotspot: Mandap Shyama Sangeet -->
+      <div class="scene-hotspot-wrap" id="wrapKaliShyama" style="top: 66%; left: 52%;">
+        <button type="button" class="scene-hotspot" id="hotspotKaliShyama" aria-label="Toggle Shyama Sangeet">
+          <span class="hotspot-dot"></span>
+          <span class="hotspot-tooltip">Shyama Sangeet</span>
+        </button>
+        <div class="hotspot-vol-bar" id="volBarKaliShyama">
+          <i class="fa-solid fa-volume-low"></i>
+          <input type="range" class="hotspot-vol-slider" data-hotspot="kaliShyama" min="0" max="1" step="0.02" value="0.7" title="Shyama Sangeet Volume">
+        </div>
+      </div>
     </div>
 
     <!-- Cozy Ambient Lighting Overlay (covers all layers for unified coloring) -->
@@ -111,6 +316,13 @@
     
     <!-- CRT Screen Overlay with scanlines and reflection -->
     <div class="crt-screen-overlay"></div>
+
+    <!-- Room / Study Together Widget (Inside CRT Screen, Top Left Corner) -->
+    <div class="screen-room-widget" id="screenRoomWidget" title="Click to view Study Room & Invite Friends">
+      <span class="room-status-dot online"></span>
+      <span class="room-label" id="roomPillLabel">Room: cozy-study</span>
+      <span class="room-users-count" id="roomPillCount"><i class="fa-solid fa-user-group"></i> 1</span>
+    </div>
 
     <!-- Focus & Rest Timer Widget (Inside CRT Screen, Top Center) -->
     <div class="screen-timer-widget" id="screenTimerWidget">
@@ -308,14 +520,55 @@
 
       <!-- Filter tabs -->
       <div class="screen-music-tabs">
-        <button class="music-tab-btn active" data-tab="all">All Songs</button>
-        <button class="music-tab-btn" data-tab="festive">Festivals (Dhak & Shyama Sangeet)</button>
-        <button class="music-tab-btn" data-tab="lofi">Lofi & Chillhop</button>
+        <button class="music-tab-btn active" data-tab="all">All Lo-Fi Beats</button>
+        <button class="music-tab-btn" data-tab="lofi">Chillhop</button>
+        <button class="music-tab-btn" data-tab="focus">Study & Focus</button>
       </div>
 
       <!-- Scrollable list of tracks -->
       <div class="screen-music-list" id="screenMusicList">
         <!-- Rendered dynamically via JavaScript -->
+      </div>
+    </div>
+
+    <!-- On-Screen TV Room & Study Together Panel -->
+    <div class="screen-room-panel" id="panelRoom">
+      <div class="panel-header">
+        <h2><i class="fa-solid fa-users"></i> Study Room</h2>
+        <button class="ctrl-btn" id="closePanelRoom" title="Close"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <div class="room-scroll-body">
+        <!-- Room Invite Card -->
+        <div class="room-invite-card">
+          <div class="room-invite-header">
+            <span class="room-badge-tag"><i class="fa-solid fa-link"></i> INVITE LINK</span>
+            <span class="room-status-indicator"><i class="fa-solid fa-circle"></i> Live Sync</span>
+          </div>
+          <p class="room-invite-desc">Invite your friends to study together in this room. Music, vibes, and focus sessions sync live!</p>
+          <div class="room-link-box">
+            <input type="text" id="roomInviteInput" readonly value="">
+            <button class="room-copy-btn" id="btnCopyRoomLink" title="Copy Invite Link">
+              <i class="fa-solid fa-copy"></i> <span>Copy</span>
+            </button>
+          </div>
+          <div class="room-switch-row">
+            <input type="text" id="roomNameInput" placeholder="Room name (e.g. math-cram)" maxlength="24">
+            <button class="room-switch-btn" id="btnSwitchRoom" title="Switch or Create Room">
+              <i class="fa-solid fa-arrow-right-to-bracket"></i> Switch
+            </button>
+          </div>
+        </div>
+
+        <!-- Participants List -->
+        <div class="room-members-section">
+          <div class="members-header">
+            <span class="members-title"><i class="fa-solid fa-headphones"></i> Studying Together (<span id="roomListenersCount">1</span>)</span>
+          </div>
+          <div class="room-members-list" id="roomMembersList">
+            <!-- Dynamically populated -->
+          </div>
+        </div>
       </div>
     </div>
 
@@ -327,6 +580,31 @@
       </div>
 
       <div class="profile-scroll-body">
+        <!-- Google Authentication Banner / User Card -->
+        <div class="auth-section" id="authSection">
+          <div class="auth-logged-out" id="authLoggedOut">
+            <button class="google-login-btn" id="btnGoogleLogin" title="Sign in with your Google account">
+              <svg class="google-icon" viewBox="0 0 24 24" width="18" height="18">
+                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+              </svg>
+              <span>Continue with Google</span>
+            </button>
+            <div class="auth-hint">Sign in to save your focus streak & study with friends</div>
+          </div>
+          <div class="auth-logged-in" id="authLoggedIn" style="display: none;">
+            <div class="auth-user-badge">
+              <i class="fa-brands fa-google"></i>
+              <span id="authUserEmail">Signed in</span>
+            </div>
+            <button class="auth-signout-btn" id="btnSignOut" title="Sign out of Google">
+              <i class="fa-solid fa-arrow-right-from-bracket"></i> Sign Out
+            </button>
+          </div>
+        </div>
+
         <!-- Profile Header Card -->
         <div class="profile-card">
           <div class="profile-avatar-wrapper">
@@ -570,7 +848,7 @@
       </div>
 
       <!-- Weather Toggle Switch -->
-      <div class="tv-switch-container">
+      <div class="tv-switch-container" id="tvWeatherSwitchContainer">
         <div class="tv-switch-label">WEATHER</div>
         <div class="tv-toggle-switch" id="tvWeatherSwitch">
           <div class="switch-handle"></div>
@@ -582,6 +860,9 @@
 
       <!-- Extra Bezel Buttons -->
       <div class="tv-buttons-extra">
+        <button class="tv-small-btn" id="toggleRoomBtn" title="Study Room & Invite Link">
+          <i class="fa-solid fa-users"></i>
+        </button>
         <button class="tv-small-btn" id="toggleTimerBtn" title="Toggle Timer">
           <i class="fa-solid fa-stopwatch"></i>
         </button>
@@ -616,6 +897,95 @@
 
 
 
+  <!-- ONBOARDING / PROFILE SETUP MODAL -->
+  <div class="modal-overlay profile-setup-overlay" id="profileSetupModal">
+    <div class="profile-setup-card">
+      <div class="setup-header">
+        <div class="setup-badge"><span>✨ welcome to lofify</span></div>
+        <h2 class="setup-title">Choose your study persona</h2>
+        <p class="setup-subtitle">Pick a cute companion avatar and set your username for live rooms.</p>
+      </div>
+
+      <!-- Avatar Preview Ring -->
+      <div class="setup-preview-wrapper">
+        <div class="setup-avatar-preview-ring" id="setupAvatarPreviewRing">
+          <img src="assets/images/avatars/cat.svg" alt="Selected Avatar" id="setupSelectedAvatarImg" class="setup-preview-img">
+        </div>
+        <div class="setup-avatar-title" id="setupSelectedAvatarLabel">Mochi Cat 🐱</div>
+      </div>
+
+      <!-- Cute Animal Avatar Selector Grid -->
+      <div class="setup-avatar-section">
+        <div class="setup-section-label">SELECT COMPANION AVATAR</div>
+        <div class="setup-avatar-grid" id="setupAvatarGrid">
+          <button type="button" class="setup-avatar-opt active" data-animal="cat" data-name="Mochi Cat 🐱" data-src="assets/images/avatars/cat.svg">
+            <img src="assets/images/avatars/cat.svg" alt="Mochi Cat">
+            <span>Mochi Cat</span>
+          </button>
+          <button type="button" class="setup-avatar-opt" data-animal="panda" data-name="Boba Panda 🐼" data-src="assets/images/avatars/panda.svg">
+            <img src="assets/images/avatars/panda.svg" alt="Boba Panda">
+            <span>Boba Panda</span>
+          </button>
+          <button type="button" class="setup-avatar-opt" data-animal="fox" data-name="Cozy Fox 🦊" data-src="assets/images/avatars/fox.svg">
+            <img src="assets/images/avatars/fox.svg" alt="Cozy Fox">
+            <span>Cozy Fox</span>
+          </button>
+          <button type="button" class="setup-avatar-opt" data-animal="bear" data-name="Study Bear 🐻" data-src="assets/images/avatars/bear.svg">
+            <img src="assets/images/avatars/bear.svg" alt="Study Bear">
+            <span>Study Bear</span>
+          </button>
+          <button type="button" class="setup-avatar-opt" data-animal="bunny" data-name="Matcha Bunny 🐰" data-src="assets/images/avatars/bunny.svg">
+            <img src="assets/images/avatars/bunny.svg" alt="Matcha Bunny">
+            <span>Matcha Bunny</span>
+          </button>
+          <button type="button" class="setup-avatar-opt" data-animal="koala" data-name="Sleepy Koala 🐨" data-src="assets/images/avatars/koala.svg">
+            <img src="assets/images/avatars/koala.svg" alt="Sleepy Koala">
+            <span>Sleepy Koala</span>
+          </button>
+          <button type="button" class="setup-avatar-opt" data-animal="shiba" data-name="Shiba Inu 🐕" data-src="assets/images/avatars/shiba.svg">
+            <img src="assets/images/avatars/shiba.svg" alt="Shiba Inu">
+            <span>Shiba Inu</span>
+          </button>
+          <button type="button" class="setup-avatar-opt" data-animal="otter" data-name="Pip Otter 🦦" data-src="assets/images/avatars/otter.svg">
+            <img src="assets/images/avatars/otter.svg" alt="Pip Otter">
+            <span>Pip Otter</span>
+          </button>
+          <button type="button" class="setup-avatar-opt" data-animal="frog" data-name="Rainy Frog 🐸" data-src="assets/images/avatars/frog.svg">
+            <img src="assets/images/avatars/frog.svg" alt="Rainy Frog">
+            <span>Rainy Frog</span>
+          </button>
+          <button type="button" class="setup-avatar-opt" data-animal="owl" data-name="Bookish Owl 🦉" data-src="assets/images/avatars/owl.svg">
+            <img src="assets/images/avatars/owl.svg" alt="Bookish Owl">
+            <span>Bookish Owl</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Username Input -->
+      <div class="setup-input-section">
+        <label for="setupUsernameInput" class="setup-section-label">YOUR CALLSIGN / USERNAME</label>
+        <div class="setup-input-wrapper">
+          <i class="fa-solid fa-at"></i>
+          <input type="text" id="setupUsernameInput" maxlength="20" placeholder="e.g. cozy-scholar" autocomplete="off" spellcheck="false">
+          <span class="setup-char-count" id="setupCharCount">0/20</span>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="setup-actions">
+        <button type="button" class="setup-save-btn" id="btnSaveProfileSetup">
+          <i class="fa-solid fa-sparkles"></i> Save & Enter Room
+        </button>
+        <button type="button" class="setup-skip-btn" id="btnSkipProfileSetup">
+          Skip for now
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Live Room Notification Toast -->
+  <div class="room-toast" id="roomToast"></div>
+
   <!-- crashmax-dev/fireworks-js official library -->
   <script src="https://unpkg.com/fireworks-js@2.x/dist/index.umd.js"></script>
   <script>
@@ -624,7 +994,10 @@
     }
   </script>
 
+  <!-- Supabase JS Client SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
   <script src="config.js" defer></script>
-  <script src="app.js?v=slow_fireworks_v1" defer></script>
+  <script src="app.js?v=lofify_hotspots_v10" defer></script>
 </body>
 </html>

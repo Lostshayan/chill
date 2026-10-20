@@ -32,47 +32,22 @@ const PLAYLISTS = {
     { title: "Swiss", artist: "Cozy Lofi Study", url: "assets/audio/music/lofi_03_swiss.mp3" }
   ],
   durga_puja: [
-    { title: "Dhak Rhythms (ঢাক)", artist: "Durga Puja Festive Beats", url: "assets/audio/music/durga_puja_dhak_beats.mp3" },
-    { title: "Traditional Dhak & Dhol", artist: "Durga Puja Utsab", url: "assets/audio/music/durga_puja_dhak.m4a" }
+    { title: "Apple Juice", artist: "Chillhop Music", url: "assets/audio/music/lofi_01_apple_juice.mp3" },
+    { title: "Tôzen", artist: "Chillhop Beats", url: "assets/audio/music/lofi_02_tozen.mp3" },
+    { title: "Swiss", artist: "Cozy Lofi Study", url: "assets/audio/music/lofi_03_swiss.mp3" },
+    { title: "Endless Sunset", artist: "Lofi Sunset Radio", url: "assets/audio/music/lofi_04_endless_sunset.mp3" },
+    { title: "Floating Vibes", artist: "Dreamhop Records", url: "assets/audio/music/lofi_05_floating_vibes.mp3" }
   ],
   kali_puja: [
-    { title: "Shyama Sangeet (শ্যামা সংগীত)", artist: "Pannalal Bhattacharya", url: "assets/audio/music/kali_puja_shyama_sangeet.m4a" }
+    { title: "Floating Vibes", artist: "Dreamhop Records", url: "assets/audio/music/lofi_05_floating_vibes.mp3" },
+    { title: "Swiss", artist: "Cozy Lofi Study", url: "assets/audio/music/lofi_03_swiss.mp3" },
+    { title: "Apple Juice", artist: "Chillhop Music", url: "assets/audio/music/lofi_01_apple_juice.mp3" },
+    { title: "Endless Sunset", artist: "Lofi Sunset Radio", url: "assets/audio/music/lofi_04_endless_sunset.mp3" }
   ]
 };
 
 // --- COMPLETE CATALOG OF SONGS FOR ON-SCREEN CRT MENU ---
 const ALL_TRACKS = [
-  // Bengal Festivals
-  {
-    id: "dp_dhak_beats",
-    vibe: "durga_puja",
-    index: 0,
-    title: "Dhak Rhythms (ঢাক)",
-    artist: "Durga Puja Festive Beats",
-    category: "festive",
-    tag: "Durga Puja",
-    url: "assets/audio/music/durga_puja_dhak_beats.mp3"
-  },
-  {
-    id: "dp_dhak_dhol",
-    vibe: "durga_puja",
-    index: 1,
-    title: "Traditional Dhak & Dhol",
-    artist: "Durga Puja Utsab",
-    category: "festive",
-    tag: "Durga Puja",
-    url: "assets/audio/music/durga_puja_dhak.m4a"
-  },
-  {
-    id: "kp_shyama",
-    vibe: "kali_puja",
-    index: 0,
-    title: "Shyama Sangeet (শ্যামা সংগীত)",
-    artist: "Pannalal Bhattacharya",
-    category: "festive",
-    tag: "Kali Puja",
-    url: "assets/audio/music/kali_puja_shyama_sangeet.m4a"
-  },
   // Lofi Chill & Study Beats
   {
     id: "lofi_01",
@@ -203,8 +178,47 @@ let state = {
   isDurgaPujaRainActive: false,
   isKaliPujaRainActive: false,
   currentTheme: 'scene_kali_puja',
+  hotspots: {
+    blizzard: false,
+    fireplace: false,
+    libraryRain: false,
+    forestRain: false,
+    forestCabinRain: false,
+    durgaDhak: false,
+    kaliFireworks: false,
+    kaliShyama: false
+  },
+  hotspotVolumes: {
+    blizzard: 0.7,
+    fireplace: 0.7,
+    libraryRain: 0.7,
+    forestRain: 0.7,
+    forestCabinRain: 0.7,
+    durgaDhak: 0.7,
+    kaliFireworks: 0.7,
+    kaliShyama: 0.7
+  },
   todos: []
 };
+
+// --- INTERACTIVE SCENE HOTSPOT AUDIOS ---
+const hotspotAudios = {
+  blizzard: new Audio('assets/audio/soundscapes/blizzard.wav'),
+  fireplace: new Audio('assets/audio/soundscapes/fireplace.m4a'),
+  libraryRain: new Audio('assets/audio/soundscapes/rain.m4a'),
+  forestRain: new Audio('assets/audio/soundscapes/rain.m4a'),
+  forestCabinRain: new Audio('assets/audio/soundscapes/rain.m4a'),
+  durgaDhak: new Audio('assets/audio/music/durga_puja_dhak_beats.mp3'),
+  kaliFireworks: new Audio('assets/audio/soundscapes/fireworks.m4a'),
+  kaliShyama: new Audio('assets/audio/music/kali_puja_shyama_sangeet.m4a')
+};
+
+for (const key in hotspotAudios) {
+  if (hotspotAudios[key]) {
+    hotspotAudios[key].loop = true;
+    hotspotAudios[key].volume = 0.7;
+  }
+}
 
 // Global Foreground Processing State (Hoisted to prevent TDZ errors)
 let cabinForegroundProcessed = false;
@@ -969,57 +983,58 @@ function initKaliFireworks() {
     return;
   }
 
-  const w = container.clientWidth || 520;
-  const h = container.clientHeight || 280;
+  const parent = container.parentElement || document.body;
+  const w = container.clientWidth || Math.round((parent.clientWidth || window.innerWidth) * 0.65) || 600;
+  const h = container.clientHeight || Math.round((parent.clientHeight || window.innerHeight) * 0.55) || 350;
 
   if (!window.kaliFireworksInstance) {
     window.kaliFireworksInstance = new FireworksConstructor(container, {
       autoresize: true,
-      opacity: 0.6,
-      acceleration: 1.004,
-      friction: 0.96,
-      gravity: 0.45,
-      particles: 55,
-      traceLength: 2,
-      traceSpeed: 1.2,
-      explosion: 2,
-      intensity: 15,
-      flickering: 25,
+      opacity: 0.45,
+      acceleration: 1.05,
+      friction: 0.97,
+      gravity: 1.2,
+      particles: 80,
+      traceLength: 3,
+      traceSpeed: 8,
+      explosion: 5,
+      intensity: 30,
+      flickering: 40,
       lineStyle: 'round',
       hue: {
         min: 0,
-        max: 55,
+        max: 360,
       },
       delay: {
-        min: 40,
-        max: 75,
+        min: 25,
+        max: 50,
       },
       rocketsPoint: {
-        min: 45,
-        max: 55,
+        min: 20,
+        max: 80,
       },
       lineWidth: {
         explosion: {
-          min: 1,
-          max: 2,
+          min: 1.2,
+          max: 3.2,
         },
         trace: {
           min: 1,
-          max: 1.5,
+          max: 2,
         },
       },
       brightness: {
-        min: 65,
-        max: 92,
+        min: 55,
+        max: 88,
       },
       decay: {
-        min: 0.007,
-        max: 0.014,
+        min: 0.015,
+        max: 0.03,
       },
       mouse: {
-        click: true,
+        click: false,
         move: false,
-        max: 1000,
+        max: 1,
       },
       boundaries: {
         x: 20,
@@ -1030,38 +1045,41 @@ function initKaliFireworks() {
     });
   } else {
     window.kaliFireworksInstance.updateOptions({
-      acceleration: 1.004,
-      friction: 0.96,
-      gravity: 0.45,
-      particles: 55,
-      traceLength: 2,
-      traceSpeed: 1.2,
-      explosion: 2,
-      intensity: 15,
-      flickering: 25,
-      hue: { min: 0, max: 55 },
-      delay: { min: 40, max: 75 },
-      brightness: { min: 65, max: 92 },
-      decay: { min: 0.007, max: 0.014 }
+      opacity: 0.45,
+      acceleration: 1.05,
+      friction: 0.97,
+      gravity: 1.2,
+      particles: 80,
+      traceLength: 3,
+      traceSpeed: 8,
+      explosion: 5,
+      intensity: 30,
+      flickering: 40,
+      hue: { min: 0, max: 360 },
+      delay: { min: 25, max: 50 },
+      brightness: { min: 55, max: 88 },
+      decay: { min: 0.015, max: 0.03 }
     });
   }
 
   // Ensure size & boundaries match current container
-  if (container.clientWidth > 0 && container.clientHeight > 0) {
-    window.kaliFireworksInstance.updateSize({
-      width: container.clientWidth,
-      height: container.clientHeight
-    });
-    window.kaliFireworksInstance.updateBoundaries({
-      x: 20,
-      y: 15,
-      width: container.clientWidth,
-      height: container.clientHeight
-    });
-  }
+  window.kaliFireworksInstance.updateSize({
+    width: w,
+    height: h
+  });
+  window.kaliFireworksInstance.updateBoundaries({
+    x: 20,
+    y: 15,
+    width: w,
+    height: h
+  });
 
-  if (state.currentTheme === 'scene_kali_puja' && !window.kaliFireworksInstance.isRunning) {
-    window.kaliFireworksInstance.start();
+  if (state.currentTheme === 'scene_kali_puja' && state.hotspots.kaliFireworks) {
+    if (!window.kaliFireworksInstance.isRunning) {
+      window.kaliFireworksInstance.start();
+    }
+  } else if (!state.hotspots.kaliFireworks && window.kaliFireworksInstance.isRunning) {
+    window.kaliFireworksInstance.stop();
   }
 }
 
@@ -1071,10 +1089,14 @@ window.addEventListener('DOMContentLoaded', () => {
   setupScene2();
   setupSceneLibrary();
   setupThemeSwitcher();
+  initHotspots();
   setupTvBezelControls();
   startClock();
   setupFocusTimer();
   setupProfileAndAnalytics();
+  initSupabaseAuth();
+  initLandingPage();
+  initProfileSetupModal();
   window.blizzardEngine = new BlizzardEngine('blizzard-canvas');
   window.libraryRainEngine = new LibraryRainEngine('library-rain-canvas');
   window.forestRainEngine = new ForestRainEngine('forest-rain-canvas');
@@ -1115,7 +1137,381 @@ window.addEventListener('DOMContentLoaded', () => {
   startSession();
 });
 
-// --- FIREBASE / MOCK INITIALIZATION ---
+// --- SUPABASE CLIENT & GOOGLE AUTHENTICATION ---
+let supabaseClient = null;
+
+function getSupabase() {
+  if (supabaseClient) return supabaseClient;
+  if (typeof window.supabase !== 'undefined' && typeof SUPABASE_URL !== 'undefined' && typeof SUPABASE_ANON_KEY !== 'undefined') {
+    try {
+      supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      return supabaseClient;
+    } catch (err) {
+      console.error("Failed to initialize Supabase client:", err);
+    }
+  }
+  return null;
+}
+
+async function signInWithGoogle() {
+  const client = getSupabase();
+  if (!client) {
+    alert("Supabase client is not available. Please verify credentials in config.js.");
+    return;
+  }
+  try {
+    const { data, error } = await client.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: window.location.origin + window.location.pathname
+      }
+    });
+    if (error) throw error;
+  } catch (err) {
+    console.error("Google login failed:", err);
+    alert("Google Sign-In failed: " + err.message);
+  }
+}
+
+function initLandingPage() {
+  const elLandingNavLoginBtn = document.getElementById('landingNavLoginBtn');
+  const elLandingGoogleLoginBtn = document.getElementById('landingGoogleLoginBtn');
+  const elLandingGoogleLoginBtnBottom = document.getElementById('landingGoogleLoginBtnBottom');
+  const elLandingGuestBtn = document.getElementById('landingGuestBtn');
+  const elLandingPage = document.getElementById('landingPage');
+
+  [elLandingNavLoginBtn, elLandingGoogleLoginBtn, elLandingGoogleLoginBtnBottom].forEach(btn => {
+    if (btn) {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        signInWithGoogle();
+      });
+    }
+  });
+
+  if (elLandingGuestBtn) {
+    elLandingGuestBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      window.guestModeActive = true;
+      if (elLandingPage) {
+        elLandingPage.classList.add('hidden');
+      }
+    });
+  }
+}
+
+async function signOutUser() {
+  const client = getSupabase();
+  if (client) {
+    try {
+      await client.auth.signOut();
+    } catch (e) {
+      console.warn("Sign out error:", e);
+    }
+  }
+  window.guestModeActive = false;
+  state.currentUser = null;
+  state.username = "Studying Bud";
+  if (profileState) {
+    profileState.googleUser = null;
+    profileState.avatarUrl = null;
+    profileState.username = "Chill Scholar";
+    saveProfileData();
+  }
+  updateAuthUI(null);
+  renderProfileUI();
+  if (typeof syncMyPresence === 'function') {
+    syncMyPresence();
+  }
+}
+
+function updateAuthUI(user) {
+  const elAuthLoggedOut = document.getElementById('authLoggedOut');
+  const elAuthLoggedIn = document.getElementById('authLoggedIn');
+  const elAuthUserEmail = document.getElementById('authUserEmail');
+  const elLogoutBtn = document.getElementById('logoutBtn');
+  const elLandingPage = document.getElementById('landingPage');
+
+  if (user) {
+    if (elLandingPage) elLandingPage.classList.add('hidden');
+    if (elAuthLoggedOut) elAuthLoggedOut.style.display = 'none';
+    if (elAuthLoggedIn) elAuthLoggedIn.style.display = 'flex';
+    if (elAuthUserEmail) {
+      const emailText = user.email || (user.user_metadata && user.user_metadata.full_name) || "Google User";
+      elAuthUserEmail.textContent = emailText;
+    }
+    if (elLogoutBtn) {
+      elLogoutBtn.innerHTML = '<i class="fa-solid fa-right-from-bracket"></i> Sign Out';
+      elLogoutBtn.title = `Signed in as ${user.email || 'Google User'}`;
+    }
+  } else {
+    if (elLandingPage && !window.guestModeActive) {
+      elLandingPage.classList.remove('hidden');
+    }
+    if (elAuthLoggedOut) elAuthLoggedOut.style.display = 'block';
+    if (elAuthLoggedIn) elAuthLoggedIn.style.display = 'none';
+    if (elLogoutBtn) {
+      elLogoutBtn.innerHTML = '<i class="fa-brands fa-google"></i> Sign In';
+      elLogoutBtn.title = "Sign in with Google";
+    }
+  }
+}
+
+function handleAuthUser(user) {
+  if (!user) {
+    updateAuthUI(null);
+    return;
+  }
+  state.currentUser = user;
+  const fullName = user.user_metadata?.full_name || user.user_metadata?.name || user.email?.split('@')[0] || "Chill Scholar";
+  const googleAvatar = user.user_metadata?.avatar_url || user.user_metadata?.picture;
+
+  if (!profileState) loadProfileData();
+
+  if (profileState) {
+    profileState.googleUser = {
+      id: user.id,
+      email: user.email,
+      name: fullName,
+      avatarUrl: googleAvatar || null
+    };
+
+    const setupKey = `lofify_profile_setup_${user.id}`;
+    const hasCompletedSetup = localStorage.getItem(setupKey) === 'true';
+
+    if (!hasCompletedSetup) {
+      // Prompt user to pick cute animal avatar & username on initial login!
+      const initialNickname = fullName.split(' ')[0] || fullName;
+      profileState.username = initialNickname;
+      if (!profileState.avatarUrl) {
+        profileState.avatarUrl = 'assets/images/avatars/cat.svg';
+        profileState.avatarAnimal = 'cat';
+        profileState.selectedAvatar = 'Mochi Cat 🐱';
+      }
+      state.username = initialNickname;
+      saveProfileData();
+      updateAuthUI(user);
+      renderProfileUI();
+
+      // Open cute animal onboarding modal with a smooth welcoming delay
+      setTimeout(() => {
+        openProfileSetupModal(user, false);
+      }, 400);
+    } else {
+      // User has already customized their persona
+      state.username = profileState.username || fullName;
+      saveProfileData();
+      updateAuthUI(user);
+      renderProfileUI();
+      if (typeof syncMyPresence === 'function') {
+        syncMyPresence();
+      }
+    }
+  }
+}
+
+function openProfileSetupModal(user = state.currentUser, isEditing = false) {
+  const modal = document.getElementById('profileSetupModal');
+  if (!modal) return;
+
+  if (!profileState) loadProfileData();
+
+  const elInput = document.getElementById('setupUsernameInput');
+  const elCharCount = document.getElementById('setupCharCount');
+  const elPreviewImg = document.getElementById('setupSelectedAvatarImg');
+  const elPreviewLabel = document.getElementById('setupSelectedAvatarLabel');
+  const elBadge = modal.querySelector('.setup-badge span');
+  const elTitle = modal.querySelector('.setup-title');
+
+  if (elBadge) {
+    elBadge.textContent = isEditing ? '🎨 customize persona' : '✨ welcome to lofify';
+  }
+  if (elTitle) {
+    elTitle.textContent = isEditing ? 'Edit your study persona' : 'Choose your study persona';
+  }
+
+  // Pre-fill username
+  const currentName = (profileState && profileState.username) || (user && user.user_metadata?.full_name?.split(' ')[0]) || "Cozy Scholar";
+  if (elInput) {
+    elInput.value = currentName;
+    if (elCharCount) elCharCount.textContent = `${currentName.length}/20`;
+  }
+
+  // Select active avatar in grid
+  const currentAvatarUrl = (profileState && profileState.avatarUrl) || 'assets/images/avatars/cat.svg';
+  let matchedBtn = null;
+
+  document.querySelectorAll('.setup-avatar-opt').forEach(btn => {
+    btn.classList.remove('active');
+    if (btn.dataset.src === currentAvatarUrl || (profileState?.avatarAnimal && btn.dataset.animal === profileState.avatarAnimal)) {
+      matchedBtn = btn;
+    }
+  });
+
+  if (!matchedBtn) {
+    matchedBtn = document.querySelector('.setup-avatar-opt[data-animal="cat"]') || document.querySelector('.setup-avatar-opt');
+  }
+
+  if (matchedBtn) {
+    matchedBtn.classList.add('active');
+    if (elPreviewImg) elPreviewImg.src = matchedBtn.dataset.src;
+    if (elPreviewLabel) elPreviewLabel.textContent = matchedBtn.dataset.name;
+  }
+
+  modal.classList.add('open');
+  if (elInput) {
+    setTimeout(() => elInput.focus(), 250);
+  }
+}
+
+function closeProfileSetupModal() {
+  const modal = document.getElementById('profileSetupModal');
+  if (modal) {
+    modal.classList.remove('open');
+  }
+}
+
+function initProfileSetupModal() {
+  const modal = document.getElementById('profileSetupModal');
+  if (!modal) return;
+
+  const elInput = document.getElementById('setupUsernameInput');
+  const elCharCount = document.getElementById('setupCharCount');
+  const elPreviewImg = document.getElementById('setupSelectedAvatarImg');
+  const elPreviewLabel = document.getElementById('setupSelectedAvatarLabel');
+  const elSaveBtn = document.getElementById('btnSaveProfileSetup');
+  const elSkipBtn = document.getElementById('btnSkipProfileSetup');
+
+  // Input live character counter
+  if (elInput && elCharCount) {
+    elInput.addEventListener('input', () => {
+      const len = elInput.value.length;
+      elCharCount.textContent = `${len}/20`;
+    });
+    elInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        if (elSaveBtn) elSaveBtn.click();
+      }
+    });
+  }
+
+  // Avatar grid options click handler
+  document.querySelectorAll('.setup-avatar-opt').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      document.querySelectorAll('.setup-avatar-opt').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      if (elPreviewImg) {
+        elPreviewImg.src = btn.dataset.src;
+        const ring = document.getElementById('setupAvatarPreviewRing');
+        if (ring) {
+          ring.style.transform = 'scale(1.1)';
+          setTimeout(() => ring.style.transform = 'scale(1)', 180);
+        }
+      }
+      if (elPreviewLabel) {
+        elPreviewLabel.textContent = btn.dataset.name;
+      }
+    });
+  });
+
+  // Save button
+  if (elSaveBtn) {
+    elSaveBtn.addEventListener('click', () => {
+      if (!profileState) loadProfileData();
+
+      const rawName = (elInput?.value || '').trim();
+      const finalName = rawName ? rawName.slice(0, 20) : (profileState.username || "Cozy Scholar");
+
+      const activeOpt = document.querySelector('.setup-avatar-opt.active');
+      const avatarSrc = activeOpt?.dataset.src || 'assets/images/avatars/cat.svg';
+      const avatarAnimal = activeOpt?.dataset.animal || 'cat';
+      const avatarName = activeOpt?.dataset.name || 'Mochi Cat 🐱';
+
+      // Update state
+      state.username = finalName;
+      profileState.username = finalName;
+      profileState.avatarUrl = avatarSrc;
+      profileState.avatarAnimal = avatarAnimal;
+      profileState.selectedAvatar = avatarName;
+      profileState.hasCustomProfile = true;
+
+      if (state.currentUser?.id) {
+        localStorage.setItem(`lofify_profile_setup_${state.currentUser.id}`, 'true');
+      }
+      localStorage.setItem('lofify_profile_setup_local', 'true');
+
+      saveProfileData();
+      renderProfileUI();
+      updateRoomUI();
+      if (typeof syncMyPresence === 'function') {
+        syncMyPresence();
+      }
+
+      closeProfileSetupModal();
+      showRoomToast(`✨ Persona saved! Welcome to lofify, <strong>${finalName}</strong>.`);
+    });
+  }
+
+  // Skip button
+  if (elSkipBtn) {
+    elSkipBtn.addEventListener('click', () => {
+      if (state.currentUser?.id) {
+        localStorage.setItem(`lofify_profile_setup_${state.currentUser.id}`, 'true');
+      }
+      localStorage.setItem('lofify_profile_setup_local', 'true');
+      closeProfileSetupModal();
+      if (typeof syncMyPresence === 'function') {
+        syncMyPresence();
+      }
+    });
+  }
+
+  // Close modal when clicking outside card
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) {
+      closeProfileSetupModal();
+    }
+  });
+}
+
+async function initSupabaseAuth() {
+  const client = getSupabase();
+  if (!client) {
+    console.log("Supabase not configured or library pending");
+    return;
+  }
+
+  try {
+    // Check active session
+    const { data: { session } } = await client.auth.getSession();
+    if (session && session.user) {
+      handleAuthUser(session.user);
+    } else {
+      updateAuthUI(null);
+    }
+
+    // Subscribe to auth state changes
+    client.auth.onAuthStateChange((event, session) => {
+      console.log("Supabase Auth event:", event);
+      if (session && session.user) {
+        handleAuthUser(session.user);
+      } else if (event === 'SIGNED_OUT') {
+        updateAuthUI(null);
+        if (profileState) {
+          profileState.googleUser = null;
+          profileState.avatarUrl = null;
+          profileState.username = "Chill Scholar";
+          saveProfileData();
+        }
+        renderProfileUI();
+      }
+    });
+  } catch (err) {
+    console.warn("Failed to check Supabase auth session:", err);
+  }
+}
 
 // Helper to load a script dynamically
 function loadScript(src) {
@@ -1128,157 +1524,455 @@ function loadScript(src) {
   });
 }
 
-async function startSession() {
-  if (USE_MOCK_MODE) {
-    console.log("Starting in mock simulation mode...");
-    initAudio();
+// --- SUPABASE REALTIME ROOM & PRESENCE ENGINE ---
+let roomChannel = null;
+
+function getRoomIdFromUrl() {
+  try {
+    const params = new URLSearchParams(window.location.search);
+    const r = params.get('room');
+    if (r && r.trim()) {
+      return r.trim().toLowerCase().replace(/[^a-z0-9_-]/g, '-').slice(0, 32);
+    }
+  } catch (e) {
+    console.warn("Could not parse room from URL:", e);
+  }
+  return null;
+}
+
+function getRoomInviteUrl() {
+  try {
+    const url = new URL(window.location.href);
+    url.searchParams.set('room', state.roomId || 'cozy-study');
+    return url.toString();
+  } catch (e) {
+    return `${window.location.origin}${window.location.pathname}?room=${encodeURIComponent(state.roomId || 'cozy-study')}`;
+  }
+}
+
+function showRoomToast(message) {
+  let toast = document.getElementById('roomToast');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = 'roomToast';
+    toast.className = 'room-toast';
+    document.body.appendChild(toast);
+  }
+  toast.innerHTML = message;
+  toast.classList.add('visible');
+  clearTimeout(toast._timer);
+  toast._timer = setTimeout(() => {
+    toast.classList.remove('visible');
+  }, 3500);
+}
+
+function updateRoomUI() {
+  const currentRoom = state.roomId || 'cozy-study';
+  const inviteUrl = getRoomInviteUrl();
+
+  const elRoomPillLabel = document.getElementById('roomPillLabel');
+  if (elRoomPillLabel) elRoomPillLabel.textContent = `Room: ${currentRoom}`;
+
+  const elRoomInviteInput = document.getElementById('roomInviteInput');
+  if (elRoomInviteInput) elRoomInviteInput.value = inviteUrl;
+
+  const elRoomNameInput = document.getElementById('roomNameInput');
+  if (elRoomNameInput) elRoomNameInput.value = currentRoom;
+
+  if (elRoomNameDisplay) elRoomNameDisplay.textContent = currentRoom;
+}
+
+async function syncMyPresence() {
+  if (!roomChannel) return;
+  const avatarUrl = (profileState && profileState.avatarUrl) || "assets/images/avatars/cat.svg";
+  const avatar = (profileState && profileState.selectedAvatar) || "🐱";
+  const displayName = state.username || (profileState && profileState.username) || "Chill Scholar";
+  try {
+    await roomChannel.track({
+      displayName: displayName,
+      avatar: avatar,
+      avatarUrl: avatarUrl,
+      isGoogle: !!(profileState && profileState.googleUser),
+      joinedAt: Date.now()
+    });
+  } catch (err) {
+    console.warn("Error tracking Supabase presence:", err);
+  }
+}
+
+function handleTodoBroadcast(payload) {
+  if (!payload || !payload.action) return;
+  if (payload.action === 'add' && payload.task) {
+    if (!state.todos.some(t => t.id === payload.task.id)) {
+      state.todos.push(payload.task);
+      updateTodoUI();
+    }
+  } else if (payload.action === 'toggle') {
+    const t = state.todos.find(item => item.id === payload.id);
+    if (t) {
+      t.completed = payload.completed;
+      updateTodoUI();
+    }
+  } else if (payload.action === 'delete') {
+    state.todos = state.todos.filter(item => item.id !== payload.id);
+    updateTodoUI();
+  }
+}
+
+async function initSupabaseRoom() {
+  const client = getSupabase();
+  if (!client) {
+    console.warn("Supabase client unavailable, using simulation room");
     initMockRoom();
-  } else {
+    return;
+  }
+
+  // 1. Resolve room ID
+  const roomFromUrl = getRoomIdFromUrl();
+  if (roomFromUrl) {
+    state.roomId = roomFromUrl;
+  } else if (!state.roomId) {
+    state.roomId = "cozy-study";
+  }
+
+  // Reflect room query param in browser address bar without reload
+  try {
+    const currentParams = new URLSearchParams(window.location.search);
+    if (currentParams.get('room') !== state.roomId) {
+      currentParams.set('room', state.roomId);
+      const newUrl = `${window.location.pathname}?${currentParams.toString()}${window.location.hash}`;
+      window.history.replaceState({}, '', newUrl);
+    }
+  } catch (e) {
+    // Ignore URL replace errors in some environments
+  }
+
+  updateRoomUI();
+
+  // If already subscribed, unsubscribe first
+  if (roomChannel) {
     try {
-      // Load Firebase compat SDKs (these attach to window.firebase)
-      await loadScript("https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js");
-      await loadScript("https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js");
+      client.removeChannel(roomChannel);
+    } catch (e) {
+      console.warn("Cleanup error for previous channel:", e);
+    }
+    roomChannel = null;
+  }
 
-      const app = firebase.initializeApp(firebaseConfig);
-      db = firebase.firestore();
+  const presenceKey = (state.currentUser && state.currentUser.id)
+    ? state.currentUser.id
+    : `anon-${Math.random().toString(36).substring(2, 9)}`;
 
-      if (elSyncText) elSyncText.textContent = "Syncing...";
-      initAudio();
-      
-      // Sync Room State
-      const roomDocRef = db.collection("rooms").doc(state.roomId);
-      
-      // Initialize room doc if it doesn't exist
-      await roomDocRef.set({
-        currentVibe: state.currentVibe,
-        currentTrackIndex: state.currentTrackIndex,
-        isPlaying: state.isPlaying,
-        trackStartTime: Date.now(),
-        soundscapes: state.soundscapeVols
-      }, { merge: true });
+  // Create Realtime channel
+  roomChannel = client.channel(`room:${state.roomId}`, {
+    config: {
+      presence: { key: presenceKey },
+      broadcast: { self: false }
+    }
+  });
 
-      // Join as active member
-      const memberId = state.username.replace(/\s+/g, '-').toLowerCase() + '-' + Date.now();
-      const memberRef = db.collection("rooms").doc(state.roomId).collection("members").doc(memberId);
-      await memberRef.set({
-        displayName: state.username,
-        avatar: ["🐼", "🐱", "🐨", "🦊", "🐯", "🐰"][Math.floor(Math.random() * 6)],
-        lastActive: Date.now()
-      });
+  // Track room presence (who is online in the room)
+  roomChannel
+    .on('presence', { event: 'sync' }, () => {
+      const presenceState = roomChannel.presenceState();
+      const list = [];
+      for (const id in presenceState) {
+        const presences = presenceState[id];
+        if (presences && presences.length > 0) {
+          const userMeta = presences[0];
+          list.push({
+            id: id,
+            displayName: userMeta.displayName || 'Studying Bud',
+            avatar: userMeta.avatar || '🎧',
+            avatarUrl: userMeta.avatarUrl || null,
+            isMe: id === presenceKey
+          });
+        }
+      }
+      updateListenersUI(list);
+    })
+    .on('presence', { event: 'join' }, ({ newPresences }) => {
+      if (newPresences && newPresences.length > 0) {
+        const p = newPresences[0];
+        if (p && p.displayName && p.displayName !== state.username) {
+          showRoomToast(`👋 <strong>${p.displayName}</strong> joined the study room!`);
+        }
+      }
+    })
+    .on('presence', { event: 'leave' }, ({ leftPresences }) => {
+      if (leftPresences && leftPresences.length > 0) {
+        const p = leftPresences[0];
+        if (p && p.displayName && p.displayName !== state.username) {
+          showRoomToast(`👋 <strong>${p.displayName}</strong> left the room.`);
+        }
+      }
+    });
 
-      // Cleanup member on tab close
-      window.addEventListener('beforeunload', () => {
-        memberRef.delete();
-      });
+  // Broadcast handlers
+  roomChannel.on('broadcast', { event: 'room_state' }, ({ payload }) => {
+    if (payload) {
+      handleRoomSyncUpdate(payload);
+    }
+  });
 
-      // Listen to Room state updates
-      unsubRoom = roomDocRef.onSnapshot((docSnap) => {
-        if (docSnap.exists) {
-          handleRoomSyncUpdate(docSnap.data());
+  roomChannel.on('broadcast', { event: 'todo_action' }, ({ payload }) => {
+    if (payload) {
+      handleTodoBroadcast(payload);
+    }
+  });
+
+  roomChannel.on('broadcast', { event: 'timer_action' }, ({ payload }) => {
+    if (payload) {
+      handleTimerRoomSync(payload);
+    }
+  });
+
+  roomChannel.on('broadcast', { event: 'request_state' }, () => {
+    if (roomChannel) {
+      roomChannel.send({
+        type: 'broadcast',
+        event: 'room_state',
+        payload: {
+          currentTheme: state.currentTheme,
+          currentVibe: state.currentVibe,
+          currentTrackIndex: state.currentTrackIndex,
+          isPlaying: state.isPlaying,
+          trackStartTime: Date.now() - ((musicAudio?.currentTime || 0) * 1000),
+          weather: {
+            themeId: state.currentTheme,
+            isActive: (typeof isThemeWeatherActive === 'function') ? isThemeWeatherActive(state.currentTheme) : false,
+            allWeather: {
+              isBlizzardActive: state.isBlizzardActive,
+              isLibraryRainActive: state.isLibraryRainActive,
+              isForestRainActive: state.isForestRainActive,
+              isForestCabinRainActive: state.isForestCabinRainActive,
+              isDurgaPujaRainActive: state.isDurgaPujaRainActive,
+              isKaliPujaRainActive: state.isKaliPujaRainActive
+            }
+          },
+          timer: (typeof getTimerSyncPayload === 'function') ? getTimerSyncPayload('sync') : null,
+          soundscapes: state.soundscapeVols,
+          hotspots: state.hotspots,
+          todos: state.todos
         }
       });
-
-      // Listen to Members list
-      unsubMembers = db.collection("rooms").doc(state.roomId).collection("members")
-        .onSnapshot((querySnap) => {
-          const list = [];
-          querySnap.forEach(memberDoc => {
-            list.push(memberDoc.data());
-          });
-          updateListenersUI(list);
-        });
-
-      // Listen to Todo Tasks
-      unsubTodos = db.collection("rooms").doc(state.roomId).collection("todos")
-        .orderBy("timestamp", "asc")
-        .onSnapshot((querySnap) => {
-          const list = [];
-          querySnap.forEach(todoDoc => {
-            list.push({ id: todoDoc.id, ...todoDoc.data() });
-          });
-          state.todos = list;
-          updateTodoUI();
-        });
-
-      // Wire Room DB Mutators
-      window.updateFirebaseRoomState = async (updateObject) => {
-        await roomDocRef.update(updateObject);
-      };
-
-      window.addFirebaseTodo = async (taskText) => {
-        await db.collection("rooms").doc(state.roomId).collection("todos").add({
-          text: taskText,
-          completed: false,
-          timestamp: firebase.firestore.FieldValue.serverTimestamp()
-        });
-      };
-
-      window.toggleFirebaseTodo = async (id, completed) => {
-        await db.collection("rooms").doc(state.roomId).collection("todos").doc(id).update({ completed });
-      };
-
-      window.deleteFirebaseTodo = async (id) => {
-        await db.collection("rooms").doc(state.roomId).collection("todos").doc(id).delete();
-      };
-
-      if (elSyncText) elSyncText.textContent = "Synced Live";
-      if (elSyncStatus) elSyncStatus.className = "sync-status online";
-    } catch (e) {
-      console.error("Firebase setup failed, reverting to local mock mode:", e);
-      if (elMockModeIndicator) {
-        elMockModeIndicator.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> Firebase failed to initialize. Reverting to Mock Mode.';
-        elMockModeIndicator.style.color = '#ffb74d';
-      }
-      initAudio();
-      initMockRoom();
     }
+  });
+
+  // Subscribe
+  roomChannel.subscribe(async (status) => {
+    if (status === 'SUBSCRIBED') {
+      console.log(`Supabase Realtime room subscribed: ${state.roomId}`);
+      if (elSyncText) elSyncText.textContent = `Room: ${state.roomId}`;
+      if (elSyncStatus) elSyncStatus.className = "sync-status online";
+      if (elMockModeIndicator) {
+        elMockModeIndicator.innerHTML = `<i class="fa-solid fa-users"></i> Room <strong>${state.roomId}</strong> live & synced`;
+        elMockModeIndicator.style.color = '#03dac6';
+        elMockModeIndicator.style.display = 'block';
+      }
+
+      await syncMyPresence();
+
+      // Ask peers if room state (music, timer, theme, weather) is already running
+      roomChannel.send({
+        type: 'broadcast',
+        event: 'request_state',
+        payload: {}
+      });
+    } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
+      console.warn("Supabase Realtime status:", status);
+    }
+  });
+
+  // Wire helper methods for room state and todos
+  window.updateFirebaseRoomState = async (updateObject) => {
+    if (roomChannel) {
+      roomChannel.send({
+        type: 'broadcast',
+        event: 'room_state',
+        payload: updateObject
+      });
+    }
+  };
+
+  window.sendTimerRoomAction = async (timerPayload) => {
+    if (roomChannel) {
+      roomChannel.send({
+        type: 'broadcast',
+        event: 'timer_action',
+        payload: timerPayload
+      });
+    }
+  };
+
+  window.addFirebaseTodo = async (taskText) => {
+    const newTask = {
+      id: 'task-' + Date.now() + '-' + Math.random().toString(36).substr(2, 4),
+      text: taskText,
+      completed: false,
+      timestamp: Date.now()
+    };
+    state.todos.push(newTask);
+    updateTodoUI();
+    if (roomChannel) {
+      roomChannel.send({
+        type: 'broadcast',
+        event: 'todo_action',
+        payload: { action: 'add', task: newTask }
+      });
+    }
+  };
+
+  window.toggleFirebaseTodo = async (id, completed) => {
+    const t = state.todos.find(item => item.id === id);
+    if (t) {
+      t.completed = completed;
+      updateTodoUI();
+      if (roomChannel) {
+        roomChannel.send({
+          type: 'broadcast',
+          event: 'todo_action',
+          payload: { action: 'toggle', id, completed }
+        });
+      }
+    }
+  };
+
+  window.deleteFirebaseTodo = async (id) => {
+    state.todos = state.todos.filter(item => item.id !== id);
+    updateTodoUI();
+    if (roomChannel) {
+      roomChannel.send({
+        type: 'broadcast',
+        event: 'todo_action',
+        payload: { action: 'delete', id }
+      });
+    }
+  };
+
+  if (elSyncText) elSyncText.textContent = `Room: ${state.roomId}`;
+  if (elSyncStatus) elSyncStatus.className = "sync-status online";
+}
+
+async function switchStudyRoom(newRoomId) {
+  if (!newRoomId || !newRoomId.trim()) return;
+  const cleanId = newRoomId.trim().toLowerCase().replace(/[^a-z0-9_-]/g, '-').slice(0, 32);
+  if (cleanId === state.roomId) return;
+  state.roomId = cleanId;
+  await initSupabaseRoom();
+  showRoomToast(`🚪 Switched to room: <strong>${cleanId}</strong>`);
+}
+
+async function startSession() {
+  initAudio();
+  if (typeof USE_SUPABASE !== 'undefined' && USE_SUPABASE) {
+    await initSupabaseRoom();
+  } else if (USE_MOCK_MODE) {
+    console.log("Starting in mock simulation mode...");
+    initMockRoom();
+  } else {
+    initMockRoom();
   }
 }
 
 // --- ROOM SYNC MANAGER ---
 function handleRoomSyncUpdate(roomData) {
-  // Sync vibe playlist
-  if (roomData.currentVibe !== state.currentVibe) {
-    state.currentVibe = roomData.currentVibe;
-    state.currentTrackIndex = roomData.currentTrackIndex;
-    updateVibeButtonsUI();
-    loadTrack(state.currentVibe, state.currentTrackIndex);
-  } else if (roomData.currentTrackIndex !== state.currentTrackIndex) {
-    state.currentTrackIndex = roomData.currentTrackIndex;
-    loadTrack(state.currentVibe, state.currentTrackIndex);
-  }
+  if (!roomData) return;
 
-  // Sync volume sliders and soundscapes
-  for (const soundName in roomData.soundscapes) {
-    const vol = roomData.soundscapes[soundName];
-    if (state.soundscapeVols[soundName] !== vol) {
-      state.soundscapeVols[soundName] = vol;
-      const sliderEl = document.getElementById(`slider-${soundName}`);
-      if (sliderEl) sliderEl.value = vol;
-      const valEl = document.getElementById(`val-${soundName}`);
-      if (valEl) valEl.textContent = vol > 0 ? `${Math.round(vol * 100)}%` : "Off";
-      adjustSoundscapeVolume(soundName, vol);
+  // 1. Sync Theme across all room peers
+  if (roomData.currentTheme && roomData.currentTheme !== state.currentTheme) {
+    if (typeof switchTheme === 'function') {
+      switchTheme(roomData.currentTheme, false, true);
+      const name = (typeof getThemeDisplayName === 'function') ? getThemeDisplayName(roomData.currentTheme) : roomData.currentTheme;
+      showRoomToast(`🎨 Room theme switched to <strong>${name}</strong>`);
     }
   }
 
-  // Playback state synchronization
-  if (roomData.isPlaying !== state.isPlaying) {
+  // 2. Sync Music Track & Playlist
+  if (roomData.currentVibe && roomData.currentVibe !== state.currentVibe) {
+    state.currentVibe = roomData.currentVibe;
+    state.currentTrackIndex = roomData.currentTrackIndex || 0;
+    updateVibeButtonsUI();
+    loadTrack(state.currentVibe, state.currentTrackIndex);
+  } else if (roomData.currentTrackIndex !== undefined && roomData.currentTrackIndex !== state.currentTrackIndex) {
+    state.currentTrackIndex = roomData.currentTrackIndex;
+    loadTrack(state.currentVibe, state.currentTrackIndex);
+  }
+
+  // 3. Sync Volume Sliders and Ambient Soundscapes
+  if (roomData.soundscapes) {
+    for (const soundName in roomData.soundscapes) {
+      const vol = roomData.soundscapes[soundName];
+      if (state.soundscapeVols[soundName] !== vol) {
+        state.soundscapeVols[soundName] = vol;
+        const sliderEl = document.getElementById(`slider-${soundName}`);
+        if (sliderEl) sliderEl.value = vol;
+        const valEl = document.getElementById(`val-${soundName}`);
+        if (valEl) valEl.textContent = vol > 0 ? `${Math.round(vol * 100)}%` : "Off";
+        adjustSoundscapeVolume(soundName, vol);
+      }
+    }
+  }
+
+  // 4. Playback State Synchronization (Play / Pause / Seek)
+  if (roomData.isPlaying !== undefined && roomData.isPlaying !== state.isPlaying) {
     state.isPlaying = roomData.isPlaying;
     if (state.isPlaying) {
       // Calculate exact offset position
-      const elapsedMs = Date.now() - roomData.trackStartTime;
-      const elapsedSec = elapsedMs / 1000;
-      
-      musicAudio.currentTime = Math.max(0, elapsedSec % musicAudio.duration || 0);
-      musicAudio.play().catch(e => console.log("User interaction required to start audio"));
+      if (roomData.trackStartTime) {
+        const elapsedMs = Date.now() - roomData.trackStartTime;
+        const elapsedSec = elapsedMs / 1000;
+        if (musicAudio && musicAudio.duration) {
+          musicAudio.currentTime = Math.max(0, elapsedSec % musicAudio.duration);
+        }
+      }
+      if (musicAudio) {
+        musicAudio.play().catch(e => console.log("User interaction required to start audio"));
+      }
       if (elBtnPlay) elBtnPlay.innerHTML = '<i class="fa-solid fa-pause"></i>';
       if (elTrackIcon) elTrackIcon.style.animationPlayState = 'running';
     } else {
-      musicAudio.pause();
+      if (musicAudio) {
+        musicAudio.pause();
+      }
       if (elBtnPlay) elBtnPlay.innerHTML = '<i class="fa-solid fa-play"></i>';
       if (elTrackIcon) elTrackIcon.style.animationPlayState = 'paused';
     }
     updateTvPowerLed();
+    updateNowPlayingStatus();
+    updateMusicMenuSelection();
+  } else if (roomData.trackStartTime && state.isPlaying && musicAudio && musicAudio.duration) {
+    // Scrubbing / Seek update while already playing
+    const elapsedMs = Date.now() - roomData.trackStartTime;
+    const elapsedSec = elapsedMs / 1000;
+    const targetTime = Math.max(0, elapsedSec % musicAudio.duration);
+    if (Math.abs(musicAudio.currentTime - targetTime) > 2) {
+      musicAudio.currentTime = targetTime;
+    }
+  }
+
+  // 5. Sync Weather Controls
+  if (roomData.weather) {
+    if (roomData.weather.allWeather) {
+      Object.assign(state, roomData.weather.allWeather);
+    }
+    if (roomData.weather.themeId && typeof applyThemeWeather === 'function') {
+      applyThemeWeather(roomData.weather.themeId, roomData.weather.isActive, true);
+    }
+  }
+
+  // 6. Sync Pomodoro Focus Timer
+  if (roomData.timer && typeof handleTimerRoomSync === 'function') {
+    handleTimerRoomSync(roomData.timer);
+  }
+
+  // 7. Sync Interactive Hotspots & Ambient Audio
+  if (roomData.hotspots && typeof toggleHotspot === 'function') {
+    for (const hId in roomData.hotspots) {
+      if (state.hotspots[hId] !== roomData.hotspots[hId]) {
+        toggleHotspot(hId, roomData.hotspots[hId], true);
+      }
+    }
   }
 }
 
@@ -1298,6 +1992,8 @@ function initMockRoom() {
 }
 
 // --- AUDIO CONFIGURATION (WEB AUDIO API & HTML5 AUDIO) ---
+let audioInitialized = false;
+
 function initAudio() {
   if (!musicAudio) {
     musicAudio = new Audio();
@@ -1310,19 +2006,22 @@ function initAudio() {
     elSliderMaster.value = isMuted ? 0 : (previousMasterVolume || 0.7);
   }
 
-  musicAudio.removeEventListener('timeupdate', updateProgressBar);
-  musicAudio.addEventListener('timeupdate', updateProgressBar);
+  if (!audioInitialized) {
+    musicAudio.addEventListener('timeupdate', updateProgressBar);
 
-  musicAudio.addEventListener('ended', () => {
-    playNextTrack();
-  });
+    musicAudio.addEventListener('ended', () => {
+      playNextTrack();
+    });
 
-  musicAudio.addEventListener('error', (e) => {
-    console.warn("Audio playback issue with current track, advancing:", e);
-    if (state.isPlaying) {
-      setTimeout(playNextTrack, 800);
-    }
-  });
+    musicAudio.addEventListener('error', (e) => {
+      console.warn("Audio playback issue with current track, advancing:", e);
+      if (state.isPlaying) {
+        setTimeout(playNextTrack, 800);
+      }
+    });
+
+    audioInitialized = true;
+  }
 
   loadTrack(state.currentVibe, state.currentTrackIndex);
   updateMuteIcon();
@@ -1350,44 +2049,73 @@ function togglePlay() {
   }
 
   const newState = !state.isPlaying;
-  if (!USE_MOCK_MODE) {
-    window.updateFirebaseRoomState({
-      isPlaying: newState,
-      trackStartTime: newState ? Date.now() - (musicAudio.currentTime * 1000) : Date.now()
-    });
-  } else {
-    state.isPlaying = newState;
-    if (state.isPlaying) {
-      musicAudio.play().catch(e => console.log(e));
-      elBtnPlay.innerHTML = '<i class="fa-solid fa-pause"></i>';
-      if (elTrackIcon) elTrackIcon.style.animationPlayState = 'running';
-    } else {
-      musicAudio.pause();
-      elBtnPlay.innerHTML = '<i class="fa-solid fa-play"></i>';
-      if (elTrackIcon) elTrackIcon.style.animationPlayState = 'paused';
+  state.isPlaying = newState;
+
+  if (state.isPlaying) {
+    if (musicAudio) {
+      if (!musicAudio.src || musicAudio.src === '' || musicAudio.src === window.location.href) {
+        loadTrack(state.currentVibe, state.currentTrackIndex);
+      }
+      musicAudio.play().then(() => {
+        state.isPlaying = true;
+        if (elBtnPlay) elBtnPlay.innerHTML = '<i class="fa-solid fa-pause"></i>';
+        if (elTrackIcon) elTrackIcon.style.animationPlayState = 'running';
+        updateTvPowerLed();
+        updateNowPlayingStatus();
+        updateMusicMenuSelection();
+      }).catch(e => {
+        console.warn("Audio play error / user interaction required:", e);
+        state.isPlaying = false;
+        if (elBtnPlay) elBtnPlay.innerHTML = '<i class="fa-solid fa-play"></i>';
+        if (elTrackIcon) elTrackIcon.style.animationPlayState = 'paused';
+        updateTvPowerLed();
+        updateNowPlayingStatus();
+      });
     }
-    updateTvPowerLed();
-    updateNowPlayingStatus();
-    updateMusicMenuSelection();
+    if (elBtnPlay) elBtnPlay.innerHTML = '<i class="fa-solid fa-pause"></i>';
+    if (elTrackIcon) elTrackIcon.style.animationPlayState = 'running';
+  } else {
+    if (musicAudio) {
+      musicAudio.pause();
+    }
+    if (elBtnPlay) elBtnPlay.innerHTML = '<i class="fa-solid fa-play"></i>';
+    if (elTrackIcon) elTrackIcon.style.animationPlayState = 'paused';
+  }
+
+  updateTvPowerLed();
+  updateNowPlayingStatus();
+  updateMusicMenuSelection();
+
+  if (typeof window.updateFirebaseRoomState === 'function') {
+    window.updateFirebaseRoomState({
+      isPlaying: state.isPlaying,
+      trackStartTime: state.isPlaying ? Date.now() - ((musicAudio?.currentTime || 0) * 1000) : Date.now()
+    });
   }
 }
 
 function playNextTrack() {
   const currentPlaylist = PLAYLISTS[state.currentVibe] || PLAYLISTS.focus;
   const nextIndex = (state.currentTrackIndex + 1) % currentPlaylist.length;
-  if (!USE_MOCK_MODE) {
+  state.currentTrackIndex = nextIndex;
+  loadTrack(state.currentVibe, state.currentTrackIndex);
+  if (musicAudio) {
+    musicAudio.play().catch(e => console.log("Play next track error:", e));
+  }
+  state.isPlaying = true;
+  if (elBtnPlay) elBtnPlay.innerHTML = '<i class="fa-solid fa-pause"></i>';
+  if (elTrackIcon) elTrackIcon.style.animationPlayState = 'running';
+  updateTvPowerLed();
+  updateNowPlayingStatus();
+  updateMusicMenuSelection();
+
+  if (typeof window.updateFirebaseRoomState === 'function') {
     window.updateFirebaseRoomState({
+      currentVibe: state.currentVibe,
       currentTrackIndex: nextIndex,
       trackStartTime: Date.now(),
       isPlaying: true
     });
-  } else {
-    state.currentTrackIndex = nextIndex;
-    loadTrack(state.currentVibe, state.currentTrackIndex);
-    musicAudio.play().catch(e => console.log(e));
-    state.isPlaying = true;
-    elBtnPlay.innerHTML = '<i class="fa-solid fa-pause"></i>';
-    if (elTrackIcon) elTrackIcon.style.animationPlayState = 'running';
   }
 }
 
@@ -1397,19 +2125,25 @@ function playPrevTrack() {
   if (prevIndex < 0) {
     prevIndex = currentPlaylist.length - 1;
   }
-  if (!USE_MOCK_MODE) {
+  state.currentTrackIndex = prevIndex;
+  loadTrack(state.currentVibe, state.currentTrackIndex);
+  if (musicAudio) {
+    musicAudio.play().catch(e => console.log("Play prev track error:", e));
+  }
+  state.isPlaying = true;
+  if (elBtnPlay) elBtnPlay.innerHTML = '<i class="fa-solid fa-pause"></i>';
+  if (elTrackIcon) elTrackIcon.style.animationPlayState = 'running';
+  updateTvPowerLed();
+  updateNowPlayingStatus();
+  updateMusicMenuSelection();
+
+  if (typeof window.updateFirebaseRoomState === 'function') {
     window.updateFirebaseRoomState({
+      currentVibe: state.currentVibe,
       currentTrackIndex: prevIndex,
       trackStartTime: Date.now(),
       isPlaying: true
     });
-  } else {
-    state.currentTrackIndex = prevIndex;
-    loadTrack(state.currentVibe, state.currentTrackIndex);
-    musicAudio.play().catch(e => console.log(e));
-    state.isPlaying = true;
-    elBtnPlay.innerHTML = '<i class="fa-solid fa-pause"></i>';
-    if (elTrackIcon) elTrackIcon.style.animationPlayState = 'running';
   }
 }
 
@@ -1419,14 +2153,15 @@ function handleSoundscapeChange(name, volume) {
     audioContext.resume();
   }
 
-  if (!USE_MOCK_MODE) {
-    const updatedSoundscapes = { ...state.soundscapeVols, [name]: parseFloat(volume) };
+  const vol = parseFloat(volume);
+  state.soundscapeVols[name] = vol;
+  adjustSoundscapeVolume(name, vol);
+
+  if (typeof window.updateFirebaseRoomState === 'function') {
+    const updatedSoundscapes = { ...state.soundscapeVols, [name]: vol };
     window.updateFirebaseRoomState({
       soundscapes: updatedSoundscapes
     });
-  } else {
-    state.soundscapeVols[name] = parseFloat(volume);
-    adjustSoundscapeVolume(name, volume);
   }
 }
 
@@ -1469,6 +2204,7 @@ function handleMasterVolume(val) {
     previousMasterVolume = clamped;
   }
   updateMuteIcon();
+  if (typeof updateHotspotVolumes === 'function') updateHotspotVolumes();
 }
 
 function toggleMute() {
@@ -1514,6 +2250,7 @@ function toggleMute() {
     }
   }
   updateMuteIcon();
+  if (typeof updateHotspotVolumes === 'function') updateHotspotVolumes();
 }
 
 function updateMuteIcon() {
@@ -1535,12 +2272,143 @@ function updateMuteIcon() {
 
 
 // --- INTERACTIVE HOTSPOTS LOOPS ---
+// --- INTERACTIVE HOTSPOTS LOOPS ---
 function setupInteractiveRoom() {
   if (elCloseTodoBtn && elTodoModal) {
     elCloseTodoBtn.addEventListener('click', () => {
       elTodoModal.classList.remove('active');
     });
   }
+  setupRoomPanelControls();
+}
+
+function setupRoomPanelControls() {
+  const elScreenRoomWidget = document.getElementById('screenRoomWidget');
+  const elToggleRoomBtn = document.getElementById('toggleRoomBtn');
+  const elPanelRoom = document.getElementById('panelRoom');
+  const elClosePanelRoom = document.getElementById('closePanelRoom');
+  const elBtnCopyRoomLink = document.getElementById('btnCopyRoomLink');
+  const elRoomInviteInput = document.getElementById('roomInviteInput');
+  const elBtnSwitchRoom = document.getElementById('btnSwitchRoom');
+  const elRoomNameInput = document.getElementById('roomNameInput');
+
+  function openRoomPanel() {
+    if (!elPanelRoom) return;
+    elPanelRoom.classList.add('open');
+    if (elToggleRoomBtn) elToggleRoomBtn.classList.add('active');
+    const elPanelProfile = document.getElementById('panelProfile');
+    if (elPanelProfile) elPanelProfile.classList.remove('open');
+    const elToggleProfileBtn = document.getElementById('toggleProfileBtn');
+    if (elToggleProfileBtn) elToggleProfileBtn.classList.remove('active');
+    updateRoomUI();
+  }
+
+  function closeRoomPanel() {
+    if (!elPanelRoom) return;
+    elPanelRoom.classList.remove('open');
+    if (elToggleRoomBtn) elToggleRoomBtn.classList.remove('active');
+  }
+
+  function toggleRoomPanel() {
+    if (!elPanelRoom) return;
+    if (elPanelRoom.classList.contains('open')) {
+      closeRoomPanel();
+    } else {
+      openRoomPanel();
+    }
+  }
+
+  if (elScreenRoomWidget) {
+    elScreenRoomWidget.addEventListener('click', (e) => {
+      e.stopPropagation();
+      toggleRoomPanel();
+    });
+  }
+
+  if (elToggleRoomBtn) {
+    elToggleRoomBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      toggleRoomPanel();
+    });
+  }
+
+  if (elClosePanelRoom) {
+    elClosePanelRoom.addEventListener('click', (e) => {
+      e.stopPropagation();
+      closeRoomPanel();
+    });
+  }
+
+  // Copy invite link
+  if (elBtnCopyRoomLink) {
+    elBtnCopyRoomLink.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      const inviteUrl = getRoomInviteUrl();
+      try {
+        await navigator.clipboard.writeText(inviteUrl);
+        elBtnCopyRoomLink.classList.add('copied');
+        elBtnCopyRoomLink.innerHTML = '<i class="fa-solid fa-check"></i> <span>Copied!</span>';
+        showRoomToast('🔗 <strong>Invite link copied!</strong> Send it to your friends to study together.');
+        setTimeout(() => {
+          if (elBtnCopyRoomLink) {
+            elBtnCopyRoomLink.classList.remove('copied');
+            elBtnCopyRoomLink.innerHTML = '<i class="fa-solid fa-copy"></i> <span>Copy</span>';
+          }
+        }, 2500);
+      } catch (err) {
+        if (elRoomInviteInput) {
+          elRoomInviteInput.select();
+          document.execCommand('copy');
+          showRoomToast('🔗 <strong>Link copied!</strong> Share with friends.');
+        }
+      }
+    });
+  }
+
+  // Select all text on clicking invite input
+  if (elRoomInviteInput) {
+    elRoomInviteInput.addEventListener('click', () => {
+      elRoomInviteInput.select();
+    });
+  }
+
+  // Switch or create room
+  if (elBtnSwitchRoom && elRoomNameInput) {
+    const handleSwitch = () => {
+      const targetRoom = elRoomNameInput.value.trim();
+      if (targetRoom) {
+        switchStudyRoom(targetRoom);
+      }
+    };
+    elBtnSwitchRoom.addEventListener('click', (e) => {
+      e.stopPropagation();
+      handleSwitch();
+    });
+    elRoomNameInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        handleSwitch();
+      }
+    });
+  }
+
+  // Close when clicking outside in roomContainer
+  document.addEventListener('click', (e) => {
+    if (elPanelRoom && elPanelRoom.classList.contains('open')) {
+      if (!elPanelRoom.contains(e.target) && 
+          (!elScreenRoomWidget || !elScreenRoomWidget.contains(e.target)) && 
+          (!elToggleRoomBtn || !elToggleRoomBtn.contains(e.target))) {
+        closeRoomPanel();
+      }
+    }
+  });
+
+  // Escape key closes room panel
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && elPanelRoom && elPanelRoom.classList.contains('open')) {
+      closeRoomPanel();
+    }
+  });
 }
 
 // --- UI UPDATERS ---
@@ -1571,15 +2439,61 @@ function formatTime(seconds) {
 }
 
 function updateListenersUI(listeners) {
-  if (elListenersCount) elListenersCount.textContent = listeners.length;
+  const count = listeners ? listeners.length : 1;
+  if (elListenersCount) elListenersCount.textContent = count;
+
+  const elRoomListenersCount = document.getElementById('roomListenersCount');
+  if (elRoomListenersCount) elRoomListenersCount.textContent = count;
+
+  const elRoomPillCount = document.getElementById('roomPillCount');
+  if (elRoomPillCount) elRoomPillCount.innerHTML = `<i class="fa-solid fa-user-group"></i> ${count}`;
+
+  const elRoomMembersList = document.getElementById('roomMembersList');
+  if (elRoomMembersList) {
+    elRoomMembersList.innerHTML = '';
+    if (!listeners || listeners.length === 0) {
+      elRoomMembersList.innerHTML = '<div class="no-members-hint">No other buddies yet. Click "Copy" above and send the link to friends!</div>';
+    } else {
+      listeners.forEach(user => {
+        const card = document.createElement('div');
+        card.className = `room-member-card ${user.isMe ? 'is-me' : ''}`;
+
+        let avatarHtml = '';
+        if (user.avatarUrl) {
+          avatarHtml = `<img src="${user.avatarUrl}" referrerpolicy="no-referrer" class="member-avatar-img" alt="${user.displayName}">`;
+        } else {
+          avatarHtml = `<span class="member-avatar-emoji">${user.avatar || '🎧'}</span>`;
+        }
+
+        card.innerHTML = `
+          <div class="member-avatar-wrap">
+            ${avatarHtml}
+            <span class="member-online-dot"></span>
+          </div>
+          <div class="member-meta">
+            <div class="member-name">${user.displayName} ${user.isMe ? '<span class="you-badge">(You)</span>' : ''}</div>
+            <div class="member-status-sub">${user.isMe ? 'Host / You' : 'Studying with you'}</div>
+          </div>
+        `;
+        elRoomMembersList.appendChild(card);
+      });
+    }
+  }
+
   if (elListenersList) {
     elListenersList.innerHTML = '';
-    listeners.forEach(user => {
-      const badge = document.createElement('div');
-      badge.className = 'listener-avatar-badge';
-      badge.innerHTML = `<span class="avatar-icon">${user.avatar || '🐼'}</span> <span>${user.displayName}</span>`;
-      elListenersList.appendChild(badge);
-    });
+    if (listeners) {
+      listeners.forEach(user => {
+        const badge = document.createElement('div');
+        badge.className = 'listener-avatar-badge';
+        if (user.avatarUrl) {
+          badge.innerHTML = `<img src="${user.avatarUrl}" referrerpolicy="no-referrer" class="listener-avatar-img" style="width:20px;height:20px;border-radius:50%;object-fit:cover;"> <span>${user.displayName}</span>`;
+        } else {
+          badge.innerHTML = `<span class="avatar-icon">${user.avatar || '🎧'}</span> <span>${user.displayName}</span>`;
+        }
+        elListenersList.appendChild(badge);
+      });
+    }
   }
 }
 
@@ -1672,17 +2586,18 @@ if (elSliderMaster) {
 // Audio Progress Seek
 if (elProgressContainer) {
   elProgressContainer.addEventListener('click', (e) => {
-    if (!musicAudio.duration) return;
+    if (!musicAudio || !musicAudio.duration) return;
     const rect = elProgressContainer.getBoundingClientRect();
-    const percentage = (e.clientX - rect.left) / rect.width;
+    const percentage = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
     const seekTime = percentage * musicAudio.duration;
     
-    if (!USE_MOCK_MODE) {
+    musicAudio.currentTime = seekTime;
+    updateProgressBar();
+
+    if (typeof window.updateFirebaseRoomState === 'function') {
       window.updateFirebaseRoomState({
         trackStartTime: Date.now() - (seekTime * 1000)
       });
-    } else {
-      musicAudio.currentTime = seekTime;
     }
   });
 }
@@ -1704,7 +2619,7 @@ function startClock() {
   setInterval(updateTime, 1000);
 }
 
-// Focus & Rest Pomodoro Timer Logic
+// // Focus & Rest Pomodoro Timer Logic
 let timerState = {
   focusMinutes: 25,
   restMinutes: 5,
@@ -1714,109 +2629,196 @@ let timerState = {
   intervalId: null
 };
 
+function formatTimerTime(secs) {
+  const m = Math.floor(secs / 60);
+  const s = secs % 60;
+  return `${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`;
+}
+
+function updateTimerUI() {
+  if (elTimerDisplay) {
+    elTimerDisplay.textContent = formatTimerTime(timerState.remainingSeconds);
+  }
+
+  if (elTimerPhaseBadge) {
+    if (timerState.currentPhase === 'focus') {
+      elTimerPhaseBadge.style.display = 'none';
+      if (elTimerPhaseText) elTimerPhaseText.textContent = '';
+    } else {
+      elTimerPhaseBadge.style.display = 'inline-flex';
+      elTimerPhaseBadge.className = 'timer-phase-badge rest';
+      if (elTimerPhaseText) elTimerPhaseText.textContent = 'REST';
+    }
+  }
+
+  if (elTimerPlayIcon) {
+    if (timerState.isRunning) {
+      elTimerPlayIcon.className = 'fa-solid fa-pause';
+    } else {
+      elTimerPlayIcon.className = 'fa-solid fa-play';
+    }
+  }
+}
+
+function playTimerChime() {
+  try {
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    if (!AudioCtx) return;
+    const ctx = new AudioCtx();
+    const now = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(523.25, now); // C5
+    osc.frequency.exponentialRampToValueAtTime(659.25, now + 0.15); // E5
+    gain.gain.setValueAtTime(0.15, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.6);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start(now);
+    osc.stop(now + 0.6);
+  } catch (e) {}
+}
+
+function tickTimer() {
+  if (timerState.remainingSeconds > 0) {
+    timerState.remainingSeconds--;
+    updateTimerUI();
+  } else {
+    // Phase completed: automatic transition
+    playTimerChime();
+    if (timerState.currentPhase === 'focus') {
+      if (typeof recordCompletedFocusSession === 'function') {
+        recordCompletedFocusSession(timerState.focusMinutes);
+      }
+      timerState.currentPhase = 'rest';
+      timerState.remainingSeconds = timerState.restMinutes * 60;
+    } else {
+      timerState.currentPhase = 'focus';
+      timerState.remainingSeconds = timerState.focusMinutes * 60;
+    }
+    updateTimerUI();
+    broadcastTimerAction('phase_transition');
+  }
+}
+
+function getTimerSyncPayload(action = 'sync') {
+  return {
+    action: action,
+    isRunning: timerState.isRunning,
+    currentPhase: timerState.currentPhase,
+    remainingSeconds: timerState.remainingSeconds,
+    focusMinutes: timerState.focusMinutes,
+    restMinutes: timerState.restMinutes,
+    timestamp: Date.now()
+  };
+}
+
+function broadcastTimerAction(action) {
+  const payload = getTimerSyncPayload(action);
+  if (typeof window.sendTimerRoomAction === 'function') {
+    window.sendTimerRoomAction(payload);
+  }
+  if (typeof window.updateFirebaseRoomState === 'function') {
+    window.updateFirebaseRoomState({ timer: payload });
+  }
+}
+
+function startTimer(isRemote = false) {
+  if (timerState.isRunning) return;
+  timerState.isRunning = true;
+  if (timerState.intervalId) clearInterval(timerState.intervalId);
+  timerState.intervalId = setInterval(tickTimer, 1000);
+  updateTimerUI();
+  if (elScreenTimerWidget) elScreenTimerWidget.classList.remove('hidden');
+  if (!isRemote) {
+    broadcastTimerAction('start');
+  }
+}
+
+function pauseTimer(isRemote = false) {
+  if (!timerState.isRunning) return;
+  timerState.isRunning = false;
+  if (timerState.intervalId) {
+    clearInterval(timerState.intervalId);
+    timerState.intervalId = null;
+  }
+  updateTimerUI();
+  if (!isRemote) {
+    broadcastTimerAction('pause');
+  }
+}
+
+function resetTimer(isRemote = false) {
+  if (timerState.intervalId) {
+    clearInterval(timerState.intervalId);
+    timerState.intervalId = null;
+  }
+  timerState.isRunning = false;
+  timerState.currentPhase = 'focus';
+  timerState.remainingSeconds = (timerState.focusMinutes || 25) * 60;
+  updateTimerUI();
+  if (!isRemote) {
+    broadcastTimerAction('reset');
+  }
+}
+
+function handleTimerRoomSync(timerData) {
+  if (!timerData) return;
+
+  if (timerData.focusMinutes) timerState.focusMinutes = timerData.focusMinutes;
+  if (timerData.restMinutes) timerState.restMinutes = timerData.restMinutes;
+  if (elFocusTimeInput) elFocusTimeInput.value = timerState.focusMinutes;
+  if (elRestTimeInput) elRestTimeInput.value = timerState.restMinutes;
+
+  if (timerData.action === 'reset') {
+    resetTimer(true);
+    return;
+  }
+
+  if (timerData.currentPhase) {
+    timerState.currentPhase = timerData.currentPhase;
+  }
+
+  if (timerData.isRunning) {
+    let secs = timerData.remainingSeconds;
+    if (timerData.timestamp) {
+      const elapsed = Math.floor((Date.now() - timerData.timestamp) / 1000);
+      secs = Math.max(0, secs - elapsed);
+    }
+    timerState.remainingSeconds = secs;
+    if (!timerState.isRunning) {
+      startTimer(true);
+    } else {
+      updateTimerUI();
+    }
+  } else {
+    if (timerData.remainingSeconds !== undefined) {
+      timerState.remainingSeconds = timerData.remainingSeconds;
+    }
+    if (timerState.isRunning) {
+      pauseTimer(true);
+    } else {
+      updateTimerUI();
+    }
+  }
+
+  if (elScreenTimerWidget && timerData.isRunning) {
+    elScreenTimerWidget.classList.remove('hidden');
+  }
+}
+
 function setupFocusTimer() {
   if (!elScreenTimerWidget) return;
 
-  function formatTimerTime(secs) {
-    const m = Math.floor(secs / 60);
-    const s = secs % 60;
-    return `${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`;
-  }
-
-  function updateTimerUI() {
-    if (elTimerDisplay) {
-      elTimerDisplay.textContent = formatTimerTime(timerState.remainingSeconds);
-    }
-
-    if (elTimerPhaseBadge) {
-      if (timerState.currentPhase === 'focus') {
-        elTimerPhaseBadge.style.display = 'none';
-        if (elTimerPhaseText) elTimerPhaseText.textContent = '';
-      } else {
-        elTimerPhaseBadge.style.display = 'inline-flex';
-        elTimerPhaseBadge.className = 'timer-phase-badge rest';
-        if (elTimerPhaseText) elTimerPhaseText.textContent = 'REST';
-      }
-    }
-
-    if (elTimerPlayIcon) {
-      if (timerState.isRunning) {
-        elTimerPlayIcon.className = 'fa-solid fa-pause';
-      } else {
-        elTimerPlayIcon.className = 'fa-solid fa-play';
-      }
-    }
-  }
-
-  function playChime() {
-    try {
-      const AudioCtx = window.AudioContext || window.webkitAudioContext;
-      if (!AudioCtx) return;
-      const ctx = new AudioCtx();
-      const now = ctx.currentTime;
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(523.25, now); // C5
-      osc.frequency.exponentialRampToValueAtTime(659.25, now + 0.15); // E5
-      gain.gain.setValueAtTime(0.15, now);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.6);
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-      osc.start(now);
-      osc.stop(now + 0.6);
-    } catch (e) {}
-  }
-
-  function tick() {
-    if (timerState.remainingSeconds > 0) {
-      timerState.remainingSeconds--;
-      updateTimerUI();
-    } else {
-      // Phase completed: automatic transition
-      playChime();
-      if (timerState.currentPhase === 'focus') {
-        if (typeof recordCompletedFocusSession === 'function') {
-          recordCompletedFocusSession(timerState.focusMinutes);
-        }
-        timerState.currentPhase = 'rest';
-        timerState.remainingSeconds = timerState.restMinutes * 60;
-      } else {
-        timerState.currentPhase = 'focus';
-        timerState.remainingSeconds = timerState.focusMinutes * 60;
-      }
-      updateTimerUI();
-    }
-  }
-
-  function startTimer() {
-    if (timerState.isRunning) return;
-    timerState.isRunning = true;
-    timerState.intervalId = setInterval(tick, 1000);
-    updateTimerUI();
-  }
-
-  function pauseTimer() {
-    if (!timerState.isRunning) return;
-    timerState.isRunning = false;
-    clearInterval(timerState.intervalId);
-    timerState.intervalId = null;
-    updateTimerUI();
-  }
-
-  function resetTimer() {
-    pauseTimer();
-    timerState.currentPhase = 'focus';
-    timerState.remainingSeconds = timerState.focusMinutes * 60;
-    updateTimerUI();
-  }
+  updateTimerUI();
 
   // Play/Pause button
   if (elTimerPlayBtn) {
     elTimerPlayBtn.addEventListener('click', (e) => {
       e.stopPropagation();
-      if (timerState.isRunning) pauseTimer();
-      else startTimer();
+      if (timerState.isRunning) pauseTimer(false);
+      else startTimer(false);
     });
   }
 
@@ -1824,7 +2826,7 @@ function setupFocusTimer() {
   if (elTimerResetBtn) {
     elTimerResetBtn.addEventListener('click', (e) => {
       e.stopPropagation();
-      resetTimer();
+      resetTimer(false);
     });
   }
 
@@ -1895,8 +2897,8 @@ function setupFocusTimer() {
       timerState.currentPhase = 'focus';
       timerState.remainingSeconds = fMin * 60;
       toggleSettings(false);
-      resetTimer();
-      startTimer();
+      resetTimer(false);
+      startTimer(false);
     });
   }
 
@@ -1963,7 +2965,11 @@ function getWeekNumber(d = new Date()) {
 function getDefaultProfileData() {
   return {
     username: "Chill Scholar",
-    avatar: "🎧",
+    avatar: "assets/images/avatars/cat.svg",
+    avatarUrl: "assets/images/avatars/cat.svg",
+    avatarAnimal: "cat",
+    selectedAvatar: "Mochi Cat 🐱",
+    hasCustomProfile: false,
     totalFocusMinutes: 0,
     completedSessions: 0,
     completedTasks: 0,
@@ -2164,7 +3170,14 @@ function renderProfileUI() {
   if (!profileState) return;
 
   // Avatar & Username
-  if (elProfileAvatarDisplay) elProfileAvatarDisplay.textContent = profileState.avatar || "🎧";
+  if (elProfileAvatarDisplay) {
+    const avatarPath = profileState.avatarUrl || profileState.avatar || "assets/images/avatars/cat.svg";
+    if (typeof avatarPath === 'string' && (avatarPath.includes('/') || avatarPath.includes('.'))) {
+      elProfileAvatarDisplay.innerHTML = `<img src="${avatarPath}" class="profile-avatar-img" alt="Avatar" referrerpolicy="no-referrer">`;
+    } else {
+      elProfileAvatarDisplay.textContent = avatarPath;
+    }
+  }
   if (elProfileUsernameDisplay) elProfileUsernameDisplay.textContent = profileState.username || "Chill Scholar";
 
   // Level & XP
@@ -2270,37 +3283,26 @@ function setupProfileAndAnalytics() {
     }
   });
 
-  // Avatar picker toggle
-  if (elChangeAvatarBtn && elAvatarPickerDropdown) {
+  // Open cute animal avatar modal from profile panel
+  if (elChangeAvatarBtn) {
     elChangeAvatarBtn.addEventListener('click', (e) => {
       e.stopPropagation();
-      elAvatarPickerDropdown.classList.toggle('hidden');
+      openProfileSetupModal(state.currentUser, true);
     });
   }
 
-  // Avatar options selection
-  document.querySelectorAll('.avatar-opt').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      const avatar = e.currentTarget.dataset.avatar;
-      if (avatar && profileState) {
-        profileState.avatar = avatar;
-        saveProfileData();
-        renderProfileUI();
-        if (elAvatarPickerDropdown) elAvatarPickerDropdown.classList.add('hidden');
-      }
+  if (elProfileAvatarDisplay) {
+    elProfileAvatarDisplay.addEventListener('click', (e) => {
+      e.stopPropagation();
+      openProfileSetupModal(state.currentUser, true);
     });
-  });
+  }
 
   // Edit username button
   if (elEditUsernameBtn) {
-    elEditUsernameBtn.addEventListener('click', () => {
-      const current = (profileState && profileState.username) || "Chill Scholar";
-      const newName = prompt("Enter your username / callsign:", current);
-      if (newName && newName.trim()) {
-        profileState.username = newName.trim().slice(0, 24);
-        saveProfileData();
-        renderProfileUI();
-      }
+    elEditUsernameBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      openProfileSetupModal(state.currentUser, true);
     });
   }
 
@@ -2311,20 +3313,31 @@ function setupProfileAndAnalytics() {
     });
   }
 
-  // Logout button
+  // Google Sign-in button
+  const elBtnGoogleLogin = document.getElementById('btnGoogleLogin');
+  if (elBtnGoogleLogin) {
+    elBtnGoogleLogin.addEventListener('click', () => {
+      signInWithGoogle();
+    });
+  }
+
+  // Google Sign-out button in header
+  const elBtnSignOut = document.getElementById('btnSignOut');
+  if (elBtnSignOut) {
+    elBtnSignOut.addEventListener('click', () => {
+      signOutUser();
+    });
+  }
+
+  // Logout / Sign-in bottom action button
   if (elLogoutBtn) {
     elLogoutBtn.addEventListener('click', () => {
-      if (confirm("Are you sure you want to log out of your study session?")) {
-        try {
-          if (musicAudio) musicAudio.pause();
-          state.isPlaying = false;
-        } catch (e) {}
-
-        // Clear stored profile and analytics session
-        localStorage.removeItem(STORAGE_KEY_PROFILE);
-
-        // Reload to clean session
-        window.location.reload();
+      if (state.currentUser) {
+        if (confirm("Sign out of your Google account?")) {
+          signOutUser();
+        }
+      } else {
+        signInWithGoogle();
       }
     });
   }
@@ -2373,6 +3386,382 @@ function initThemeSelector() {
   // Legacy — kept for compatibility. Theme switching now uses setupThemeSwitcher().
 }
 
+// --- THEME & WEATHER HELPERS ---
+function isThemeWeatherActive(themeId) {
+  if (themeId === 'scene2') return !!state.isBlizzardActive;
+  if (themeId === 'scene_library') return !!state.isLibraryRainActive;
+  if (themeId === 'scene_forest') return !!state.isForestRainActive;
+  if (themeId === 'scene_forest_cabin') return !!state.isForestCabinRainActive;
+  if (themeId === 'scene_durga_puja') return false;
+  if (themeId === 'scene_kali_puja') return false;
+  return false;
+}
+
+function getThemeDisplayName(themeId) {
+  switch (themeId) {
+    case 'scene2': return 'Winter Cabin';
+    case 'scene_library': return 'Vintage Library';
+    case 'scene_forest': return 'Misty Forest';
+    case 'scene_forest_cabin': return 'Forest Cabin';
+    case 'scene_durga_puja': return 'Durga Puja';
+    case 'scene_kali_puja': return 'Kali Puja';
+    default: return 'Cozy Room';
+  }
+}
+
+function applyThemeWeather(themeId, isActive, isRemote = false) {
+  if (themeId === 'scene2') {
+    state.isBlizzardActive = isActive;
+    state.hotspots.blizzard = isActive;
+    const fogBg = document.getElementById('bg-mountains');
+    if (fogBg) fogBg.classList.toggle('blizzard-fog', isActive);
+    if (window.blizzardEngine) {
+      if (isActive) window.blizzardEngine.activateBlizzard();
+      else window.blizzardEngine.deactivateBlizzard();
+    }
+    const elBlizzard = document.getElementById('hotspotWinterBlizzard');
+    if (elBlizzard) {
+      elBlizzard.classList.toggle('active', isActive);
+      const tt = elBlizzard.querySelector('.hotspot-tooltip');
+      if (tt) tt.textContent = isActive ? 'Blizzard: Active' : 'Blizzard: Quiet';
+    }
+  } else if (themeId === 'scene_library') {
+    state.isLibraryRainActive = isActive;
+    state.hotspots.libraryRain = isActive;
+    const bgLib = document.getElementById('bg-library');
+    if (bgLib) bgLib.classList.toggle('rain-active', isActive);
+    if (window.libraryRainEngine) {
+      if (isActive) window.libraryRainEngine.start();
+      else window.libraryRainEngine.stop();
+    }
+    const elLibRain = document.getElementById('hotspotLibraryRain');
+    if (elLibRain) {
+      elLibRain.classList.toggle('active', isActive);
+      const tt = elLibRain.querySelector('.hotspot-tooltip');
+      if (tt) tt.textContent = isActive ? 'Rain: Active' : 'Rain: Off';
+    }
+  } else if (themeId === 'scene_forest') {
+    state.isForestRainActive = isActive;
+    state.hotspots.forestRain = isActive;
+    const bgForest = document.getElementById('bg-forest');
+    if (bgForest) bgForest.classList.toggle('rainy', isActive);
+    if (window.forestRainEngine) {
+      if (isActive) window.forestRainEngine.start();
+      else window.forestRainEngine.stop();
+    }
+    if (window.forestFireflyEngine) {
+      if (!isActive) window.forestFireflyEngine.start();
+      else window.forestFireflyEngine.stop();
+    }
+    const elForestRain = document.getElementById('hotspotForestRain');
+    if (elForestRain) {
+      elForestRain.classList.toggle('active', isActive);
+      const tt = elForestRain.querySelector('.hotspot-tooltip');
+      if (tt) tt.textContent = isActive ? 'Rain: Active' : 'Rain: Sunny';
+    }
+  } else if (themeId === 'scene_forest_cabin') {
+    state.isForestCabinRainActive = isActive;
+    state.hotspots.forestCabinRain = isActive;
+    const bgForestCabin = document.getElementById('bg-forest-cabin');
+    if (bgForestCabin) bgForestCabin.classList.toggle('rainy', isActive);
+    if (window.forestCabinRainEngine) {
+      if (isActive) window.forestCabinRainEngine.start();
+      else window.forestCabinRainEngine.stop();
+    }
+    if (window.forestCabinFireflyEngine) {
+      if (!isActive) window.forestCabinFireflyEngine.start();
+      else window.forestCabinFireflyEngine.stop();
+    }
+    const elForestCabinRain = document.getElementById('hotspotForestCabinRain');
+    if (elForestCabinRain) {
+      elForestCabinRain.classList.toggle('active', isActive);
+      const tt = elForestCabinRain.querySelector('.hotspot-tooltip');
+      if (tt) tt.textContent = isActive ? 'Rain: Pouring' : 'Rain: Clear';
+    }
+  } else if (themeId === 'scene_durga_puja') {
+    state.isDurgaPujaRainActive = isActive;
+    const bgDurga = document.getElementById('bg-durga-puja');
+    if (bgDurga) bgDurga.classList.toggle('rainy', isActive);
+    if (window.durgaRainEngine) {
+      if (isActive) window.durgaRainEngine.start();
+      else window.durgaRainEngine.stop();
+    }
+    if (window.durgaSparklesEngine) {
+      if (!isActive) window.durgaSparklesEngine.start();
+      else window.durgaSparklesEngine.stop();
+    }
+  } else if (themeId === 'scene_kali_puja') {
+    state.isKaliPujaRainActive = isActive;
+    if (window.kaliRainEngine) {
+      if (isActive) window.kaliRainEngine.start();
+      else window.kaliRainEngine.stop();
+    }
+  }
+
+  // Update physical TV toggle switch position if active theme matches
+  const tvWeatherSwitch = document.getElementById('tvWeatherSwitch');
+  if (tvWeatherSwitch && state.currentTheme === themeId) {
+    tvWeatherSwitch.classList.toggle('switch-up', !!isActive);
+  }
+
+  // Keep ambient audios in sync
+  updateHotspotThemeAudios();
+
+  // Broadcast to room if toggled locally
+  if (!isRemote && typeof window.updateFirebaseRoomState === 'function') {
+    window.updateFirebaseRoomState({
+      weather: {
+        themeId: themeId,
+        isActive: isActive,
+        allWeather: {
+          isBlizzardActive: state.isBlizzardActive,
+          isLibraryRainActive: state.isLibraryRainActive,
+          isForestRainActive: state.isForestRainActive,
+          isForestCabinRainActive: state.isForestCabinRainActive,
+          isDurgaPujaRainActive: state.isDurgaPujaRainActive,
+          isKaliPujaRainActive: state.isKaliPujaRainActive
+        }
+      },
+      hotspots: state.hotspots
+    });
+  }
+}
+
+// --- DISCORD LOFI-STYLE INTERACTIVE HOTSPOTS ---
+function updateHotspotVolumes() {
+  const masterVol = isMuted ? 0 : (previousMasterVolume ?? 0.7);
+  for (const key in hotspotAudios) {
+    const a = hotspotAudios[key];
+    if (a) {
+      a.muted = isMuted;
+      const individualVol = (state.hotspotVolumes && state.hotspotVolumes[key] !== undefined)
+        ? state.hotspotVolumes[key]
+        : 0.7;
+      a.volume = Math.max(0, Math.min(1, masterVol * individualVol));
+    }
+  }
+}
+
+function handleHotspotVolumeChange(hotspotKey, value) {
+  const numVal = parseFloat(value);
+  if (isNaN(numVal)) return;
+  if (!state.hotspotVolumes) state.hotspotVolumes = {};
+  state.hotspotVolumes[hotspotKey] = Math.max(0, Math.min(1, numVal));
+  updateHotspotVolumes();
+}
+
+function updateHotspotThemeAudios() {
+  const theme = state.currentTheme;
+
+  // Blizzard (scene2)
+  if (theme === 'scene2' && state.hotspots.blizzard) {
+    hotspotAudios.blizzard.play().catch(() => {});
+  } else {
+    hotspotAudios.blizzard.pause();
+  }
+
+  // Fireplace (scene_library)
+  if (theme === 'scene_library' && state.hotspots.fireplace) {
+    hotspotAudios.fireplace.play().catch(() => {});
+  } else {
+    hotspotAudios.fireplace.pause();
+  }
+
+  // Library Rain (scene_library)
+  if (theme === 'scene_library' && state.hotspots.libraryRain) {
+    hotspotAudios.libraryRain.play().catch(() => {});
+  } else {
+    hotspotAudios.libraryRain.pause();
+  }
+
+  // Forest House Rain (scene_forest)
+  if (theme === 'scene_forest' && state.hotspots.forestRain) {
+    hotspotAudios.forestRain.play().catch(() => {});
+  } else {
+    hotspotAudios.forestRain.pause();
+  }
+
+  // Forest Cabin Rain (scene_forest_cabin)
+  if (theme === 'scene_forest_cabin' && state.hotspots.forestCabinRain) {
+    hotspotAudios.forestCabinRain.play().catch(() => {});
+  } else {
+    hotspotAudios.forestCabinRain.pause();
+  }
+
+  // Durga Puja Dhak (scene_durga_puja)
+  if (theme === 'scene_durga_puja' && state.hotspots.durgaDhak) {
+    hotspotAudios.durgaDhak.play().catch(() => {});
+  } else {
+    hotspotAudios.durgaDhak.pause();
+  }
+
+  // Kali Puja Fireworks (scene_kali_puja)
+  if (theme === 'scene_kali_puja' && state.hotspots.kaliFireworks) {
+    hotspotAudios.kaliFireworks.play().catch(() => {});
+    if (window.kaliFireworksInstance && !window.kaliFireworksInstance.isRunning) {
+      window.kaliFireworksInstance.start();
+    }
+  } else {
+    hotspotAudios.kaliFireworks.pause();
+    if (window.kaliFireworksInstance && window.kaliFireworksInstance.isRunning) {
+      window.kaliFireworksInstance.stop();
+    }
+  }
+
+  // Kali Puja Shyama Sangeet (scene_kali_puja)
+  if (theme === 'scene_kali_puja' && state.hotspots.kaliShyama) {
+    hotspotAudios.kaliShyama.play().catch(() => {});
+  } else {
+    hotspotAudios.kaliShyama.pause();
+  }
+}
+
+function toggleHotspot(hotspotId, forceState = null, isRemote = false) {
+  const currentState = !!state.hotspots[hotspotId];
+  const newState = (forceState !== null) ? !!forceState : !currentState;
+  state.hotspots[hotspotId] = newState;
+
+  updateHotspotVolumes();
+
+  const hotspotElements = {
+    blizzard: { btn: 'hotspotWinterBlizzard', wrap: 'wrapWinterBlizzard', label: 'Blizzard', onTxt: 'Active', offTxt: 'Quiet' },
+    fireplace: { btn: 'hotspotLibraryFurnace', wrap: 'wrapLibraryFurnace', label: 'Furnace', onTxt: 'Burning', offTxt: 'Off' },
+    libraryRain: { btn: 'hotspotLibraryRain', wrap: 'wrapLibraryRain', label: 'Rain', onTxt: 'Active', offTxt: 'Off' },
+    forestRain: { btn: 'hotspotForestRain', wrap: 'wrapForestRain', label: 'Rain', onTxt: 'Active', offTxt: 'Sunny' },
+    forestCabinRain: { btn: 'hotspotForestCabinRain', wrap: 'wrapForestCabinRain', label: 'Rain', onTxt: 'Pouring', offTxt: 'Clear' },
+    durgaDhak: { btn: 'hotspotDurgaDhak', wrap: 'wrapDurgaDhak', label: 'Dhak', onTxt: 'Playing', offTxt: 'Paused' },
+    kaliFireworks: { btn: 'hotspotKaliFireworks', wrap: 'wrapKaliFireworks', label: 'Fireworks', onTxt: 'Active', offTxt: 'Off' },
+    kaliShyama: { btn: 'hotspotKaliShyama', wrap: 'wrapKaliShyama', label: 'Shyama Sangeet', onTxt: 'Playing', offTxt: 'Paused' }
+  };
+
+  const meta = hotspotElements[hotspotId];
+  if (meta) {
+    const elBtn = document.getElementById(meta.btn);
+    const elWrap = document.getElementById(meta.wrap);
+    if (elBtn) {
+      elBtn.classList.toggle('active', newState);
+      const tt = elBtn.querySelector('.hotspot-tooltip');
+      if (tt) tt.textContent = `${meta.label}: ${newState ? meta.onTxt : meta.offTxt}`;
+    }
+    if (elWrap) {
+      elWrap.classList.toggle('active', newState);
+    }
+  }
+
+  switch (hotspotId) {
+    case 'blizzard':
+      applyThemeWeather('scene2', newState, true);
+      break;
+
+    case 'fireplace':
+      break;
+
+    case 'libraryRain':
+      applyThemeWeather('scene_library', newState, true);
+      break;
+
+    case 'forestRain':
+      applyThemeWeather('scene_forest', newState, true);
+      break;
+
+    case 'forestCabinRain':
+      applyThemeWeather('scene_forest_cabin', newState, true);
+      break;
+
+    case 'durgaDhak':
+      break;
+
+    case 'kaliFireworks':
+      if (window.kaliFireworksInstance) {
+        if (newState && state.currentTheme === 'scene_kali_puja') {
+          const container = document.getElementById('kali-fireworks-container');
+          if (container) {
+            const parent = container.parentElement || document.body;
+            const w = container.clientWidth || Math.round((parent.clientWidth || window.innerWidth) * 0.65) || 600;
+            const h = container.clientHeight || Math.round((parent.clientHeight || window.innerHeight) * 0.55) || 350;
+            window.kaliFireworksInstance.updateSize({ width: w, height: h });
+            window.kaliFireworksInstance.updateBoundaries({ x: 20, y: 15, width: w, height: h });
+          }
+          if (!window.kaliFireworksInstance.isRunning) {
+            window.kaliFireworksInstance.start();
+          }
+          window.kaliFireworksInstance.launch(3);
+        } else {
+          if (window.kaliFireworksInstance.isRunning) {
+            window.kaliFireworksInstance.stop();
+          }
+        }
+      }
+      break;
+
+    case 'kaliShyama':
+      break;
+  }
+
+  updateHotspotThemeAudios();
+
+  // Sync to room peers
+  if (!isRemote && typeof window.updateFirebaseRoomState === 'function') {
+    window.updateFirebaseRoomState({
+      hotspots: state.hotspots
+    });
+  }
+}
+
+function initHotspots() {
+  const binds = [
+    { id: 'hotspotWinterBlizzard', key: 'blizzard' },
+    { id: 'hotspotLibraryFurnace', key: 'fireplace' },
+    { id: 'hotspotLibraryRain', key: 'libraryRain' },
+    { id: 'hotspotForestRain', key: 'forestRain' },
+    { id: 'hotspotForestCabinRain', key: 'forestCabinRain' },
+    { id: 'hotspotDurgaDhak', key: 'durgaDhak' },
+    { id: 'hotspotKaliFireworks', key: 'kaliFireworks' },
+    { id: 'hotspotKaliShyama', key: 'kaliShyama' }
+  ];
+
+  binds.forEach(({ id, key }) => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.addEventListener('click', (e) => {
+        e.stopPropagation();
+        toggleHotspot(key);
+      });
+    }
+  });
+
+  // Wire volume sliders for each hotspot
+  document.querySelectorAll('.hotspot-vol-slider').forEach(slider => {
+    const key = slider.dataset.hotspot;
+    if (key && state.hotspotVolumes && state.hotspotVolumes[key] !== undefined) {
+      slider.value = state.hotspotVolumes[key];
+    }
+    slider.addEventListener('click', (e) => e.stopPropagation());
+    slider.addEventListener('pointerdown', (e) => e.stopPropagation());
+    slider.addEventListener('mousedown', (e) => e.stopPropagation());
+    slider.addEventListener('input', (e) => {
+      e.stopPropagation();
+      handleHotspotVolumeChange(key, e.target.value);
+    });
+    slider.addEventListener('change', (e) => {
+      e.stopPropagation();
+      handleHotspotVolumeChange(key, e.target.value);
+    });
+  });
+
+  // Prevent clicks inside the volume capsule from bubbling to the scene
+  document.querySelectorAll('.hotspot-vol-bar').forEach(bar => {
+    bar.addEventListener('click', (e) => e.stopPropagation());
+    bar.addEventListener('pointerdown', (e) => e.stopPropagation());
+    bar.addEventListener('mousedown', (e) => e.stopPropagation());
+  });
+
+  // Sync initial UI classes
+  for (const key in state.hotspots) {
+    toggleHotspot(key, state.hotspots[key], true);
+  }
+}
+
 // --- THEME SWITCHER ---
 function setupThemeSwitcher() {
   const cards = document.querySelectorAll('.theme-card');
@@ -2380,14 +3769,14 @@ function setupThemeSwitcher() {
     card.addEventListener('click', () => {
       const theme = card.dataset.theme;
       if (theme === state.currentTheme) return;
-      switchTheme(theme, true);
+      switchTheme(theme, false, false);
       cards.forEach(c => c.classList.remove('active'));
       card.classList.add('active');
     });
   });
 }
 
-function switchTheme(themeId = 'scene2', triggerPlay = false) {
+function switchTheme(themeId = 'scene2', triggerPlay = false, isRemote = false) {
   state.currentTheme = themeId;
   if (typeof recordThemeUsage === 'function') {
     recordThemeUsage(themeId);
@@ -2396,14 +3785,18 @@ function switchTheme(themeId = 'scene2', triggerPlay = false) {
   // Sync retro TV weather switch position for active theme
   const tvWeatherSwitch = document.getElementById('tvWeatherSwitch');
   if (tvWeatherSwitch) {
-    let isWeatherActive = false;
-    if (themeId === 'scene2') isWeatherActive = state.isBlizzardActive;
-    else if (themeId === 'scene_forest') isWeatherActive = state.isForestRainActive;
-    else if (themeId === 'scene_forest_cabin') isWeatherActive = state.isForestCabinRainActive;
-    else if (themeId === 'scene_durga_puja') isWeatherActive = state.isDurgaPujaRainActive;
-    else if (themeId === 'scene_kali_puja') isWeatherActive = state.isKaliPujaRainActive;
-    else if (themeId === 'scene_library') isWeatherActive = state.isLibraryRainActive;
+    let isWeatherActive = isThemeWeatherActive(themeId);
     tvWeatherSwitch.classList.toggle('switch-up', !!isWeatherActive);
+  }
+
+  // Weather switch is not needed for Durga Puja and Kali Puja
+  const tvWeatherSwitchContainer = document.getElementById('tvWeatherSwitchContainer');
+  if (tvWeatherSwitchContainer) {
+    if (themeId === 'scene_durga_puja' || themeId === 'scene_kali_puja') {
+      tvWeatherSwitchContainer.style.display = 'none';
+    } else {
+      tvWeatherSwitchContainer.style.display = 'flex';
+    }
   }
 
   // Sync sidebar theme cards
@@ -2534,7 +3927,7 @@ function switchTheme(themeId = 'scene2', triggerPlay = false) {
           height: container.clientHeight
         });
       }
-      if (!window.kaliFireworksInstance.isRunning) {
+      if (state.hotspots.kaliFireworks && !window.kaliFireworksInstance.isRunning) {
         window.kaliFireworksInstance.start();
       }
     }
@@ -2552,78 +3945,67 @@ function switchTheme(themeId = 'scene2', triggerPlay = false) {
     }
   }
 
-  // Automatic Theme Music Switching (Durga Puja Dhak & Kali Puja Shyama Sangeet)
-  if (themeId === 'scene_durga_puja') {
-    state.currentVibe = 'durga_puja';
+  // Durga Puja & Kali Puja use relaxing Lo-Fi beats same as all other themes
+  if (state.currentVibe === 'durga_puja' || state.currentVibe === 'kali_puja') {
+    state.currentVibe = 'focus';
     state.currentTrackIndex = 0;
-    loadTrack('durga_puja', 0);
-    if (triggerPlay || state.isPlaying) {
-      if (musicAudio) {
-        musicAudio.play().then(() => {
-          state.isPlaying = true;
-          if (elBtnPlay) elBtnPlay.innerHTML = '<i class="fa-solid fa-pause"></i>';
-          if (elTrackIcon) elTrackIcon.style.animationPlayState = 'running';
-          updateTvPowerLed();
-          updateNowPlayingStatus();
-          updateMusicMenuSelection();
-        }).catch(err => {
-          console.log("Durga Puja audio playback waiting for user interaction:", err);
-        });
+    loadTrack('focus', 0);
+  }
+
+  // Audio Playback State on Theme Switch (Paused by Default)
+  if (triggerPlay) {
+    if (musicAudio) {
+      if (isMuted) {
+        isMuted = false;
+        const restoreVol = previousMasterVolume > 0 ? previousMasterVolume : 0.7;
+        musicAudio.muted = false;
+        musicAudio.volume = restoreVol;
+        if (elSliderMaster) elSliderMaster.value = restoreVol;
+        updateMuteIcon();
       }
-    } else {
-      state.isPlaying = false;
-      if (musicAudio) musicAudio.pause();
-      if (elBtnPlay) elBtnPlay.innerHTML = '<i class="fa-solid fa-play"></i>';
-      if (elTrackIcon) elTrackIcon.style.animationPlayState = 'paused';
-      updateTvPowerLed();
-      updateNowPlayingStatus();
-      updateMusicMenuSelection();
-    }
-  } else if (themeId === 'scene_kali_puja') {
-    state.currentVibe = 'kali_puja';
-    state.currentTrackIndex = 0;
-    loadTrack('kali_puja', 0);
-    if (triggerPlay || state.isPlaying) {
-      if (musicAudio) {
-        musicAudio.play().then(() => {
-          state.isPlaying = true;
-          if (elBtnPlay) elBtnPlay.innerHTML = '<i class="fa-solid fa-pause"></i>';
-          if (elTrackIcon) elTrackIcon.style.animationPlayState = 'running';
-          updateTvPowerLed();
-          updateNowPlayingStatus();
-          updateMusicMenuSelection();
-        }).catch(err => {
-          console.log("Kali Puja audio playback waiting for user interaction:", err);
-        });
-      }
-    } else {
-      state.isPlaying = false;
-      if (musicAudio) musicAudio.pause();
-      if (elBtnPlay) elBtnPlay.innerHTML = '<i class="fa-solid fa-play"></i>';
-      if (elTrackIcon) elTrackIcon.style.animationPlayState = 'paused';
-      updateTvPowerLed();
-      updateNowPlayingStatus();
-      updateMusicMenuSelection();
+      musicAudio.play().then(() => {
+        state.isPlaying = true;
+        if (elBtnPlay) elBtnPlay.innerHTML = '<i class="fa-solid fa-pause"></i>';
+        if (elTrackIcon) elTrackIcon.style.animationPlayState = 'running';
+        updateTvPowerLed();
+        updateNowPlayingStatus();
+        updateMusicMenuSelection();
+        if (typeof window.updateFirebaseRoomState === 'function') {
+          window.updateFirebaseRoomState({
+            currentVibe: state.currentVibe,
+            currentTrackIndex: state.currentTrackIndex,
+            trackStartTime: Date.now(),
+            isPlaying: true
+          });
+        }
+      }).catch(err => {
+        console.log("Audio playback waiting for user interaction:", err);
+      });
     }
   } else {
-    // Returning to non-festival ambient lofi themes
-    if (state.currentVibe === 'durga_puja' || state.currentVibe === 'kali_puja') {
-      state.currentVibe = 'focus';
-      state.currentTrackIndex = 0;
-      loadTrack('focus', 0);
-      if (triggerPlay || state.isPlaying) {
-        if (musicAudio) {
-          musicAudio.play().catch(e => console.log(e));
-        }
-      } else {
-        state.isPlaying = false;
-        if (musicAudio) musicAudio.pause();
-        if (elBtnPlay) elBtnPlay.innerHTML = '<i class="fa-solid fa-play"></i>';
-        if (elTrackIcon) elTrackIcon.style.animationPlayState = 'paused';
-      }
-      updateNowPlayingStatus();
-      updateMusicMenuSelection();
+    // Always paused by default on theme switch
+    state.isPlaying = false;
+    if (musicAudio) {
+      musicAudio.pause();
     }
+    if (elBtnPlay) elBtnPlay.innerHTML = '<i class="fa-solid fa-play"></i>';
+    if (elTrackIcon) elTrackIcon.style.animationPlayState = 'paused';
+    updateTvPowerLed();
+    updateNowPlayingStatus();
+    updateMusicMenuSelection();
+  }
+
+  // Update theme-specific interactive hotspot audios
+  updateHotspotThemeAudios();
+
+  // Broadcast theme change to room if not from remote peer
+  if (!isRemote && typeof window.updateFirebaseRoomState === 'function') {
+    window.updateFirebaseRoomState({
+      currentTheme: themeId,
+      currentVibe: state.currentVibe,
+      currentTrackIndex: state.currentTrackIndex,
+      isPlaying: state.isPlaying
+    });
   }
 }
 
@@ -3031,7 +4413,7 @@ function setupTvBezelControls() {
           e.stopPropagation();
           const theme = card.dataset.theme;
           if (theme) {
-            switchTheme(theme, true);
+            switchTheme(theme, false);
             // Scroll the card into center view within the track only
             // (do NOT use scrollIntoView which scrolls the window too)
             const cardLeft = card.offsetLeft;
@@ -3066,95 +4448,22 @@ function setupTvBezelControls() {
   }
 
   // 3. Weather Toggle Switch (Blizzard in Cabin / Rain in Library / Rain in Forest House)
+  const tvWeatherSwitchContainer = document.getElementById('tvWeatherSwitchContainer');
+  if (tvWeatherSwitchContainer) {
+    if (state.currentTheme === 'scene_durga_puja' || state.currentTheme === 'scene_kali_puja') {
+      tvWeatherSwitchContainer.style.display = 'none';
+    } else {
+      tvWeatherSwitchContainer.style.display = 'flex';
+    }
+  }
+
   if (tvWeatherSwitch) {
-    // Initial switch position
-    let isInitialWeather = false;
-    if (state.currentTheme === 'scene2') isInitialWeather = state.isBlizzardActive;
-    else if (state.currentTheme === 'scene_forest') isInitialWeather = state.isForestRainActive;
-    else if (state.currentTheme === 'scene_forest_cabin') isInitialWeather = state.isForestCabinRainActive;
-    else if (state.currentTheme === 'scene_durga_puja') isInitialWeather = state.isDurgaPujaRainActive;
-    else if (state.currentTheme === 'scene_kali_puja') isInitialWeather = state.isKaliPujaRainActive;
-    else if (state.currentTheme === 'scene_library') isInitialWeather = state.isLibraryRainActive;
+    let isInitialWeather = isThemeWeatherActive(state.currentTheme);
     tvWeatherSwitch.classList.toggle('switch-up', !!isInitialWeather);
 
     tvWeatherSwitch.addEventListener('click', () => {
-      if (state.currentTheme === 'scene2') {
-        state.isBlizzardActive = !state.isBlizzardActive;
-        tvWeatherSwitch.classList.toggle('switch-up', state.isBlizzardActive);
-        const fogBg = document.getElementById('bg-mountains');
-        if (fogBg) {
-          if (state.isBlizzardActive) fogBg.classList.add('blizzard-fog');
-          else fogBg.classList.remove('blizzard-fog');
-        }
-        if (window.blizzardEngine) {
-          if (state.isBlizzardActive) window.blizzardEngine.activateBlizzard();
-          else window.blizzardEngine.deactivateBlizzard();
-        }
-      } else if (state.currentTheme === 'scene_library') {
-        state.isLibraryRainActive = !state.isLibraryRainActive;
-        tvWeatherSwitch.classList.toggle('switch-up', state.isLibraryRainActive);
-        const bgLib = document.getElementById('bg-library');
-        if (bgLib) {
-          if (state.isLibraryRainActive) bgLib.classList.add('rain-active');
-          else bgLib.classList.remove('rain-active');
-        }
-        if (window.libraryRainEngine) {
-          if (state.isLibraryRainActive) window.libraryRainEngine.start();
-          else window.libraryRainEngine.stop();
-        }
-      } else if (state.currentTheme === 'scene_forest') {
-        state.isForestRainActive = !state.isForestRainActive;
-        tvWeatherSwitch.classList.toggle('switch-up', state.isForestRainActive);
-        const bgForest = document.getElementById('bg-forest');
-        if (bgForest) {
-          bgForest.classList.toggle('rainy', state.isForestRainActive);
-        }
-        if (window.forestRainEngine) {
-          if (state.isForestRainActive) window.forestRainEngine.start();
-          else window.forestRainEngine.stop();
-        }
-        if (window.forestFireflyEngine) {
-          if (!state.isForestRainActive) window.forestFireflyEngine.start();
-          else window.forestFireflyEngine.stop();
-        }
-      } else if (state.currentTheme === 'scene_forest_cabin') {
-        state.isForestCabinRainActive = !state.isForestCabinRainActive;
-        tvWeatherSwitch.classList.toggle('switch-up', state.isForestCabinRainActive);
-        const bgForestCabin = document.getElementById('bg-forest-cabin');
-        if (bgForestCabin) {
-          bgForestCabin.classList.toggle('rainy', state.isForestCabinRainActive);
-        }
-        if (window.forestCabinRainEngine) {
-          if (state.isForestCabinRainActive) window.forestCabinRainEngine.start();
-          else window.forestCabinRainEngine.stop();
-        }
-        if (window.forestCabinFireflyEngine) {
-          if (!state.isForestCabinRainActive) window.forestCabinFireflyEngine.start();
-          else window.forestCabinFireflyEngine.stop();
-        }
-      } else if (state.currentTheme === 'scene_durga_puja') {
-        state.isDurgaPujaRainActive = !state.isDurgaPujaRainActive;
-        tvWeatherSwitch.classList.toggle('switch-up', state.isDurgaPujaRainActive);
-        const bgDurga = document.getElementById('bg-durga-puja');
-        if (bgDurga) {
-          bgDurga.classList.toggle('rainy', state.isDurgaPujaRainActive);
-        }
-        if (window.durgaRainEngine) {
-          if (state.isDurgaPujaRainActive) window.durgaRainEngine.start();
-          else window.durgaRainEngine.stop();
-        }
-        if (window.durgaSparklesEngine) {
-          if (!state.isDurgaPujaRainActive) window.durgaSparklesEngine.start();
-          else window.durgaSparklesEngine.stop();
-        }
-      } else if (state.currentTheme === 'scene_kali_puja') {
-        state.isKaliPujaRainActive = !state.isKaliPujaRainActive;
-        tvWeatherSwitch.classList.toggle('switch-up', state.isKaliPujaRainActive);
-        if (window.kaliRainEngine) {
-          if (state.isKaliPujaRainActive) window.kaliRainEngine.start();
-          else window.kaliRainEngine.stop();
-        }
-      }
+      const currentActive = isThemeWeatherActive(state.currentTheme);
+      applyThemeWeather(state.currentTheme, !currentActive, false);
     });
   }
 
@@ -3228,8 +4537,8 @@ function renderMusicList(filter = currentMusicTabFilter) {
   const currentTrackUrl = (musicAudio && musicAudio.src) ? musicAudio.src : '';
 
   const filtered = ALL_TRACKS.filter(t => {
-    if (filter === 'festive') return t.category === 'festive';
-    if (filter === 'lofi') return t.category === 'lofi';
+    if (filter === 'lofi') return t.tag === 'Chillhop';
+    if (filter === 'focus') return t.tag !== 'Chillhop';
     return true;
   });
 
@@ -3292,6 +4601,15 @@ function selectTrack(track) {
       updateTvPowerLed();
       updateNowPlayingStatus();
       renderMusicList();
+
+      if (typeof window.updateFirebaseRoomState === 'function') {
+        window.updateFirebaseRoomState({
+          currentVibe: state.currentVibe,
+          currentTrackIndex: state.currentTrackIndex,
+          trackStartTime: Date.now(),
+          isPlaying: true
+        });
+      }
     }).catch(e => {
       console.log("Audio play error:", e);
     });
