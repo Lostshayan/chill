@@ -1,14 +1,7 @@
-// Firebase configuration.
-// Replace these with your actual Firebase project settings.
-var firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_AUTH_DOMAIN",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_STORAGE_BUCKET",
-  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-  appId: "YOUR_APP_ID"
-};
+// Supabase Configuration
+var SUPABASE_URL = "https://ivjaobczjzfrdpqhkuhs.supabase.co";
+var SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml2amFvYmN6anpmcmRwcWhrdWhzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI0OTg4MjUsImV4cCI6MjEwODA3NDgyNX0.d2ZqDx13I5PNrm23EfkMRFootJlNl6NGgzG2XBFeiRA";
 
-// If true, the application runs a local mock simulation of multiple users and synchronization.
-// Set this to false when you have inputted your real Firebase credentials.
-var USE_MOCK_MODE = true;
+// Backend Mode
+var USE_SUPABASE = true;
+var USE_MOCK_MODE = false;

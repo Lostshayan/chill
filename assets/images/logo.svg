@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100%" height="100%">
+  <defs>
+    <linearGradient id="lofifyWarm" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F2D7B6"/>
+      <stop offset="50%" stop-color="#D4A373"/>
+      <stop offset="100%" stop-color="#A97148"/>
+    </linearGradient>
+    <linearGradient id="lofifyBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1A1410"/>
+      <stop offset="100%" stop-color="#0E0B09"/>
+    </linearGradient>
+    <filter id="softGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="2.5" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+  <!-- Rounded Squircle Canvas -->
+  <rect x="4" y="4" width="92" height="92" rx="26" fill="url(#lofifyBg)" stroke="url(#lofifyWarm)" stroke-width="3"/>
+  <!-- Elegant 'L' Motif -->
+  <path d="M34 22 L34 68 Q34 76 42 76 L70 76" fill="none" stroke="url(#lofifyWarm)" stroke-width="7.5" stroke-linecap="round" stroke-linejoin="round" filter="url(#softGlow)"/>
+  <!-- Soft Equalizer Sound Bars -->
+  <line x1="47" y1="58" x2="47" y2="66" stroke="#E9EDC9" stroke-width="4.5" stroke-linecap="round"/>
+  <line x1="56" y1="46" x2="56" y2="66" stroke="#D4A373" stroke-width="4.5" stroke-linecap="round"/>
+  <line x1="65" y1="36" x2="65" y2="66" stroke="#C88E62" stroke-width="4.5" stroke-linecap="round"/>
+  <!-- Warm ivory sparkle dot -->
+  <circle cx="74" cy="26" r="3.5" fill="#FAEDCD"/>
+</svg>

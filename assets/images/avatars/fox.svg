@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100%" height="100%">
+  <!-- Background Circle: Warm Autumn Sand -->
+  <circle cx="50" cy="50" r="48" fill="#FAEDCD" stroke="#D4A373" stroke-width="2"/>
+  
+  <!-- Fox Ears -->
+  <path d="M22 36 L16 14 L38 24 Z" fill="#D96B27" stroke="#9A3B05" stroke-width="1.8" stroke-linejoin="round"/>
+  <path d="M22 32 L19 18 L34 25 Z" fill="#2B2118"/>
+  <path d="M78 36 L84 14 L62 24 Z" fill="#D96B27" stroke="#9A3B05" stroke-width="1.8" stroke-linejoin="round"/>
+  <path d="M78 32 L81 18 L66 25 Z" fill="#2B2118"/>
+  
+  <!-- Fox Head Base (Orange) -->
+  <ellipse cx="50" cy="50" rx="30" ry="24" fill="#D96B27"/>
+  
+  <!-- White Cheeks & Muzzle -->
+  <path d="M20 54 Q32 68 50 63 Q68 68 80 54 Q72 44 50 48 Q28 44 20 54 Z" fill="#FFF9F5"/>
+  
+  <!-- Sleepy/Cute Eyes (curved lines) -->
+  <path d="M34 50 Q40 54 46 50" fill="none" stroke="#2B2118" stroke-width="2.5" stroke-linecap="round"/>
+  <path d="M54 50 Q60 54 66 50" fill="none" stroke="#2B2118" stroke-width="2.5" stroke-linecap="round"/>
+  
+  <!-- Nose -->
+  <ellipse cx="50" cy="56" rx="3.2" ry="2.2" fill="#2B2118"/>
+  <path d="M50 58.2 L50 61" stroke="#2B2118" stroke-width="1.5" stroke-linecap="round"/>
+  
+  <!-- Blush Cheeks -->
+  <ellipse cx="28" cy="56" rx="4.5" ry="2.5" fill="#FFAAA6" opacity="0.7"/>
+  <ellipse cx="72" cy="56" rx="4.5" ry="2.5" fill="#FFAAA6" opacity="0.7"/>
+  
+  <!-- Cozy Knit Scarf -->
+  <path d="M26 68 Q50 78 74 68 Q76 74 72 79 Q50 87 28 79 Z" fill="#A3B18A" stroke="#606C38" stroke-width="1.5"/>
+  <rect x="52" y="76" width="10" height="14" rx="2" fill="#A3B18A" stroke="#606C38" stroke-width="1.5"/>
+  <line x1="55" y1="88" x2="55" y2="92" stroke="#606C38" stroke-width="1.2"/>
+  <line x1="59" y1="88" x2="59" y2="92" stroke="#606C38" stroke-width="1.2"/>
+</svg>

@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100%" height="100%">
+  <!-- Background Circle: Soft Matcha Sage -->
+  <circle cx="50" cy="50" r="48" fill="#E9EDC9" stroke="#CCD5AE" stroke-width="2"/>
+  
+  <!-- Panda Ears -->
+  <circle cx="28" cy="28" r="11" fill="#2B2118"/>
+  <circle cx="28" cy="28" r="6" fill="#4A3728"/>
+  <circle cx="72" cy="28" r="11" fill="#2B2118"/>
+  <circle cx="72" cy="28" r="6" fill="#4A3728"/>
+  
+  <!-- Head -->
+  <ellipse cx="50" cy="52" rx="29" ry="25" fill="#FFFFFF"/>
+  
+  <!-- Eye Patches -->
+  <ellipse cx="37" cy="49" rx="8" ry="9" fill="#2B2118" transform="rotate(-15 37 49)"/>
+  <ellipse cx="63" cy="49" rx="8" ry="9" fill="#2B2118" transform="rotate(15 63 49)"/>
+  
+  <!-- Eyes -->
+  <circle cx="38" cy="48" r="3.2" fill="#FFFFFF"/>
+  <circle cx="39" cy="47.5" r="1.8" fill="#000000"/>
+  <circle cx="39.6" cy="47" r="0.7" fill="#FFFFFF"/>
+  <circle cx="62" cy="48" r="3.2" fill="#FFFFFF"/>
+  <circle cx="61" cy="47.5" r="1.8" fill="#000000"/>
+  <circle cx="61.6" cy="47" r="0.7" fill="#FFFFFF"/>
+  
+  <!-- Nose & Mouth -->
+  <ellipse cx="50" cy="56" rx="3.5" ry="2.2" fill="#2B2118"/>
+  <path d="M47 59 Q50 62 50 60 Q50 62 53 59" fill="none" stroke="#2B2118" stroke-width="1.6" stroke-linecap="round"/>
+  
+  <!-- Blush Cheeks -->
+  <ellipse cx="28" cy="58" rx="5" ry="3" fill="#FFAAA6" opacity="0.6"/>
+  <ellipse cx="72" cy="58" rx="5" ry="3" fill="#FFAAA6" opacity="0.6"/>
+  
+  <!-- Little Boba Cup -->
+  <g transform="translate(42, 66)">
+    <!-- Straw -->
+    <line x1="11" y1="-5" x2="8" y2="4" stroke="#D4A373" stroke-width="2.5" stroke-linecap="round"/>
+    <!-- Cup -->
+    <path d="M3 4 L13 4 L11 18 L5 18 Z" fill="#FFFFFF" stroke="#8B5E3C" stroke-width="1.2"/>
+    <!-- Boba Pearls -->
+    <circle cx="7" cy="15" r="1.3" fill="#3D2B1F"/>
+    <circle cx="9.5" cy="15" r="1.3" fill="#3D2B1F"/>
+    <circle cx="8" cy="12.5" r="1.3" fill="#3D2B1F"/>
+  </g>
+</svg>
