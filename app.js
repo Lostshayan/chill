@@ -1760,6 +1760,7 @@ window.addEventListener('DOMContentLoaded', () => {
   setupThemeSwitcher();
   initHotspots();
   setupTvBezelControls();
+  setupMobileCompanionControls();
   startClock();
   setupFocusTimer();
   setupProfileAndAnalytics();
@@ -2847,6 +2848,14 @@ function loadTrack(vibe, index) {
   musicAudio.src = track.url;
   if (elTrackTitle) elTrackTitle.textContent = track.title;
   if (elTrackArtist) elTrackArtist.textContent = track.artist;
+
+  const elMobileNpTrack = document.getElementById('mobileNpTrackName');
+  const elMobileNpArtist = document.getElementById('mobileNpArtistName');
+  const elMobileNpVibe = document.getElementById('mobileNpVibe');
+  if (elMobileNpTrack) elMobileNpTrack.textContent = track.title;
+  if (elMobileNpArtist) elMobileNpArtist.textContent = track.artist;
+  if (elMobileNpVibe) elMobileNpVibe.textContent = vibe;
+
   musicAudio.load();
   updateNowPlayingStatus();
   updateMusicMenuSelection();
@@ -3187,6 +3196,216 @@ function cleanRoomCode(code) {
   return code.trim().toLowerCase().replace(/[^a-z0-9_-]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '').slice(0, 32);
 }
 
+// --- MOBILE VIEW & MIDDLE MENU STAGE CONTROLLERS ---
+function setMiddleMenuPane(paneKey) {
+  const selectEl = document.getElementById('mobileMenuSelect');
+  const iconEl = document.getElementById('menuDropdownIcon');
+  if (selectEl) selectEl.value = paneKey;
+
+  const iconMap = {
+    ambient: 'fa-sliders',
+    room: 'fa-users',
+    todo: 'fa-list-check',
+    profile: 'fa-chart-pie'
+  };
+  if (iconEl && iconMap[paneKey]) {
+    iconEl.className = `fa-solid ${iconMap[paneKey]} menu-dropdown-icon`;
+  }
+
+  // Deactivate all middle panes
+  document.querySelectorAll('.middle-pane').forEach(p => p.classList.remove('active'));
+
+  // Activate only the selected pane
+  const paneMap = {
+    ambient: 'paneAmbient',
+    room: 'paneRoom',
+    todo: 'paneTodo',
+    profile: 'paneProfile'
+  };
+
+  const targetPaneId = paneMap[paneKey] || 'paneAmbient';
+  const targetPane = document.getElementById(targetPaneId);
+  if (targetPane) targetPane.classList.add('active');
+
+  // Sync .open state on panels for desktop and animations
+  const roomPanel = document.getElementById('panelRoom');
+  const profilePanel = document.getElementById('panelProfile');
+  const todoPanel = document.getElementById('panelTodo');
+
+  if (roomPanel) roomPanel.classList.toggle('open', paneKey === 'room');
+  if (profilePanel) profilePanel.classList.toggle('open', paneKey === 'profile');
+  if (todoPanel) todoPanel.classList.toggle('open', paneKey === 'todo');
+
+  // Sync active states on bottom bezel buttons
+  const btnRoom = document.getElementById('toggleRoomBtn');
+  const btnTodo = document.getElementById('toggleTodoBtn');
+  const btnProfile = document.getElementById('toggleProfileBtn');
+
+  if (btnRoom) btnRoom.classList.toggle('active', paneKey === 'room');
+  if (btnTodo) btnTodo.classList.toggle('active', paneKey === 'todo');
+  if (btnProfile) btnProfile.classList.toggle('active', paneKey === 'profile');
+}
+
+// --- DYNAMIC THEME AMBIENT SOUNDSCAPES CONFIG & RENDERER ---
+const THEME_SOUNDSCAPES_CONFIG = {
+  scene2: {
+    title: 'WINTER CABIN AMBIENCE',
+    soundscapes: [
+      { key: 'blizzard', name: 'Blizzard Wind', icon: 'fa-wind', defaultVol: 0.7 },
+      { key: 'fireplace', name: 'Hearth Fire', icon: 'fa-fire', defaultVol: 0.7 }
+    ]
+  },
+  scene_library: {
+    title: 'GRAND LIBRARY AMBIENCE',
+    soundscapes: [
+      { key: 'libraryRain', name: 'Library Rain', icon: 'fa-cloud-showers-heavy', defaultVol: 0.7 },
+      { key: 'fireplace', name: 'Cozy Fireplace', icon: 'fa-fire', defaultVol: 0.7 }
+    ]
+  },
+  scene_forest: {
+    title: 'FOREST HOUSE AMBIENCE',
+    soundscapes: [
+      { key: 'forestRain', name: 'Forest Rain', icon: 'fa-cloud-rain', defaultVol: 0.7 },
+      { key: 'blizzard', name: 'Woodland Wind', icon: 'fa-wind', defaultVol: 0.5 }
+    ]
+  },
+  scene_forest_cabin: {
+    title: 'FOREST CABIN AMBIENCE',
+    soundscapes: [
+      { key: 'forestCabinRain', name: 'Cabin Rain', icon: 'fa-cloud-showers-water', defaultVol: 0.7 },
+      { key: 'fireplace', name: 'Wood Stove', icon: 'fa-fire-burner', defaultVol: 0.7 }
+    ]
+  },
+  scene_durga_puja: {
+    title: 'DURGA PUJA AMBIENCE',
+    soundscapes: [
+      { key: 'durgaDhak', name: 'Dhak Beats', icon: 'fa-drum', defaultVol: 0.7 },
+      { key: 'libraryRain', name: 'Festive Rain', icon: 'fa-cloud-rain', defaultVol: 0.5 }
+    ]
+  },
+  scene_kali_puja: {
+    title: 'KALI PUJA AMBIENCE',
+    soundscapes: [
+      { key: 'kaliFireworks', name: 'Fireworks', icon: 'fa-fire', defaultVol: 0.7 },
+      { key: 'kaliShyama', name: 'Shyama Sangeet', icon: 'fa-music', defaultVol: 0.6 }
+    ]
+  },
+  scene_darjeeling: {
+    title: 'DARJEELING VERANDA AMBIENCE',
+    soundscapes: [
+      { key: 'darjeelingRain', name: 'Veranda Rain', icon: 'fa-cloud-showers-heavy', defaultVol: 0.7 },
+      { key: 'darjeelingBirds', name: 'Morning Birds', icon: 'fa-dove', defaultVol: 0.7 },
+      { key: 'darjeelingChai', name: 'Bubbling Chai', icon: 'fa-mug-hot', defaultVol: 0.75 }
+    ]
+  },
+  scene_sahara: {
+    title: 'SAHARA OASIS AMBIENCE',
+    soundscapes: [
+      { key: 'saharaCampfire', name: 'Cedar Campfire', icon: 'fa-fire', defaultVol: 0.8 },
+      { key: 'saharaWind', name: 'Desert Wind', icon: 'fa-wind', defaultVol: 0.7 },
+      { key: 'saharaTea', name: 'Mint Tea Pot', icon: 'fa-mug-hot', defaultVol: 0.75 }
+    ]
+  }
+};
+
+function handleThemeSoundscapeInput(soundKey, vol) {
+  const masterVol = isMuted ? 0 : (previousMasterVolume ?? 0.7);
+  const effectiveVol = Math.max(0, Math.min(1, vol * masterVol));
+  const audio = hotspotAudios[soundKey];
+
+  if (!state.hotspotVolumes) state.hotspotVolumes = {};
+  state.hotspotVolumes[soundKey] = vol;
+  if (!state.hotspots) state.hotspots = {};
+  state.hotspots[soundKey] = vol > 0;
+
+  if (audio) {
+    audio.volume = effectiveVol;
+    if (vol > 0) {
+      if (audio.paused) {
+        audio.play().catch(() => {});
+      }
+    } else {
+      audio.pause();
+    }
+  }
+
+  const pctEl = document.getElementById(`pct_${soundKey}`);
+  if (pctEl) {
+    pctEl.textContent = `${Math.round(vol * 100)}%`;
+  }
+
+  const desktopSlider = document.querySelector(`.hotspot-vol-slider[data-hotspot="${soundKey}"]`);
+  if (desktopSlider) desktopSlider.value = vol;
+}
+
+function renderThemeSoundscapes(themeId) {
+  const container = document.getElementById('themeSoundscapesFaders');
+  const titleEl = document.getElementById('themeSoundscapesTitle');
+  if (!container) return;
+
+  const currentThemeKey = themeId || state.currentTheme || 'scene2';
+  const config = THEME_SOUNDSCAPES_CONFIG[currentThemeKey] || THEME_SOUNDSCAPES_CONFIG.scene2;
+  if (titleEl) titleEl.textContent = config.title;
+
+  container.innerHTML = '';
+  config.soundscapes.forEach(item => {
+    const audio = hotspotAudios[item.key];
+    const isPlaying = audio && !audio.paused && audio.volume > 0;
+    let volVal = 0;
+    if (isPlaying) {
+      const master = previousMasterVolume || 0.7;
+      volVal = Math.min(1, Math.max(0, audio.volume / master));
+    } else if (state.hotspotVolumes && state.hotspotVolumes[item.key] !== undefined && state.hotspots && state.hotspots[item.key]) {
+      volVal = state.hotspotVolumes[item.key];
+    }
+    const pctVal = Math.round(volVal * 100);
+
+    const row = document.createElement('div');
+    row.className = 'theme-fader-row';
+    row.innerHTML = `
+      <div class="theme-fader-info">
+        <i class="fa-solid ${item.icon}"></i>
+        <span>${item.name}</span>
+      </div>
+      <input type="range" class="theme-sfx-slider" data-sound="${item.key}" min="0" max="1" step="0.02" value="${volVal.toFixed(2)}">
+      <span class="theme-fader-pct" id="pct_${item.key}">${pctVal}%</span>
+    `;
+    container.appendChild(row);
+  });
+
+  container.querySelectorAll('.theme-sfx-slider').forEach(slider => {
+    slider.addEventListener('input', (e) => {
+      const soundKey = e.target.dataset.sound;
+      const vol = parseFloat(e.target.value) || 0;
+      handleThemeSoundscapeInput(soundKey, vol);
+    });
+  });
+}
+
+function closeOtherMobileMenus(type) {
+  const themeMenu = document.getElementById('screenThemeMenu');
+  const musicMenu = document.getElementById('screenMusicMenu');
+  const tvChannelBtn = document.getElementById('tvChannelBtn');
+
+  if (type === 'theme') {
+    if (musicMenu) musicMenu.classList.remove('active');
+  } else if (type === 'music') {
+    if (themeMenu) themeMenu.classList.remove('active');
+    if (tvChannelBtn) tvChannelBtn.classList.remove('active');
+  }
+}
+
+function updateMobileMenuStageState() {
+  const activePane = document.querySelector('.middle-pane.active');
+  const selectEl = document.getElementById('mobileMenuSelect');
+  if (activePane && selectEl) {
+    const paneKey = activePane.id.replace('pane', '').toLowerCase();
+    if (selectEl.value !== paneKey && ['ambient', 'room', 'todo', 'profile'].includes(paneKey)) {
+      selectEl.value = paneKey;
+    }
+  }
+}
+
 function setupRoomPanelControls() {
   const elScreenRoomWidget = document.getElementById('screenRoomWidget');
   const elToggleRoomBtn = document.getElementById('toggleRoomBtn');
@@ -3213,31 +3432,26 @@ function setupRoomPanelControls() {
   const elBtnSubmitJoinRoom = document.getElementById('btnSubmitJoinRoom');
 
   function openRoomPanel() {
-    if (!elPanelRoom) return;
-    elPanelRoom.classList.add('open');
-    if (elToggleRoomBtn) elToggleRoomBtn.classList.add('active');
-    const elPanelProfile = document.getElementById('panelProfile');
-    if (elPanelProfile) elPanelProfile.classList.remove('open');
-    const elToggleProfileBtn = document.getElementById('toggleProfileBtn');
-    if (elToggleProfileBtn) elToggleProfileBtn.classList.remove('active');
-    if (typeof closeTodoPanel === 'function') closeTodoPanel();
+    setMiddleMenuPane('room');
     updateRoomUI();
   }
 
   function closeRoomPanel() {
-    if (!elPanelRoom) return;
-    elPanelRoom.classList.remove('open');
-    if (elToggleRoomBtn) elToggleRoomBtn.classList.remove('active');
+    setMiddleMenuPane('ambient');
   }
 
   function toggleRoomPanel() {
-    if (!elPanelRoom) return;
-    if (elPanelRoom.classList.contains('open')) {
+    const isRoomActive = document.getElementById('mobileMenuSelect')?.value === 'room';
+    if (isRoomActive) {
       closeRoomPanel();
     } else {
       openRoomPanel();
     }
   }
+
+  window.openRoomPanel = openRoomPanel;
+  window.closeRoomPanel = closeRoomPanel;
+  window.toggleRoomPanel = toggleRoomPanel;
 
   function activateTab(tab) {
     if (tab === 'join') {
@@ -3476,6 +3690,13 @@ function updateProgressBar() {
   
   if (elTimeCurrent) elTimeCurrent.textContent = formatTime(musicAudio.currentTime);
   if (elTimeDuration) elTimeDuration.textContent = formatTime(musicAudio.duration);
+
+  const elMobileNpProgress = document.getElementById('mobileNpProgressFill');
+  const elMobileNpCurrent = document.getElementById('mobileNpCurrentTime');
+  const elMobileNpDuration = document.getElementById('mobileNpDuration');
+  if (elMobileNpProgress) elMobileNpProgress.style.width = `${percent}%`;
+  if (elMobileNpCurrent) elMobileNpCurrent.textContent = formatTime(musicAudio.currentTime);
+  if (elMobileNpDuration) elMobileNpDuration.textContent = formatTime(musicAudio.duration);
 }
 
 function formatTime(seconds) {
@@ -3689,26 +3910,18 @@ function updateTodoUI() {
 }
 
 function openTodoPanel() {
-  if (!elPanelTodo) return;
-  elPanelTodo.classList.add('open');
-  if (elToggleTodoBtn) elToggleTodoBtn.classList.add('active');
-  if (elPanelRoom) elPanelRoom.classList.remove('open');
-  if (elToggleRoomBtn) elToggleRoomBtn.classList.remove('active');
-  if (elPanelProfile) elPanelProfile.classList.remove('open');
-  if (elToggleProfileBtn) elToggleProfileBtn.classList.remove('active');
+  setMiddleMenuPane('todo');
   updateTodoUI();
   if (elTodoInput) elTodoInput.focus();
 }
 
 function closeTodoPanel() {
-  if (!elPanelTodo) return;
-  elPanelTodo.classList.remove('open');
-  if (elToggleTodoBtn) elToggleTodoBtn.classList.remove('active');
+  setMiddleMenuPane('ambient');
 }
 
 function toggleTodoPanel() {
-  if (!elPanelTodo) return;
-  if (elPanelTodo.classList.contains('open')) {
+  const isTodoActive = document.getElementById('mobileMenuSelect')?.value === 'todo';
+  if (isTodoActive) {
     closeTodoPanel();
   } else {
     openTodoPanel();
@@ -4507,35 +4720,33 @@ function setupProfileAndAnalytics() {
   renderProfileUI();
 
   // Slide panel toggle button on bezel
-  if (elToggleProfileBtn && elPanelProfile) {
-    elToggleProfileBtn.addEventListener('click', () => {
-      const willOpen = !elPanelProfile.classList.contains('open');
-      if (willOpen) {
-        if (elPanelRoom) elPanelRoom.classList.remove('open');
-        if (elToggleRoomBtn) elToggleRoomBtn.classList.remove('active');
-        if (typeof closeTodoPanel === 'function') closeTodoPanel();
+  if (elToggleProfileBtn) {
+    elToggleProfileBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const isProfileActive = document.getElementById('mobileMenuSelect')?.value === 'profile';
+      if (isProfileActive) {
+        setMiddleMenuPane('ambient');
+        if (elAvatarPickerDropdown) elAvatarPickerDropdown.classList.add('hidden');
+      } else {
+        setMiddleMenuPane('profile');
       }
-      elPanelProfile.classList.toggle('open');
-      elToggleProfileBtn.classList.toggle('active');
     });
   }
 
   // Close panel button
-  if (elClosePanelProfile && elPanelProfile) {
+  if (elClosePanelProfile) {
     elClosePanelProfile.addEventListener('click', (e) => {
       e.stopPropagation();
-      elPanelProfile.classList.remove('open');
-      if (elToggleProfileBtn) elToggleProfileBtn.classList.remove('active');
+      setMiddleMenuPane('ambient');
       if (elAvatarPickerDropdown) elAvatarPickerDropdown.classList.add('hidden');
     });
   }
 
-  // Close profile panel when clicking outside
+  // Close profile panel when clicking outside on desktop
   document.addEventListener('click', (e) => {
-    if (elPanelProfile && elPanelProfile.classList.contains('open')) {
-      if (!elPanelProfile.contains(e.target) && e.target !== elToggleProfileBtn && !elToggleProfileBtn.contains(e.target)) {
-        elPanelProfile.classList.remove('open');
-        if (elToggleProfileBtn) elToggleProfileBtn.classList.remove('active');
+    if (window.innerWidth > 768 && elPanelProfile && elPanelProfile.classList.contains('open')) {
+      if (!elPanelProfile.contains(e.target) && e.target !== elToggleProfileBtn && !elToggleProfileBtn?.contains(e.target)) {
+        setMiddleMenuPane('ambient');
         if (elAvatarPickerDropdown) elAvatarPickerDropdown.classList.add('hidden');
       }
     }
@@ -5512,6 +5723,9 @@ function switchTheme(themeId = 'scene2', triggerPlay = false, isRemote = false) 
   // Update theme-specific interactive hotspot audios
   updateHotspotThemeAudios();
 
+  // Update dynamic ambient soundscapes faders for current theme
+  renderThemeSoundscapes(themeId);
+
   // Broadcast theme change to room if not from remote peer
   if (!isRemote && typeof window.updateFirebaseRoomState === 'function') {
     window.updateFirebaseRoomState({
@@ -5826,12 +6040,18 @@ function setupTvBezelControls() {
 
     tvChannelBtn.addEventListener('click', (e) => {
       e.stopPropagation();
-      const isOpen = screenThemeMenu.classList.toggle('active');
-      tvChannelBtn.classList.toggle('active', isOpen);
-      if (isOpen) {
+      const willOpen = !screenThemeMenu.classList.contains('active');
+      if (willOpen) {
+        closeOtherMobileMenus('theme');
+        screenThemeMenu.classList.add('active');
+        tvChannelBtn.classList.add('active');
         updateThemeNavButtons();
         setTimeout(scrollActiveCardIntoView, 60);
+      } else {
+        screenThemeMenu.classList.remove('active');
+        tvChannelBtn.classList.remove('active');
       }
+      updateMobileMenuStageState();
     });
 
     if (closeThemeMenuBtn) {
@@ -5839,6 +6059,7 @@ function setupTvBezelControls() {
         e.stopPropagation();
         screenThemeMenu.classList.remove('active');
         tvChannelBtn.classList.remove('active');
+        updateMobileMenuStageState();
       });
     }
 
@@ -5938,6 +6159,7 @@ function setupTvBezelControls() {
         if (!screenThemeMenu.contains(e.target) && e.target !== tvChannelBtn) {
           screenThemeMenu.classList.remove('active');
           tvChannelBtn.classList.remove('active');
+          updateMobileMenuStageState();
         }
       });
     }
@@ -5947,6 +6169,7 @@ function setupTvBezelControls() {
       if (e.key === 'Escape' && screenThemeMenu.classList.contains('active')) {
         screenThemeMenu.classList.remove('active');
         tvChannelBtn.classList.remove('active');
+        updateMobileMenuStageState();
       }
     });
 
@@ -5987,21 +6210,22 @@ function setupTvBezelControls() {
   if (tvScreenDisplay && screenMusicMenu) {
     tvScreenDisplay.addEventListener('click', (e) => {
       e.stopPropagation();
-      const isOpen = screenMusicMenu.classList.toggle('active');
-      if (isOpen) {
-        // Close theme menu if open so they don't overlap
-        const screenThemeMenu = document.getElementById('screenThemeMenu');
-        if (screenThemeMenu) screenThemeMenu.classList.remove('active');
-        const tvChannelBtn = document.getElementById('tvChannelBtn');
-        if (tvChannelBtn) tvChannelBtn.classList.remove('active');
+      const willOpen = !screenMusicMenu.classList.contains('active');
+      if (willOpen) {
+        closeOtherMobileMenus('music');
+        screenMusicMenu.classList.add('active');
         renderMusicList();
+      } else {
+        screenMusicMenu.classList.remove('active');
       }
+      updateMobileMenuStageState();
     });
 
     if (closeMusicMenuBtn) {
       closeMusicMenuBtn.addEventListener('click', (e) => {
         e.stopPropagation();
         screenMusicMenu.classList.remove('active');
+        updateMobileMenuStageState();
       });
     }
 
@@ -6011,6 +6235,7 @@ function setupTvBezelControls() {
       roomContainer.addEventListener('click', (e) => {
         if (screenMusicMenu.classList.contains('active') && !screenMusicMenu.contains(e.target) && !tvScreenDisplay.contains(e.target)) {
           screenMusicMenu.classList.remove('active');
+          updateMobileMenuStageState();
         }
       });
     }
@@ -6019,6 +6244,7 @@ function setupTvBezelControls() {
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape' && screenMusicMenu.classList.contains('active')) {
         screenMusicMenu.classList.remove('active');
+        updateMobileMenuStageState();
       }
     });
 
@@ -6035,6 +6261,187 @@ function setupTvBezelControls() {
 
     // Initial render
     renderMusicList();
+  }
+}
+
+// --- MOBILE COMPANION DASHBOARD CONTROLS ---
+function setupMobileCompanionControls() {
+  const mobileMenuSelect = document.getElementById('mobileMenuSelect');
+  if (mobileMenuSelect) {
+    mobileMenuSelect.addEventListener('change', (e) => {
+      setMiddleMenuPane(e.target.value);
+    });
+  }
+
+  const middleStageCloseBtn = document.getElementById('middleStageCloseBtn');
+  if (middleStageCloseBtn) {
+    middleStageCloseBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      setMiddleMenuPane('ambient');
+    });
+  }
+
+  const elMobilePillThemes = document.getElementById('mobilePillThemes');
+  const elMobilePillSongs = document.getElementById('mobilePillSongs');
+  const elMobilePillRoom = document.getElementById('mobilePillRoom');
+  const elMobilePillTimer = document.getElementById('mobilePillTimer');
+  const elMobilePillTodo = document.getElementById('mobilePillTodo');
+
+  if (elMobilePillThemes) {
+    elMobilePillThemes.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const themeMenu = document.getElementById('screenThemeMenu');
+      const tvChannelBtn = document.getElementById('tvChannelBtn');
+      if (!themeMenu) return;
+      const willOpen = !themeMenu.classList.contains('active');
+      if (willOpen) {
+        closeOtherMobileMenus('theme');
+        themeMenu.classList.add('active');
+        if (tvChannelBtn) tvChannelBtn.classList.add('active');
+        const screenThemeTrack = document.getElementById('screenThemeTrack');
+        if (screenThemeTrack) {
+          const activeCard = screenThemeTrack.querySelector('.screen-theme-card.active');
+          if (activeCard) {
+            setTimeout(() => {
+              activeCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }, 60);
+          }
+        }
+      } else {
+        themeMenu.classList.remove('active');
+        if (tvChannelBtn) tvChannelBtn.classList.remove('active');
+      }
+    });
+  }
+
+  if (elMobilePillSongs) {
+    elMobilePillSongs.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const musicMenu = document.getElementById('screenMusicMenu');
+      if (!musicMenu) return;
+      const willOpen = !musicMenu.classList.contains('active');
+      if (willOpen) {
+        closeOtherMobileMenus('music');
+        musicMenu.classList.add('active');
+        if (typeof renderMusicList === 'function') renderMusicList();
+      } else {
+        musicMenu.classList.remove('active');
+      }
+    });
+  }
+
+  if (elMobilePillRoom) {
+    elMobilePillRoom.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (typeof window.toggleRoomPanel === 'function') {
+        window.toggleRoomPanel();
+      }
+    });
+  }
+
+  if (elMobilePillTimer) {
+    elMobilePillTimer.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const timerSettingsBtn = document.getElementById('timerSettingsBtn');
+      if (timerSettingsBtn) {
+        timerSettingsBtn.click();
+      } else {
+        const timerPlayBtn = document.getElementById('timerPlayBtn');
+        if (timerPlayBtn) timerPlayBtn.click();
+      }
+    });
+  }
+
+  if (elMobilePillTodo) {
+    elMobilePillTodo.addEventListener('click', (e) => {
+      e.stopPropagation();
+      toggleTodoPanel();
+    });
+  }
+
+  // Mobile progress bar scrubbing / click
+  const mobileNpProgressBar = document.querySelector('.mobile-np-progress-bar');
+  if (mobileNpProgressBar) {
+    mobileNpProgressBar.addEventListener('click', (e) => {
+      if (!musicAudio || !musicAudio.duration) return;
+      const rect = mobileNpProgressBar.getBoundingClientRect();
+      const percentage = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+      const seekTime = percentage * musicAudio.duration;
+      musicAudio.currentTime = seekTime;
+      updateProgressBar();
+      if (typeof window.updateFirebaseRoomState === 'function') {
+        window.updateFirebaseRoomState({
+          trackStartTime: Date.now() - (seekTime * 1000)
+        });
+      }
+    });
+  }
+
+  // Initialize dynamic theme soundscapes
+  renderThemeSoundscapes(state.currentTheme || 'scene2');
+
+  if (window.innerWidth <= 768) {
+    const themeMenu = document.getElementById('screenThemeMenu');
+    const tvChannelBtn = document.getElementById('tvChannelBtn');
+    if (themeMenu) themeMenu.classList.remove('active');
+    if (tvChannelBtn) tvChannelBtn.classList.remove('active');
+  }
+
+  updateMobileMenuStageState();
+}
+
+function handleMobileSoundscapeInput(type, vol) {
+  const masterVol = isMuted ? 0 : (previousMasterVolume ?? 0.7);
+  const effectiveVol = Math.max(0, Math.min(1, vol * masterVol));
+
+  if (type === 'rain') {
+    const rainKeys = ['libraryRain', 'forestRain', 'forestCabinRain', 'darjeelingRain'];
+    rainKeys.forEach(k => {
+      if (hotspotAudios[k]) {
+        hotspotAudios[k].volume = effectiveVol;
+        if (vol > 0) {
+          hotspotAudios[k].play().catch(() => {});
+        } else {
+          hotspotAudios[k].pause();
+        }
+      }
+    });
+  } else if (type === 'campfire') {
+    const fireKeys = ['fireplace', 'saharaCampfire'];
+    fireKeys.forEach(k => {
+      if (hotspotAudios[k]) {
+        hotspotAudios[k].volume = effectiveVol;
+        if (vol > 0) {
+          hotspotAudios[k].play().catch(() => {});
+        } else {
+          hotspotAudios[k].pause();
+        }
+      }
+    });
+  } else if (type === 'cafe') {
+    const cafeKeys = ['darjeelingChai', 'saharaTea'];
+    cafeKeys.forEach(k => {
+      if (hotspotAudios[k]) {
+        hotspotAudios[k].volume = effectiveVol;
+        if (vol > 0) {
+          hotspotAudios[k].play().catch(() => {});
+        } else {
+          hotspotAudios[k].pause();
+        }
+      }
+    });
+  } else if (type === 'keyboard') {
+    const windKeys = ['blizzard', 'saharaWind'];
+    windKeys.forEach(k => {
+      if (hotspotAudios[k]) {
+        hotspotAudios[k].volume = effectiveVol;
+        if (vol > 0) {
+          hotspotAudios[k].play().catch(() => {});
+        } else {
+          hotspotAudios[k].pause();
+        }
+      }
+    });
   }
 }
 
