@@ -3204,6 +3204,8 @@ function setMiddleMenuPane(paneKey) {
 
   const iconMap = {
     ambient: 'fa-sliders',
+    themes: 'fa-palette',
+    songs: 'fa-music',
     room: 'fa-users',
     todo: 'fa-list-check',
     profile: 'fa-chart-pie'
@@ -3218,6 +3220,8 @@ function setMiddleMenuPane(paneKey) {
   // Activate only the selected pane
   const paneMap = {
     ambient: 'paneAmbient',
+    themes: 'paneThemes',
+    songs: 'paneSongs',
     room: 'paneRoom',
     todo: 'paneTodo',
     profile: 'paneProfile'
@@ -3226,6 +3230,15 @@ function setMiddleMenuPane(paneKey) {
   const targetPaneId = paneMap[paneKey] || 'paneAmbient';
   const targetPane = document.getElementById(targetPaneId);
   if (targetPane) targetPane.classList.add('active');
+
+  // Trigger dynamic render for themes, songs, and room panes
+  if (paneKey === 'themes') {
+    renderMiddleThemes();
+  } else if (paneKey === 'songs') {
+    if (typeof renderMusicList === 'function') renderMusicList();
+  } else if (paneKey === 'room') {
+    if (typeof updateRoomUI === 'function') updateRoomUI();
+  }
 
   // Sync .open state on panels for desktop and animations
   const roomPanel = document.getElementById('panelRoom');
@@ -3240,10 +3253,64 @@ function setMiddleMenuPane(paneKey) {
   const btnRoom = document.getElementById('toggleRoomBtn');
   const btnTodo = document.getElementById('toggleTodoBtn');
   const btnProfile = document.getElementById('toggleProfileBtn');
+  const btnThemes = document.getElementById('tvChannelBtn');
+  const displaySongs = document.getElementById('tvScreenDisplay');
 
   if (btnRoom) btnRoom.classList.toggle('active', paneKey === 'room');
   if (btnTodo) btnTodo.classList.toggle('active', paneKey === 'todo');
   if (btnProfile) btnProfile.classList.toggle('active', paneKey === 'profile');
+  if (btnThemes) btnThemes.classList.toggle('active', paneKey === 'themes');
+  if (displaySongs) displaySongs.classList.toggle('active', paneKey === 'songs');
+}
+
+// --- ALL THEMES METADATA & MIDDLE THEMES GRID ---
+const ALL_THEMES_METADATA = [
+  { id: 'scene2', num: '01', title: 'Winter Cabin', tag: 'Alpine Snow & Fire', img: 'assets/images/scene2/thumbnail.jpg?v=th1' },
+  { id: 'scene_library', num: '02', title: 'Grand Library', tag: 'Rainy Study Loft', img: 'assets/images/scene_library/thumbnail.jpg?v=comp1' },
+  { id: 'scene_forest', num: '03', title: 'Forest House', tag: 'Sunlight & Rainfall', img: 'assets/images/scene_forest/forest_sunny.png?v=new_v2' },
+  { id: 'scene_forest_cabin', num: '04', title: 'Forest Cabin', tag: 'Sunlit Desk & Storm', img: 'assets/images/scene_forest_cabin/thumbnail.jpg?v=fc1' },
+  { id: 'scene_durga_puja', num: '05', title: 'Durga Puja', tag: 'Pandal & Evening Glow', img: 'assets/images/scene_durga_puja/thumbnail.jpg?v=dp1' },
+  { id: 'scene_kali_puja', num: '06', title: 'Kali Puja', tag: 'Night Sky & Fireworks', img: 'assets/images/scene_kali_puja/thumbnail.jpg?v=kp1' },
+  { id: 'scene_darjeeling', num: '07', title: 'Darjeeling Veranda', tag: 'Tea Estate & Monsoon', img: 'assets/images/scene_darjeeling/thumbnail.jpg?v=dj1' },
+  { id: 'scene_sahara', num: '08', title: 'Sahara Oasis', tag: 'Bedouin Tent & Stars', img: 'assets/images/scene_sahara/thumbnail.jpg?v=sh1' }
+];
+
+function renderMiddleThemes() {
+  const grid = document.getElementById('middleThemesGrid');
+  if (!grid) return;
+  grid.innerHTML = '';
+
+  const activeThemeId = state.currentTheme || 'scene2';
+
+  ALL_THEMES_METADATA.forEach(theme => {
+    const isCurrent = theme.id === activeThemeId;
+    const card = document.createElement('div');
+    card.className = `middle-theme-card ${isCurrent ? 'active' : ''}`;
+    card.dataset.theme = theme.id;
+    card.title = `Switch to ${theme.title}`;
+
+    card.innerHTML = `
+      <div class="middle-theme-thumb">
+        <img src="${theme.img}" alt="${theme.title}" loading="lazy">
+        <span class="middle-theme-badge">${theme.num}</span>
+        <span class="middle-theme-active-tag"><i class="fa-solid fa-circle"></i> ON AIR</span>
+      </div>
+      <div class="middle-theme-info">
+        <div class="middle-theme-title">${theme.title}</div>
+        <div class="middle-theme-tag">${theme.tag}</div>
+      </div>
+    `;
+
+    card.addEventListener('click', (e) => {
+      e.stopPropagation();
+      switchTheme(theme.id);
+      document.querySelectorAll('.middle-theme-card').forEach(c => {
+        c.classList.toggle('active', c.dataset.theme === theme.id);
+      });
+    });
+
+    grid.appendChild(card);
+  });
 }
 
 // --- DYNAMIC THEME AMBIENT SOUNDSCAPES CONFIG & RENDERER ---
@@ -3258,7 +3325,7 @@ const THEME_SOUNDSCAPES_CONFIG = {
   scene_library: {
     title: 'GRAND LIBRARY AMBIENCE',
     soundscapes: [
-      { key: 'libraryRain', name: 'Library Rain', icon: 'fa-cloud-showers-heavy', defaultVol: 0.7 },
+      { key: 'libraryRain', name: 'Window Rain', icon: 'fa-cloud-showers-heavy', defaultVol: 0.7 },
       { key: 'fireplace', name: 'Cozy Fireplace', icon: 'fa-fire', defaultVol: 0.7 }
     ]
   },
@@ -3266,7 +3333,7 @@ const THEME_SOUNDSCAPES_CONFIG = {
     title: 'FOREST HOUSE AMBIENCE',
     soundscapes: [
       { key: 'forestRain', name: 'Forest Rain', icon: 'fa-cloud-rain', defaultVol: 0.7 },
-      { key: 'blizzard', name: 'Woodland Wind', icon: 'fa-wind', defaultVol: 0.5 }
+      { key: 'darjeelingBirds', name: 'Woodland Birds', icon: 'fa-dove', defaultVol: 0.65 }
     ]
   },
   scene_forest_cabin: {
@@ -3279,23 +3346,22 @@ const THEME_SOUNDSCAPES_CONFIG = {
   scene_durga_puja: {
     title: 'DURGA PUJA AMBIENCE',
     soundscapes: [
-      { key: 'durgaDhak', name: 'Dhak Beats', icon: 'fa-drum', defaultVol: 0.7 },
-      { key: 'libraryRain', name: 'Festive Rain', icon: 'fa-cloud-rain', defaultVol: 0.5 }
+      { key: 'durgaDhak', name: 'Dhak Rhythms', icon: 'fa-drum', defaultVol: 0.75 }
     ]
   },
   scene_kali_puja: {
     title: 'KALI PUJA AMBIENCE',
     soundscapes: [
-      { key: 'kaliFireworks', name: 'Fireworks', icon: 'fa-fire', defaultVol: 0.7 },
+      { key: 'kaliFireworks', name: 'Sky Fireworks', icon: 'fa-burst', defaultVol: 0.75 },
       { key: 'kaliShyama', name: 'Shyama Sangeet', icon: 'fa-music', defaultVol: 0.6 }
     ]
   },
   scene_darjeeling: {
     title: 'DARJEELING VERANDA AMBIENCE',
     soundscapes: [
-      { key: 'darjeelingRain', name: 'Veranda Rain', icon: 'fa-cloud-showers-heavy', defaultVol: 0.7 },
-      { key: 'darjeelingBirds', name: 'Morning Birds', icon: 'fa-dove', defaultVol: 0.7 },
-      { key: 'darjeelingChai', name: 'Bubbling Chai', icon: 'fa-mug-hot', defaultVol: 0.75 }
+      { key: 'darjeelingRain', name: 'Tin Roof Rain', icon: 'fa-cloud-showers-heavy', defaultVol: 0.7 },
+      { key: 'darjeelingBirds', name: 'Mountain Birds', icon: 'fa-dove', defaultVol: 0.7 },
+      { key: 'darjeelingChai', name: 'Masala Chai', icon: 'fa-mug-hot', defaultVol: 0.75 }
     ]
   },
   scene_sahara: {
@@ -3308,6 +3374,38 @@ const THEME_SOUNDSCAPES_CONFIG = {
   }
 };
 
+function applyHotspotWeatherEffect(soundKey, isActive) {
+  switch (soundKey) {
+    case 'blizzard':
+      applyThemeWeather('scene2', isActive, true);
+      break;
+    case 'libraryRain':
+      applyThemeWeather('scene_library', isActive, true);
+      break;
+    case 'forestRain':
+      applyThemeWeather('scene_forest', isActive, true);
+      break;
+    case 'forestCabinRain':
+      applyThemeWeather('scene_forest_cabin', isActive, true);
+      break;
+    case 'darjeelingRain':
+      applyThemeWeather('scene_darjeeling', isActive, true);
+      break;
+    case 'saharaWind':
+      applyThemeWeather('scene_sahara', isActive, true);
+      break;
+    case 'kaliFireworks':
+      if (window.kaliFireworksInstance) {
+        if (isActive && state.currentTheme === 'scene_kali_puja') {
+          if (!window.kaliFireworksInstance.isRunning) window.kaliFireworksInstance.start();
+        } else {
+          window.kaliFireworksInstance.stop();
+        }
+      }
+      break;
+  }
+}
+
 function handleThemeSoundscapeInput(soundKey, vol) {
   const masterVol = isMuted ? 0 : (previousMasterVolume ?? 0.7);
   const effectiveVol = Math.max(0, Math.min(1, vol * masterVol));
@@ -3316,11 +3414,11 @@ function handleThemeSoundscapeInput(soundKey, vol) {
   if (!state.hotspotVolumes) state.hotspotVolumes = {};
   state.hotspotVolumes[soundKey] = vol;
   if (!state.hotspots) state.hotspots = {};
-  state.hotspots[soundKey] = vol > 0;
+  state.hotspots[soundKey] = vol > 0.01;
 
   if (audio) {
     audio.volume = effectiveVol;
-    if (vol > 0) {
+    if (vol > 0.01) {
       if (audio.paused) {
         audio.play().catch(() => {});
       }
@@ -3331,7 +3429,7 @@ function handleThemeSoundscapeInput(soundKey, vol) {
 
   const pctEl = document.getElementById(`pct_${soundKey}`);
   if (pctEl) {
-    pctEl.textContent = `${Math.round(vol * 100)}%`;
+    pctEl.textContent = vol > 0.01 ? `${Math.round(vol * 100)}%` : 'OFF';
   }
 
   const desktopSlider = document.querySelector(`.hotspot-vol-slider[data-hotspot="${soundKey}"]`);
@@ -3349,34 +3447,110 @@ function renderThemeSoundscapes(themeId) {
 
   container.innerHTML = '';
   config.soundscapes.forEach(item => {
-    const audio = hotspotAudios[item.key];
-    const isPlaying = audio && !audio.paused && audio.volume > 0;
-    let volVal = 0;
-    if (isPlaying) {
-      const master = previousMasterVolume || 0.7;
-      volVal = Math.min(1, Math.max(0, audio.volume / master));
-    } else if (state.hotspotVolumes && state.hotspotVolumes[item.key] !== undefined && state.hotspots && state.hotspots[item.key]) {
-      volVal = state.hotspotVolumes[item.key];
-    }
-    const pctVal = Math.round(volVal * 100);
+    const isActive = !!(state.hotspots && state.hotspots[item.key]);
+    const storedVol = (state.hotspotVolumes && state.hotspotVolumes[item.key] !== undefined)
+      ? state.hotspotVolumes[item.key]
+      : (item.defaultVol || 0.7);
+    const pctVal = Math.round((storedVol || 0.7) * 100);
 
     const row = document.createElement('div');
-    row.className = 'theme-fader-row';
+    row.className = `theme-fader-row ${isActive ? 'active-sfx' : ''}`;
+    row.id = `faderRow_${item.key}`;
     row.innerHTML = `
-      <div class="theme-fader-info">
-        <i class="fa-solid ${item.icon}"></i>
-        <span>${item.name}</span>
+      <div class="sfx-toggle-wrap">
+        <button type="button" class="sfx-toggle-btn ${isActive ? 'active' : ''}" data-sound="${item.key}" id="sfxToggleBtn_${item.key}" title="Toggle ${item.name} On/Off">
+          <i class="fa-solid ${item.icon}"></i>
+          <span class="sfx-btn-name">${item.name}</span>
+          <span class="sfx-btn-badge">${isActive ? 'ON' : 'OFF'}</span>
+        </button>
       </div>
-      <input type="range" class="theme-sfx-slider" data-sound="${item.key}" min="0" max="1" step="0.02" value="${volVal.toFixed(2)}">
-      <span class="theme-fader-pct" id="pct_${item.key}">${pctVal}%</span>
+      <div class="sfx-slider-group">
+        <input type="range" class="theme-sfx-slider" data-sound="${item.key}" min="0" max="1" step="0.02" value="${(storedVol || 0.7).toFixed(2)}" ${!isActive ? 'data-inactive="true"' : ''}>
+        <span class="theme-fader-pct" id="pct_${item.key}">${isActive ? pctVal + '%' : 'OFF'}</span>
+      </div>
     `;
     container.appendChild(row);
   });
 
+  // Wire up toggle button clicks
+  container.querySelectorAll('.sfx-toggle-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const soundKey = btn.dataset.sound;
+      toggleHotspot(soundKey);
+
+      const newState = !!state.hotspots[soundKey];
+      btn.classList.toggle('active', newState);
+      const badge = btn.querySelector('.sfx-btn-badge');
+      if (badge) badge.textContent = newState ? 'ON' : 'OFF';
+
+      const row = document.getElementById(`faderRow_${soundKey}`);
+      if (row) row.classList.toggle('active-sfx', newState);
+
+      const slider = container.querySelector(`.theme-sfx-slider[data-sound="${soundKey}"]`);
+      const pctEl = document.getElementById(`pct_${soundKey}`);
+
+      let currentStoredVol = (state.hotspotVolumes && state.hotspotVolumes[soundKey] !== undefined)
+        ? state.hotspotVolumes[soundKey]
+        : 0.7;
+
+      if (newState) {
+        if (currentStoredVol <= 0.05) currentStoredVol = 0.7;
+        state.hotspotVolumes[soundKey] = currentStoredVol;
+        if (slider) {
+          slider.value = currentStoredVol.toFixed(2);
+          slider.removeAttribute('data-inactive');
+        }
+        if (pctEl) pctEl.textContent = `${Math.round(currentStoredVol * 100)}%`;
+      } else {
+        if (slider) slider.setAttribute('data-inactive', 'true');
+        if (pctEl) pctEl.textContent = 'OFF';
+      }
+      updateHotspotVolumes();
+      updateHotspotThemeAudios();
+    });
+  });
+
+  // Wire up slider inputs
   container.querySelectorAll('.theme-sfx-slider').forEach(slider => {
     slider.addEventListener('input', (e) => {
       const soundKey = e.target.dataset.sound;
       const vol = parseFloat(e.target.value) || 0;
+
+      if (!state.hotspotVolumes) state.hotspotVolumes = {};
+      state.hotspotVolumes[soundKey] = vol;
+
+      const btn = document.getElementById(`sfxToggleBtn_${soundKey}`);
+      const row = document.getElementById(`faderRow_${soundKey}`);
+      const pctEl = document.getElementById(`pct_${soundKey}`);
+
+      if (vol > 0.01) {
+        if (!state.hotspots[soundKey]) {
+          state.hotspots[soundKey] = true;
+          applyHotspotWeatherEffect(soundKey, true);
+        }
+        if (btn) {
+          btn.classList.add('active');
+          const badge = btn.querySelector('.sfx-btn-badge');
+          if (badge) badge.textContent = 'ON';
+        }
+        if (row) row.classList.add('active-sfx');
+        if (pctEl) pctEl.textContent = `${Math.round(vol * 100)}%`;
+        slider.removeAttribute('data-inactive');
+      } else {
+        if (state.hotspots[soundKey]) {
+          state.hotspots[soundKey] = false;
+          applyHotspotWeatherEffect(soundKey, false);
+        }
+        if (btn) {
+          btn.classList.remove('active');
+          const badge = btn.querySelector('.sfx-btn-badge');
+          if (badge) badge.textContent = 'OFF';
+        }
+        if (row) row.classList.remove('active-sfx');
+        if (pctEl) pctEl.textContent = 'OFF';
+        slider.setAttribute('data-inactive', 'true');
+      }
       handleThemeSoundscapeInput(soundKey, vol);
     });
   });
@@ -3400,7 +3574,7 @@ function updateMobileMenuStageState() {
   const selectEl = document.getElementById('mobileMenuSelect');
   if (activePane && selectEl) {
     const paneKey = activePane.id.replace('pane', '').toLowerCase();
-    if (selectEl.value !== paneKey && ['ambient', 'room', 'todo', 'profile'].includes(paneKey)) {
+    if (selectEl.value !== paneKey && ['ambient', 'themes', 'songs', 'room', 'todo', 'profile'].includes(paneKey)) {
       selectEl.value = paneKey;
     }
   }
@@ -3653,9 +3827,9 @@ function setupRoomPanelControls() {
     });
   }
 
-  // Close when clicking outside in roomContainer
+  // Close when clicking outside in roomContainer (Desktop only)
   document.addEventListener('click', (e) => {
-    if (elPanelRoom && elPanelRoom.classList.contains('open')) {
+    if (window.innerWidth > 768 && elPanelRoom && elPanelRoom.classList.contains('open')) {
       if (!elPanelRoom.contains(e.target) && 
           (!elScreenRoomWidget || !elScreenRoomWidget.contains(e.target)) && 
           (!elToggleRoomBtn || !elToggleRoomBtn.contains(e.target))) {
@@ -5123,8 +5297,8 @@ function updateHotspotThemeAudios() {
     hotspotAudios.blizzard.pause();
   }
 
-  // Fireplace (scene_library)
-  if (theme === 'scene_library' && state.hotspots.fireplace) {
+  // Fireplace (scene2, scene_library, scene_forest_cabin)
+  if ((theme === 'scene2' || theme === 'scene_library' || theme === 'scene_forest_cabin') && state.hotspots.fireplace) {
     hotspotAudios.fireplace.play().catch(() => {});
   } else {
     hotspotAudios.fireplace.pause();
@@ -5191,7 +5365,8 @@ function updateHotspotThemeAudios() {
     hotspotAudios.darjeelingChai.pause();
   }
 
-  if (theme === 'scene_darjeeling' && state.hotspots.darjeelingBirds) {
+  // Birds (scene_darjeeling or scene_forest)
+  if ((theme === 'scene_darjeeling' || theme === 'scene_forest') && state.hotspots.darjeelingBirds) {
     hotspotAudios.darjeelingBirds.play().catch(() => {});
   } else {
     hotspotAudios.darjeelingBirds.pause();
@@ -5253,6 +5428,33 @@ function toggleHotspot(hotspotId, forceState = null, isRemote = false) {
     }
     if (elWrap) {
       elWrap.classList.toggle('active', newState);
+    }
+  }
+
+  // Sync mobile middle stage soundscape toggle button if rendered
+  const mobileToggleBtn = document.getElementById(`sfxToggleBtn_${hotspotId}`);
+  if (mobileToggleBtn) {
+    mobileToggleBtn.classList.toggle('active', newState);
+    const badge = mobileToggleBtn.querySelector('.sfx-btn-badge');
+    if (badge) badge.textContent = newState ? 'ON' : 'OFF';
+  }
+  const mobileRow = document.getElementById(`faderRow_${hotspotId}`);
+  if (mobileRow) {
+    mobileRow.classList.toggle('active-sfx', newState);
+  }
+  const mobilePct = document.getElementById(`pct_${hotspotId}`);
+  if (mobilePct) {
+    const vol = (state.hotspotVolumes && state.hotspotVolumes[hotspotId] !== undefined)
+      ? state.hotspotVolumes[hotspotId]
+      : 0.7;
+    mobilePct.textContent = newState ? `${Math.round(vol * 100)}%` : 'OFF';
+  }
+  const mobileSlider = document.querySelector(`.theme-sfx-slider[data-sound="${hotspotId}"]`);
+  if (mobileSlider) {
+    if (newState) {
+      mobileSlider.removeAttribute('data-inactive');
+    } else {
+      mobileSlider.setAttribute('data-inactive', 'true');
     }
   }
 
@@ -5467,6 +5669,11 @@ function switchTheme(themeId = 'scene2', triggerPlay = false, isRemote = false) 
 
   // Sync on-screen TV theme menu cards
   document.querySelectorAll('.screen-theme-card').forEach(card => {
+    card.classList.toggle('active', card.dataset.theme === themeId);
+  });
+
+  // Sync middle stage theme cards
+  document.querySelectorAll('.middle-theme-card').forEach(card => {
     card.classList.toggle('active', card.dataset.theme === themeId);
   });
 
@@ -6040,6 +6247,11 @@ function setupTvBezelControls() {
 
     tvChannelBtn.addEventListener('click', (e) => {
       e.stopPropagation();
+      if (window.innerWidth <= 768) {
+        const cur = document.getElementById('mobileMenuSelect')?.value;
+        setMiddleMenuPane(cur === 'themes' ? 'ambient' : 'themes');
+        return;
+      }
       const willOpen = !screenThemeMenu.classList.contains('active');
       if (willOpen) {
         closeOtherMobileMenus('theme');
@@ -6210,6 +6422,11 @@ function setupTvBezelControls() {
   if (tvScreenDisplay && screenMusicMenu) {
     tvScreenDisplay.addEventListener('click', (e) => {
       e.stopPropagation();
+      if (window.innerWidth <= 768) {
+        const cur = document.getElementById('mobileMenuSelect')?.value;
+        setMiddleMenuPane(cur === 'songs' ? 'ambient' : 'songs');
+        return;
+      }
       const willOpen = !screenMusicMenu.classList.contains('active');
       if (willOpen) {
         closeOtherMobileMenus('music');
@@ -6249,13 +6466,14 @@ function setupTvBezelControls() {
     });
 
     // Setup filter tabs
-    const musicTabs = document.querySelectorAll('.music-tab-btn');
-    musicTabs.forEach(tab => {
+    document.querySelectorAll('.music-tab-btn').forEach(tab => {
       tab.addEventListener('click', (e) => {
         e.stopPropagation();
-        musicTabs.forEach(t => t.classList.remove('active'));
-        tab.classList.add('active');
-        renderMusicList(tab.dataset.tab);
+        const tabKey = tab.dataset.tab;
+        document.querySelectorAll('.music-tab-btn').forEach(t => {
+          t.classList.toggle('active', t.dataset.tab === tabKey);
+        });
+        renderMusicList(tabKey);
       });
     });
 
@@ -6290,6 +6508,11 @@ function setupMobileCompanionControls() {
   if (elMobilePillThemes) {
     elMobilePillThemes.addEventListener('click', (e) => {
       e.stopPropagation();
+      if (window.innerWidth <= 768) {
+        const cur = document.getElementById('mobileMenuSelect')?.value;
+        setMiddleMenuPane(cur === 'themes' ? 'ambient' : 'themes');
+        return;
+      }
       const themeMenu = document.getElementById('screenThemeMenu');
       const tvChannelBtn = document.getElementById('tvChannelBtn');
       if (!themeMenu) return;
@@ -6317,6 +6540,11 @@ function setupMobileCompanionControls() {
   if (elMobilePillSongs) {
     elMobilePillSongs.addEventListener('click', (e) => {
       e.stopPropagation();
+      if (window.innerWidth <= 768) {
+        const cur = document.getElementById('mobileMenuSelect')?.value;
+        setMiddleMenuPane(cur === 'songs' ? 'ambient' : 'songs');
+        return;
+      }
       const musicMenu = document.getElementById('screenMusicMenu');
       if (!musicMenu) return;
       const willOpen = !musicMenu.classList.contains('active');
@@ -6765,181 +6993,190 @@ let currentMusicTabFilter = 'all';
 function renderMusicList(filter = currentMusicTabFilter) {
   currentMusicTabFilter = filter;
   const listEl = document.getElementById('screenMusicList');
-  if (!listEl) return;
+  const middleListEl = document.getElementById('middleMusicList');
 
-  // Dedicated YouTube Stream & Playlist Studio Tab
-  if (filter === 'youtube' || filter === 'custom') {
-    listEl.innerHTML = '';
-    const studio = document.createElement('div');
-    studio.className = 'custom-music-studio';
+  // Sync tab active states across both CRT and middle stage tab bars
+  document.querySelectorAll('.music-tab-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.tab === filter);
+  });
 
-    let activeBannerHtml = '';
-    if (customMusicState.active) {
-      activeBannerHtml = `
-        <div class="custom-active-bar">
-          <div class="custom-active-info">
-            <i class="fa-brands fa-youtube" style="color:#ff4444;"></i>
-            <span>Active: <strong>${customMusicState.title}</strong></span>
+  const targetContainers = [listEl, middleListEl].filter(Boolean);
+  if (targetContainers.length === 0) return;
+
+  targetContainers.forEach(container => {
+    container.innerHTML = '';
+
+    // Dedicated YouTube Stream & Playlist Studio Tab
+    if (filter === 'youtube' || filter === 'custom') {
+      const studio = document.createElement('div');
+      studio.className = 'custom-music-studio';
+
+      let activeBannerHtml = '';
+      if (customMusicState.active) {
+        activeBannerHtml = `
+          <div class="custom-active-bar">
+            <div class="custom-active-info">
+              <i class="fa-brands fa-youtube" style="color:#ff4444;"></i>
+              <span>Active: <strong>${customMusicState.title}</strong></span>
+            </div>
+            <button class="custom-reset-btn" id="btnReturnToBuiltinRadio">
+              <i class="fa-solid fa-rotate-left"></i> Return to Lofify Radio
+            </button>
           </div>
-          <button class="custom-reset-btn" id="btnReturnToBuiltinRadio">
-            <i class="fa-solid fa-rotate-left"></i> Return to Lofify Radio
+        `;
+      }
+
+      studio.innerHTML = `
+        ${activeBannerHtml}
+        <div class="custom-input-card">
+          <div class="custom-service-badges">
+            <span class="service-badge youtube"><i class="fa-brands fa-youtube"></i> Full-Length YouTube Playlists, Livestreams & Videos</span>
+          </div>
+          <div class="custom-input-row">
+            <input type="text" class="custom-music-input" placeholder="Paste YouTube playlist or video link..." autocomplete="off">
+            <button class="custom-music-submit-btn">
+              <i class="fa-solid fa-play"></i> Play
+            </button>
+          </div>
+          <div class="custom-music-status"></div>
+        </div>
+
+        <div class="custom-presets-title">⚡ Curated 24/7 Lo-Fi Streams</div>
+        <div class="custom-presets-grid">
+          <button class="custom-preset-btn" data-url="https://www.youtube.com/watch?v=jfKfPfyJRdk">
+            <span>☕ Lofi Girl - 24/7 Relax / Study Beats</span>
+            <span class="custom-preset-badge youtube"><i class="fa-brands fa-youtube"></i> Live</span>
+          </button>
+          <button class="custom-preset-btn" data-url="https://www.youtube.com/watch?v=5yx6BWlEVcY">
+            <span>🌧️ Chillhop Radio - Jazzy & Lofi Hip Hop</span>
+            <span class="custom-preset-badge youtube"><i class="fa-brands fa-youtube"></i> Live</span>
+          </button>
+          <button class="custom-preset-btn" data-url="https://www.youtube.com/watch?v=4xDzrJKXOOY">
+            <span>🌌 Synthwave Radio - Chill Synth / Lofi</span>
+            <span class="custom-preset-badge youtube"><i class="fa-brands fa-youtube"></i> Live</span>
+          </button>
+          <button class="custom-preset-btn" data-url="https://www.youtube.com/watch?v=lP26UCnoH9s">
+            <span>☕ Coffee Shop Lo-Fi / Jazz Study Cafe</span>
+            <span class="custom-preset-badge youtube"><i class="fa-brands fa-youtube"></i> Beats</span>
+          </button>
+          <button class="custom-preset-btn" data-url="https://www.youtube.com/watch?v=HuFYqnbVbzQ">
+            <span>🌙 Tokyo Night Drive - Late Night Chill</span>
+            <span class="custom-preset-badge youtube"><i class="fa-brands fa-youtube"></i> Lo-Fi</span>
           </button>
         </div>
       `;
-    }
 
-    studio.innerHTML = `
-      ${activeBannerHtml}
-      <div class="custom-input-card">
-        <div class="custom-service-badges">
-          <span class="service-badge youtube"><i class="fa-brands fa-youtube"></i> Full-Length YouTube Playlists, Livestreams & Videos</span>
-        </div>
-        <div class="custom-input-row">
-          <input type="text" class="custom-music-input" id="customMusicInput" placeholder="Paste YouTube playlist or video link..." autocomplete="off">
-          <button class="custom-music-submit-btn" id="btnLoadCustomMusic">
-            <i class="fa-solid fa-play"></i> Play
-          </button>
-        </div>
-        <div class="custom-music-status" id="customMusicStatus"></div>
-      </div>
+      container.appendChild(studio);
 
-      <div class="custom-presets-title">⚡ Curated 24/7 Lo-Fi Streams</div>
-      <div class="custom-presets-grid">
-        <button class="custom-preset-btn" data-url="https://www.youtube.com/watch?v=jfKfPfyJRdk">
-          <span>☕ Lofi Girl - 24/7 Relax / Study Beats</span>
-          <span class="custom-preset-badge youtube"><i class="fa-brands fa-youtube"></i> Live</span>
-        </button>
-        <button class="custom-preset-btn" data-url="https://www.youtube.com/watch?v=5yx6BWlEVcY">
-          <span>🌧️ Chillhop Radio - Jazzy & Lofi Hip Hop</span>
-          <span class="custom-preset-badge youtube"><i class="fa-brands fa-youtube"></i> Live</span>
-        </button>
-        <button class="custom-preset-btn" data-url="https://www.youtube.com/watch?v=4xDzrJKXOOY">
-          <span>🌌 Synthwave Radio - Chill Synth / Lofi</span>
-          <span class="custom-preset-badge youtube"><i class="fa-brands fa-youtube"></i> Live</span>
-        </button>
-        <button class="custom-preset-btn" data-url="https://www.youtube.com/watch?v=lP26UCnoH9s">
-          <span>☕ Coffee Shop Lo-Fi / Jazz Study Cafe</span>
-          <span class="custom-preset-badge youtube"><i class="fa-brands fa-youtube"></i> Beats</span>
-        </button>
-        <button class="custom-preset-btn" data-url="https://www.youtube.com/watch?v=HuFYqnbVbzQ">
-          <span>🌙 Tokyo Night Drive - Late Night Chill</span>
-          <span class="custom-preset-badge youtube"><i class="fa-brands fa-youtube"></i> Lo-Fi</span>
-        </button>
-      </div>
-    `;
+      const inputEl = studio.querySelector('.custom-music-input');
+      const submitBtn = studio.querySelector('.custom-music-submit-btn');
+      const statusEl = studio.querySelector('.custom-music-status');
+      const returnBtn = studio.querySelector('.custom-reset-btn');
 
-    listEl.appendChild(studio);
-
-    const inputEl = studio.querySelector('#customMusicInput');
-    const submitBtn = studio.querySelector('#btnLoadCustomMusic');
-    const statusEl = studio.querySelector('#customMusicStatus');
-    const returnBtn = studio.querySelector('#btnReturnToBuiltinRadio');
-
-    const handleLoad = () => {
-      const url = inputEl.value.trim();
-      if (!url) {
-        if (statusEl) {
-          statusEl.textContent = "Please paste a YouTube playlist or video URL first.";
-          statusEl.className = "custom-music-status error";
-        }
-        return;
-      }
-      const parsed = parseYouTubeUrl(url);
-      if (!parsed) {
-        if (statusEl) {
-          statusEl.textContent = "Invalid link. Please enter a valid YouTube video or playlist URL.";
-          statusEl.className = "custom-music-status error";
-        }
-        return;
-      }
-      if (statusEl) {
-        statusEl.textContent = "Loading YouTube stream...";
-        statusEl.className = "custom-music-status success";
-      }
-
-      if (parsed.type === 'playlist') {
-        loadYoutubeStream(parsed.listId, true, null);
-      } else {
-        loadYoutubeStream(null, false, parsed.videoId);
-      }
-
-      const screenMusicMenu = document.getElementById('screenMusicMenu');
-      if (screenMusicMenu) screenMusicMenu.classList.remove('active');
-    };
-
-    if (submitBtn) submitBtn.addEventListener('click', handleLoad);
-    if (inputEl) {
-      inputEl.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') handleLoad();
-      });
-    }
-
-    if (returnBtn) {
-      returnBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        resetCustomMusic();
-      });
-    }
-
-    studio.querySelectorAll('.custom-preset-btn').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        const url = btn.dataset.url;
-        const parsed = parseYouTubeUrl(url);
-        if (parsed) {
-          if (parsed.type === 'playlist') {
-            loadYoutubeStream(parsed.listId, true, null);
-          } else {
-            loadYoutubeStream(null, false, parsed.videoId);
+      const handleLoad = () => {
+        const url = inputEl.value.trim();
+        if (!url) {
+          if (statusEl) {
+            statusEl.textContent = "Please paste a YouTube playlist or video URL first.";
+            statusEl.className = "custom-music-status error";
           }
-          const screenMusicMenu = document.getElementById('screenMusicMenu');
-          if (screenMusicMenu) screenMusicMenu.classList.remove('active');
+          return;
         }
+        const parsed = parseYouTubeUrl(url);
+        if (!parsed) {
+          if (statusEl) {
+            statusEl.textContent = "Invalid link. Please enter a valid YouTube video or playlist URL.";
+            statusEl.className = "custom-music-status error";
+          }
+          return;
+        }
+        if (statusEl) {
+          statusEl.textContent = "Loading YouTube stream...";
+          statusEl.className = "custom-music-status success";
+        }
+
+        if (parsed.type === 'playlist') {
+          loadYoutubeStream(parsed.listId, true, null);
+        } else {
+          loadYoutubeStream(null, false, parsed.videoId);
+        }
+
+        const screenMusicMenu = document.getElementById('screenMusicMenu');
+        if (screenMusicMenu) screenMusicMenu.classList.remove('active');
+      };
+
+      if (submitBtn) submitBtn.addEventListener('click', handleLoad);
+      if (inputEl) {
+        inputEl.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') handleLoad();
+        });
+      }
+
+      if (returnBtn) {
+        returnBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          resetCustomMusic();
+        });
+      }
+
+      studio.querySelectorAll('.custom-preset-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const url = btn.dataset.url;
+          const parsed = parseYouTubeUrl(url);
+          if (parsed) {
+            if (parsed.type === 'playlist') {
+              loadYoutubeStream(parsed.listId, true, null);
+            } else {
+              loadYoutubeStream(null, false, parsed.videoId);
+            }
+            const screenMusicMenu = document.getElementById('screenMusicMenu');
+            if (screenMusicMenu) screenMusicMenu.classList.remove('active');
+          }
+        });
       });
+      return;
+    }
+
+    // Regular tracklist rendering
+    const currentTrackUrl = (musicAudio && musicAudio.src) ? musicAudio.src : '';
+    const filtered = ALL_TRACKS.filter(t => {
+      if (filter === 'lofi') return t.tag === 'Chillhop';
+      if (filter === 'focus') return t.tag !== 'Chillhop';
+      return true;
     });
 
-    return;
-  }
+    filtered.forEach((track, idx) => {
+      const isCurrent = (state.currentVibe === track.vibe && state.currentTrackIndex === track.index) ||
+                        (currentTrackUrl && currentTrackUrl.includes(track.url));
 
-  const currentTrackUrl = (musicAudio && musicAudio.src) ? musicAudio.src : '';
+      const item = document.createElement('div');
+      item.className = `music-track-item ${isCurrent ? 'active' : ''}`;
+      item.title = `Play ${track.title}`;
 
-  const filtered = ALL_TRACKS.filter(t => {
-    if (filter === 'lofi') return t.tag === 'Chillhop';
-    if (filter === 'focus') return t.tag !== 'Chillhop';
-    return true;
-  });
+      const numStr = String(idx + 1).padStart(2, '0');
+      const playIcon = isCurrent && state.isPlaying 
+        ? '<i class="fa-solid fa-volume-high"></i>' 
+        : '<i class="fa-solid fa-play"></i>';
+      const tagClass = track.category === 'festive' ? 'tag-festive' : '';
 
-  listEl.innerHTML = '';
-  filtered.forEach((track, idx) => {
-    const isCurrent = (state.currentVibe === track.vibe && state.currentTrackIndex === track.index) ||
-                      (currentTrackUrl && currentTrackUrl.includes(track.url));
+      item.innerHTML = `
+        <div class="track-index-col">${numStr}</div>
+        <div class="track-details-col">
+          <div class="track-item-title">${track.title}</div>
+          <div class="track-item-artist">${track.artist}</div>
+        </div>
+        <span class="track-tag-col ${tagClass}">${track.tag}</span>
+        <div class="track-play-col">${playIcon}</div>
+      `;
 
-    const item = document.createElement('div');
-    item.className = `music-track-item ${isCurrent ? 'active' : ''}`;
-    item.title = `Play ${track.title}`;
+      item.addEventListener('click', (e) => {
+        e.stopPropagation();
+        selectTrack(track);
+      });
 
-    const numStr = String(idx + 1).padStart(2, '0');
-    const playIcon = isCurrent && state.isPlaying 
-      ? '<i class="fa-solid fa-volume-high"></i>' 
-      : '<i class="fa-solid fa-play"></i>';
-    const tagClass = track.category === 'festive' ? 'tag-festive' : '';
-
-    item.innerHTML = `
-      <div class="track-index-col">${numStr}</div>
-      <div class="track-details-col">
-        <div class="track-item-title">${track.title}</div>
-        <div class="track-item-artist">${track.artist}</div>
-      </div>
-      <span class="track-tag-col ${tagClass}">${track.tag}</span>
-      <div class="track-play-col">${playIcon}</div>
-    `;
-
-    item.addEventListener('click', (e) => {
-      e.stopPropagation();
-      selectTrack(track);
+      container.appendChild(item);
     });
-
-    listEl.appendChild(item);
   });
 }
 
@@ -7020,5 +7257,147 @@ initCustomMusicPanels();
 
 // Trigger initial canvas resizes once the layout is fully rendered on window load
 window.addEventListener('load', handleAllResizes);
+
+// ========================================================
+// PWA SERVICE WORKER REGISTRATION & MOBILE INSTALL PROMPT
+// ========================================================
+let deferredInstallPrompt = null;
+
+function isPwaMobileDevice() {
+  const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+  const isMobileUA = /android|iphone|ipad|ipod|blackberry|iemobile|opera mini|mobile/i.test(userAgent);
+  const isSmallScreen = window.innerWidth <= 768;
+  return isMobileUA || isSmallScreen;
+}
+
+function isPwaStandaloneMode() {
+  return window.matchMedia('(display-mode: standalone)').matches ||
+         window.navigator.standalone === true ||
+         document.referrer.includes('android-app://');
+}
+
+function isIosSafari() {
+  const ua = navigator.userAgent;
+  const isIos = /iPad|iPhone|iPod/.test(ua) && !window.MSStream;
+  return isIos;
+}
+
+function showPwaInstallModal() {
+  if (isPwaStandaloneMode()) return;
+  const modal = document.getElementById('pwaInstallModal');
+  if (!modal) return;
+
+  const isIos = isIosSafari();
+  const standardAction = document.getElementById('pwaStandardAction');
+  const iosAction = document.getElementById('pwaIosAction');
+
+  if (isIos) {
+    if (standardAction) standardAction.style.display = 'none';
+    if (iosAction) iosAction.style.display = 'block';
+  } else {
+    if (standardAction) standardAction.style.display = 'block';
+    if (iosAction) iosAction.style.display = 'none';
+  }
+
+  modal.style.display = 'flex';
+}
+
+function hidePwaInstallModal(remember = true) {
+  const modal = document.getElementById('pwaInstallModal');
+  if (modal) {
+    modal.style.display = 'none';
+  }
+  if (remember) {
+    try {
+      sessionStorage.setItem('lofify_pwa_dismissed', 'true');
+    } catch (e) {}
+  }
+}
+
+function setupPwaControllers() {
+  // 1. Register Service Worker
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./sw.js').then((reg) => {
+        console.log('[PWA] Service Worker registered with scope:', reg.scope);
+      }).catch((err) => {
+        console.warn('[PWA] Service Worker registration failed:', err);
+      });
+    });
+  }
+
+  // 2. Capture beforeinstallprompt (Android / Chromium)
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredInstallPrompt = e;
+
+    // Show popup on mobile if not dismissed in this session
+    if (isPwaMobileDevice() && !isPwaStandaloneMode()) {
+      const dismissed = sessionStorage.getItem('lofify_pwa_dismissed');
+      if (!dismissed) {
+        setTimeout(showPwaInstallModal, 1500);
+      }
+    }
+  });
+
+  // 3. Mobile load trigger (for iOS Safari or browsers where prompt event delayed)
+  window.addEventListener('load', () => {
+    if (isPwaMobileDevice() && !isPwaStandaloneMode()) {
+      const dismissed = sessionStorage.getItem('lofify_pwa_dismissed');
+      if (!dismissed) {
+        setTimeout(() => {
+          const modal = document.getElementById('pwaInstallModal');
+          if (modal && modal.style.display === 'none') {
+            showPwaInstallModal();
+          }
+        }, 1800);
+      }
+    }
+  });
+
+  // 4. Install Button click handler
+  const installBtn = document.getElementById('pwaInstallBtn');
+  if (installBtn) {
+    installBtn.addEventListener('click', async () => {
+      if (deferredInstallPrompt) {
+        deferredInstallPrompt.prompt();
+        const { outcome } = await deferredInstallPrompt.userChoice;
+        console.log('[PWA] User response to install prompt:', outcome);
+        deferredInstallPrompt = null;
+        hidePwaInstallModal(true);
+      } else {
+        // Fallback guidance if browser doesn't support direct programmatic prompt
+        alert('To install Lofify: tap your browser menu (⋮ or Share) and choose "Add to Home screen" or "Install app".');
+        hidePwaInstallModal(true);
+      }
+    });
+  }
+
+  // 5. Close & backdrop dismissal handlers
+  const closeBtn = document.getElementById('pwaCloseBtn');
+  if (closeBtn) {
+    closeBtn.addEventListener('click', () => hidePwaInstallModal(true));
+  }
+
+  const backdrop = document.getElementById('pwaInstallBackdrop');
+  if (backdrop) {
+    backdrop.addEventListener('click', () => hidePwaInstallModal(true));
+  }
+
+  const iosGotItBtn = document.getElementById('pwaIosGotItBtn');
+  if (iosGotItBtn) {
+    iosGotItBtn.addEventListener('click', () => hidePwaInstallModal(true));
+  }
+
+  // 6. Installed event listener
+  window.addEventListener('appinstalled', () => {
+    console.log('[PWA] Lofify successfully installed as PWA!');
+    hidePwaInstallModal(true);
+    deferredInstallPrompt = null;
+  });
+}
+
+setupPwaControllers();
+
 
 
