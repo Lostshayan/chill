@@ -3,42 +3,70 @@
 // --- PLAYLIST & TRACK DATA ---
 const PLAYLISTS = {
   focus: [
-    { title: "Apple Juice", artist: "Chillhop Music", url: "assets/audio/music/lofi_01_apple_juice.mp3" },
     { title: "Tôzen", artist: "Chillhop Beats", url: "assets/audio/music/lofi_02_tozen.mp3" },
+    { title: "Apple Juice", artist: "Chillhop Music", url: "assets/audio/music/lofi_01_apple_juice.mp3" },
     { title: "Swiss", artist: "Cozy Lofi Study", url: "assets/audio/music/lofi_03_swiss.mp3" },
     { title: "Endless Sunset", artist: "Lofi Sunset Radio", url: "assets/audio/music/lofi_04_endless_sunset.mp3" },
     { title: "Floating Vibes", artist: "Dreamhop Records", url: "assets/audio/music/lofi_05_floating_vibes.mp3" },
-    { title: "Missing Earth", artist: "hoogway (Kupla)", url: "https://ia601004.us.archive.org/31/items/lofigirl/2-AM-Study-Session/01%20hoogway%20-%20Missing%20Earth%20%28Kupla%20Master%29.mp3" },
-    { title: "Pale Moon", artist: "Dr. Dundiff x Allem Iversom", url: "https://ia601004.us.archive.org/31/items/lofigirl/2-AM-Study-Session/06%20Dr.%20Dundiff%20x%20Allem%20Iversom%20-%20Pale%20Moon%20%28Kupla%20Master2%29%20%281%29.mp3" },
+    { title: "Missing Earth", artist: "hoogway (Kupla)", url: "https://archive.org/download/lofigirl/2-AM-Study-Session/01%20hoogway%20-%20Missing%20Earth%20%28Kupla%20Master%29.mp3" },
+    { title: "Pale Moon", artist: "Dr. Dundiff x Allem Iversom", url: "https://archive.org/download/lofigirl/2-AM-Study-Session/06%20Dr.%20Dundiff%20x%20Allem%20Iversom%20-%20Pale%20Moon%20%28Kupla%20Master2%29%20%281%29.mp3" },
     { title: "Waves", artist: "Chillhop Essentials", url: "https://stream.chillhop.com/mp3/8914" },
     { title: "With You", artist: "Lofi Garden", url: "https://stream.chillhop.com/mp3/8941" },
-    { title: "Wondering", artist: "Night Owl Lofi", url: "https://stream.chillhop.com/mp3/8943" }
+    { title: "Wondering", artist: "Night Owl Lofi", url: "https://stream.chillhop.com/mp3/8943" },
+    { title: "You", artist: "Cocabona", url: "https://archive.org/download/lofigirl/2-AM-Study-Session/02%20Cocabona%20-%20You%20%28Kupla%20Master%29.mp3" },
+    { title: "Ruby", artist: "Sleepermane x Sebastian Kamae", url: "https://archive.org/download/lofigirl/2-AM-Study-Session/03%20Sleepermane%20x%20Sebastian%20Kamae%20-%20Ruby%20%28Kupla%20Master%29%20%281%29.mp3" },
+    { title: "Ships", artist: "Elior x eaup", url: "https://archive.org/download/lofigirl/2-AM-Study-Session/04%20Elior%20x%20eaup%20-%20Ships%20%28Kupla%20Master%29.mp3" },
+    { title: "VHS", artist: "Spencer Hunt x WYS", url: "https://archive.org/download/lofigirl/2-AM-Study-Session/05%20Spencer%20Hunt%20x%20WYS%20-%20VHS%20%28Kupla%20Master%29.mp3" },
+    { title: "Puddles", artist: "E I S U", url: "https://archive.org/download/lofigirl/2-AM-Study-Session/07%20E%20I%20S%20U%20-%20Puddles%20%28Kupla%20Master%29.mp3" },
+    { title: "Honey & Lemon", artist: "lilac", url: "https://archive.org/download/lofigirl/2-AM-Study-Session/08%20lilac%20-%20Honey%20_%20Lemon%20%28Kupla%20Master%29.mp3" },
+    { title: "Nautilus", artist: "WYS", url: "https://archive.org/download/lofigirl/2-AM-Study-Session/09%20WYS%20-%20Nautilus%20%28Kupla%20Master%29.mp3" },
+    { title: "Compassion", artist: "Steezy Prime x Spencer Hunt", url: "https://archive.org/download/lofigirl/2-AM-Study-Session/10%20Steezy%20Prime%20x%20Spencer%20Hunt%20-%20Compassion%20%28Kupla%20Master%29.mp3" },
+    { title: "It's Going to Be a Good Day", artist: "ocha", url: "https://archive.org/download/lofigirl/2-AM-Study-Session/11%20ocha%20-%20It_s%20Going%20to%20Be%20a%20Good%20Day%20%28Kupla%20Master%29.mp3" },
+    { title: "Midnight Snack", artist: "Purrple Cat", url: "https://archive.org/download/lofigirl/2-AM-Study-Session/12%20purrple%20cat%20-%20Midnight%20Snack%20%28Kupl%20Master%29.mp3" },
+    { title: "Infused", artist: "Yasper x Glimlip", url: "https://archive.org/download/lofigirl/2-AM-Study-Session/13%20Yasper%20x%20Glimlip%20-%20Infused%20%28Kupla%20Master%29.mp3" },
+    { title: "Night Owls", artist: "Casioo x Sleepermane", url: "https://archive.org/download/lofigirl/2-AM-Study-Session/17%20Casioo%20x%20Sleepermane%20-%20Night%20Owls%20%28Kupla%20Master%29.mp3" },
+    { title: "Stars and Chimneys", artist: "Kalaido", url: "https://archive.org/download/lofigirl/2-AM-Study-Session/19%20Kalaido%20-%20Stars%20and%20Chimneys%20%28Kupla%20Master%29.mp3" },
+    { title: "Drowsy", artist: "brillion.", url: "https://archive.org/download/lofigirl/2-AM-Study-Session/24%20brillion.%20-%20Drowsy%20%28Kupla%20Master%29.mp3" }
   ],
   cafe: [
+    { title: "Tôzen", artist: "Chillhop Beats", url: "assets/audio/music/lofi_02_tozen.mp3" },
     { title: "Apple Juice", artist: "Chillhop Music", url: "assets/audio/music/lofi_01_apple_juice.mp3" },
     { title: "Swiss", artist: "Cozy Lofi Study", url: "assets/audio/music/lofi_03_swiss.mp3" },
     { title: "Floating Vibes", artist: "Dreamhop Records", url: "assets/audio/music/lofi_05_floating_vibes.mp3" },
-    { title: "Waves", artist: "Chillhop Essentials", url: "https://stream.chillhop.com/mp3/8914" }
+    { title: "Waves", artist: "Chillhop Essentials", url: "https://stream.chillhop.com/mp3/8914" },
+    { title: "Honey & Lemon", artist: "lilac", url: "https://archive.org/download/lofigirl/2-AM-Study-Session/08%20lilac%20-%20Honey%20_%20Lemon%20%28Kupla%20Master%29.mp3" },
+    { title: "It's Going to Be a Good Day", artist: "ocha", url: "https://archive.org/download/lofigirl/2-AM-Study-Session/11%20ocha%20-%20It_s%20Going%20to%20Be%20a%20Good%20Day%20%28Kupla%20Master%29.mp3" },
+    { title: "Infused", artist: "Yasper x Glimlip", url: "https://archive.org/download/lofigirl/2-AM-Study-Session/13%20Yasper%20x%20Glimlip%20-%20Infused%20%28Kupla%20Master%29.mp3" },
+    { title: "You", artist: "Cocabona", url: "https://archive.org/download/lofigirl/2-AM-Study-Session/02%20Cocabona%20-%20You%20%28Kupla%20Master%29.mp3" }
   ],
   dream: [
     { title: "Endless Sunset", artist: "Lofi Sunset Radio", url: "assets/audio/music/lofi_04_endless_sunset.mp3" },
-    { title: "Missing Earth", artist: "hoogway (Kupla)", url: "https://ia601004.us.archive.org/31/items/lofigirl/2-AM-Study-Session/01%20hoogway%20-%20Missing%20Earth%20%28Kupla%20Master%29.mp3" },
-    { title: "Pale Moon", artist: "Dr. Dundiff x Allem Iversom", url: "https://ia601004.us.archive.org/31/items/lofigirl/2-AM-Study-Session/06%20Dr.%20Dundiff%20x%20Allem%20Iversom%20-%20Pale%20Moon%20%28Kupla%20Master2%29%20%281%29.mp3" },
-    { title: "Wondering", artist: "Night Owl Lofi", url: "https://stream.chillhop.com/mp3/8943" }
+    { title: "Missing Earth", artist: "hoogway (Kupla)", url: "https://archive.org/download/lofigirl/2-AM-Study-Session/01%20hoogway%20-%20Missing%20Earth%20%28Kupla%20Master%29.mp3" },
+    { title: "Pale Moon", artist: "Dr. Dundiff x Allem Iversom", url: "https://archive.org/download/lofigirl/2-AM-Study-Session/06%20Dr.%20Dundiff%20x%20Allem%20Iversom%20-%20Pale%20Moon%20%28Kupla%20Master2%29%20%281%29.mp3" },
+    { title: "Wondering", artist: "Night Owl Lofi", url: "https://stream.chillhop.com/mp3/8943" },
+    { title: "Ships", artist: "Elior x eaup", url: "https://archive.org/download/lofigirl/2-AM-Study-Session/04%20Elior%20x%20eaup%20-%20Ships%20%28Kupla%20Master%29.mp3" },
+    { title: "Nautilus", artist: "WYS", url: "https://archive.org/download/lofigirl/2-AM-Study-Session/09%20WYS%20-%20Nautilus%20%28Kupla%20Master%29.mp3" },
+    { title: "Midnight Snack", artist: "Purrple Cat", url: "https://archive.org/download/lofigirl/2-AM-Study-Session/12%20purrple%20cat%20-%20Midnight%20Snack%20%28Kupl%20Master%29.mp3" },
+    { title: "Stars and Chimneys", artist: "Kalaido", url: "https://archive.org/download/lofigirl/2-AM-Study-Session/19%20Kalaido%20-%20Stars%20and%20Chimneys%20%28Kupla%20Master%29.mp3" },
+    { title: "Drowsy", artist: "brillion.", url: "https://archive.org/download/lofigirl/2-AM-Study-Session/24%20brillion.%20-%20Drowsy%20%28Kupla%20Master%29.mp3" }
   ],
   jazz: [
     { title: "Tôzen", artist: "Chillhop Beats", url: "assets/audio/music/lofi_02_tozen.mp3" },
-    { title: "With You", artist: "Lofi Garden", url: "assets/audio/music/lofi_04_endless_sunset.mp3" },
-    { title: "Swiss", artist: "Cozy Lofi Study", url: "assets/audio/music/lofi_03_swiss.mp3" }
+    { title: "With You", artist: "Lofi Garden", url: "https://stream.chillhop.com/mp3/8941" },
+    { title: "Swiss", artist: "Cozy Lofi Study", url: "assets/audio/music/lofi_03_swiss.mp3" },
+    { title: "Ruby", artist: "Sleepermane x Sebastian Kamae", url: "https://archive.org/download/lofigirl/2-AM-Study-Session/03%20Sleepermane%20x%20Sebastian%20Kamae%20-%20Ruby%20%28Kupla%20Master%29%20%281%29.mp3" },
+    { title: "Infused", artist: "Yasper x Glimlip", url: "https://archive.org/download/lofigirl/2-AM-Study-Session/13%20Yasper%20x%20Glimlip%20-%20Infused%20%28Kupla%20Master%29.mp3" },
+    { title: "Compassion", artist: "Steezy Prime x Spencer Hunt", url: "https://archive.org/download/lofigirl/2-AM-Study-Session/10%20Steezy%20Prime%20x%20Spencer%20Hunt%20-%20Compassion%20%28Kupla%20Master%29.mp3" }
   ],
   durga_puja: [
-    { title: "Apple Juice", artist: "Chillhop Music", url: "assets/audio/music/lofi_01_apple_juice.mp3" },
     { title: "Tôzen", artist: "Chillhop Beats", url: "assets/audio/music/lofi_02_tozen.mp3" },
+    { title: "Apple Juice", artist: "Chillhop Music", url: "assets/audio/music/lofi_01_apple_juice.mp3" },
     { title: "Swiss", artist: "Cozy Lofi Study", url: "assets/audio/music/lofi_03_swiss.mp3" },
     { title: "Endless Sunset", artist: "Lofi Sunset Radio", url: "assets/audio/music/lofi_04_endless_sunset.mp3" },
     { title: "Floating Vibes", artist: "Dreamhop Records", url: "assets/audio/music/lofi_05_floating_vibes.mp3" }
   ],
   kali_puja: [
+    { title: "Tôzen", artist: "Chillhop Beats", url: "assets/audio/music/lofi_02_tozen.mp3" },
     { title: "Floating Vibes", artist: "Dreamhop Records", url: "assets/audio/music/lofi_05_floating_vibes.mp3" },
     { title: "Swiss", artist: "Cozy Lofi Study", url: "assets/audio/music/lofi_03_swiss.mp3" },
     { title: "Apple Juice", artist: "Chillhop Music", url: "assets/audio/music/lofi_01_apple_juice.mp3" },
@@ -50,24 +78,24 @@ const PLAYLISTS = {
 const ALL_TRACKS = [
   // Lofi Chill & Study Beats
   {
-    id: "lofi_01",
-    vibe: "focus",
-    index: 0,
-    title: "Apple Juice",
-    artist: "Chillhop Music",
-    category: "lofi",
-    tag: "Chillhop",
-    url: "assets/audio/music/lofi_01_apple_juice.mp3"
-  },
-  {
     id: "lofi_02",
     vibe: "focus",
-    index: 1,
+    index: 0,
     title: "Tôzen",
     artist: "Chillhop Beats",
     category: "lofi",
     tag: "Study Beats",
     url: "assets/audio/music/lofi_02_tozen.mp3"
+  },
+  {
+    id: "lofi_01",
+    vibe: "focus",
+    index: 1,
+    title: "Apple Juice",
+    artist: "Chillhop Music",
+    category: "lofi",
+    tag: "Chillhop",
+    url: "assets/audio/music/lofi_01_apple_juice.mp3"
   },
   {
     id: "lofi_03",
@@ -107,7 +135,7 @@ const ALL_TRACKS = [
     artist: "hoogway (Kupla)",
     category: "lofi",
     tag: "LofiGirl",
-    url: "https://ia601004.us.archive.org/31/items/lofigirl/2-AM-Study-Session/01%20hoogway%20-%20Missing%20Earth%20%28Kupla%20Master%29.mp3"
+    url: "https://archive.org/download/lofigirl/2-AM-Study-Session/01%20hoogway%20-%20Missing%20Earth%20%28Kupla%20Master%29.mp3"
   },
   {
     id: "lofi_07",
@@ -117,7 +145,7 @@ const ALL_TRACKS = [
     artist: "Dr. Dundiff x Allem Iversom",
     category: "lofi",
     tag: "LofiGirl",
-    url: "https://ia601004.us.archive.org/31/items/lofigirl/2-AM-Study-Session/06%20Dr.%20Dundiff%20x%20Allem%20Iversom%20-%20Pale%20Moon%20%28Kupla%20Master2%29%20%281%29.mp3"
+    url: "https://archive.org/download/lofigirl/2-AM-Study-Session/06%20Dr.%20Dundiff%20x%20Allem%20Iversom%20-%20Pale%20Moon%20%28Kupla%20Master2%29%20%281%29.mp3"
   },
   {
     id: "lofi_08",
@@ -137,7 +165,7 @@ const ALL_TRACKS = [
     artist: "Lofi Garden",
     category: "lofi",
     tag: "Chillhop",
-    url: "assets/audio/music/lofi_04_endless_sunset.mp3"
+    url: "https://stream.chillhop.com/mp3/8941"
   },
   {
     id: "lofi_10",
@@ -148,6 +176,146 @@ const ALL_TRACKS = [
     category: "lofi",
     tag: "Night Lofi",
     url: "https://stream.chillhop.com/mp3/8943"
+  },
+  {
+    id: "lofi_11",
+    vibe: "focus",
+    index: 10,
+    title: "You",
+    artist: "Cocabona",
+    category: "lofi",
+    tag: "Chillhop",
+    url: "https://archive.org/download/lofigirl/2-AM-Study-Session/02%20Cocabona%20-%20You%20%28Kupla%20Master%29.mp3"
+  },
+  {
+    id: "lofi_12",
+    vibe: "focus",
+    index: 11,
+    title: "Ruby",
+    artist: "Sleepermane x Sebastian Kamae",
+    category: "lofi",
+    tag: "Late Night",
+    url: "https://archive.org/download/lofigirl/2-AM-Study-Session/03%20Sleepermane%20x%20Sebastian%20Kamae%20-%20Ruby%20%28Kupla%20Master%29%20%281%29.mp3"
+  },
+  {
+    id: "lofi_13",
+    vibe: "focus",
+    index: 12,
+    title: "Ships",
+    artist: "Elior x eaup",
+    category: "lofi",
+    tag: "Dreamhop",
+    url: "https://archive.org/download/lofigirl/2-AM-Study-Session/04%20Elior%20x%20eaup%20-%20Ships%20%28Kupla%20Master%29.mp3"
+  },
+  {
+    id: "lofi_14",
+    vibe: "focus",
+    index: 13,
+    title: "VHS",
+    artist: "Spencer Hunt x WYS",
+    category: "lofi",
+    tag: "Chillhop",
+    url: "https://archive.org/download/lofigirl/2-AM-Study-Session/05%20Spencer%20Hunt%20x%20WYS%20-%20VHS%20%28Kupla%20Master%29.mp3"
+  },
+  {
+    id: "lofi_15",
+    vibe: "focus",
+    index: 14,
+    title: "Puddles",
+    artist: "E I S U",
+    category: "lofi",
+    tag: "Rainy Vibes",
+    url: "https://archive.org/download/lofigirl/2-AM-Study-Session/07%20E%20I%20S%20U%20-%20Puddles%20%28Kupla%20Master%29.mp3"
+  },
+  {
+    id: "lofi_16",
+    vibe: "focus",
+    index: 15,
+    title: "Honey & Lemon",
+    artist: "lilac",
+    category: "lofi",
+    tag: "Cozy Study",
+    url: "https://archive.org/download/lofigirl/2-AM-Study-Session/08%20lilac%20-%20Honey%20_%20Lemon%20%28Kupla%20Master%29.mp3"
+  },
+  {
+    id: "lofi_17",
+    vibe: "focus",
+    index: 16,
+    title: "Nautilus",
+    artist: "WYS",
+    category: "lofi",
+    tag: "Deep Focus",
+    url: "https://archive.org/download/lofigirl/2-AM-Study-Session/09%20WYS%20-%20Nautilus%20%28Kupla%20Master%29.mp3"
+  },
+  {
+    id: "lofi_18",
+    vibe: "focus",
+    index: 17,
+    title: "Compassion",
+    artist: "Steezy Prime x Spencer Hunt",
+    category: "lofi",
+    tag: "Chillhop",
+    url: "https://archive.org/download/lofigirl/2-AM-Study-Session/10%20Steezy%20Prime%20x%20Spencer%20Hunt%20-%20Compassion%20%28Kupla%20Master%29.mp3"
+  },
+  {
+    id: "lofi_19",
+    vibe: "focus",
+    index: 18,
+    title: "It's Going to Be a Good Day",
+    artist: "ocha",
+    category: "lofi",
+    tag: "Mellow Chill",
+    url: "https://archive.org/download/lofigirl/2-AM-Study-Session/11%20ocha%20-%20It_s%20Going%20to%20Be%20a%20Good%20Day%20%28Kupla%20Master%29.mp3"
+  },
+  {
+    id: "lofi_20",
+    vibe: "focus",
+    index: 19,
+    title: "Midnight Snack",
+    artist: "Purrple Cat",
+    category: "lofi",
+    tag: "Night Lofi",
+    url: "https://archive.org/download/lofigirl/2-AM-Study-Session/12%20purrple%20cat%20-%20Midnight%20Snack%20%28Kupl%20Master%29.mp3"
+  },
+  {
+    id: "lofi_21",
+    vibe: "focus",
+    index: 20,
+    title: "Infused",
+    artist: "Yasper x Glimlip",
+    category: "lofi",
+    tag: "Chillhop",
+    url: "https://archive.org/download/lofigirl/2-AM-Study-Session/13%20Yasper%20x%20Glimlip%20-%20Infused%20%28Kupla%20Master%29.mp3"
+  },
+  {
+    id: "lofi_22",
+    vibe: "focus",
+    index: 21,
+    title: "Night Owls",
+    artist: "Casioo x Sleepermane",
+    category: "lofi",
+    tag: "Night Lofi",
+    url: "https://archive.org/download/lofigirl/2-AM-Study-Session/17%20Casioo%20x%20Sleepermane%20-%20Night%20Owls%20%28Kupla%20Master%29.mp3"
+  },
+  {
+    id: "lofi_23",
+    vibe: "focus",
+    index: 22,
+    title: "Stars and Chimneys",
+    artist: "Kalaido",
+    category: "lofi",
+    tag: "Deep Focus",
+    url: "https://archive.org/download/lofigirl/2-AM-Study-Session/19%20Kalaido%20-%20Stars%20and%20Chimneys%20%28Kupla%20Master%29.mp3"
+  },
+  {
+    id: "lofi_24",
+    vibe: "focus",
+    index: 23,
+    title: "Drowsy",
+    artist: "brillion.",
+    category: "lofi",
+    tag: "Late Night",
+    url: "https://archive.org/download/lofigirl/2-AM-Study-Session/24%20brillion.%20-%20Drowsy%20%28Kupla%20Master%29.mp3"
   }
 ];
 
@@ -177,7 +345,10 @@ let state = {
   isForestCabinRainActive: false,
   isDurgaPujaRainActive: false,
   isKaliPujaRainActive: false,
-  currentTheme: 'scene_kali_puja',
+  isDarjeelingRainActive: false,
+  isSaharaNightActive: true,
+  isSaharaSandstormActive: false,
+  currentTheme: 'scene2',
   hotspots: {
     blizzard: false,
     fireplace: false,
@@ -186,31 +357,49 @@ let state = {
     forestCabinRain: false,
     durgaDhak: false,
     kaliFireworks: false,
-    kaliShyama: false
+    kaliShyama: false,
+    darjeelingChai: false,
+    darjeelingRain: false,
+    darjeelingBirds: false,
+    saharaCampfire: false,
+    saharaWind: false,
+    saharaTea: false
   },
   hotspotVolumes: {
     blizzard: 0.7,
     fireplace: 0.7,
-    libraryRain: 0.7,
-    forestRain: 0.7,
-    forestCabinRain: 0.7,
+    libraryRain: 0.8,
+    forestRain: 0.8,
+    forestCabinRain: 0.8,
     durgaDhak: 0.7,
     kaliFireworks: 0.85,
-    kaliShyama: 0.7
+    kaliShyama: 0.7,
+    darjeelingChai: 0.75,
+    darjeelingRain: 0.8,
+    darjeelingBirds: 0.7,
+    saharaCampfire: 0.8,
+    saharaWind: 0.7,
+    saharaTea: 0.75
   },
   todos: []
 };
 
 // --- INTERACTIVE SCENE HOTSPOT AUDIOS ---
 const hotspotAudios = {
-  blizzard: new Audio('assets/audio/soundscapes/blizzard.wav'),
+  blizzard: new Audio('assets/audio/soundscapes/blizzard.m4a?v=blizzard_v1'),
   fireplace: new Audio('assets/audio/soundscapes/fireplace.m4a'),
-  libraryRain: new Audio('assets/audio/soundscapes/rain.m4a'),
-  forestRain: new Audio('assets/audio/soundscapes/rain.m4a'),
-  forestCabinRain: new Audio('assets/audio/soundscapes/rain.m4a'),
+  libraryRain: new Audio('assets/audio/soundscapes/rain.m4a?v=library_rain_v4'),
+  forestRain: new Audio('assets/audio/soundscapes/forest_rain.m4a?v=forest_rain_v1'),
+  forestCabinRain: new Audio('assets/audio/soundscapes/forest_rain.m4a?v=forest_rain_v1'),
   durgaDhak: new Audio('assets/audio/music/durga_puja_dhak_beats.mp3'),
   kaliFireworks: new Audio('assets/audio/soundscapes/fireworks.m4a?v=pure_v2'),
-  kaliShyama: new Audio('assets/audio/music/kali_puja_shyama_sangeet.m4a')
+  kaliShyama: new Audio('assets/audio/music/kali_puja_shyama_sangeet.m4a'),
+  darjeelingChai: new Audio('assets/audio/soundscapes/darjeeling_tea.m4a?v=dj1'),
+  darjeelingRain: new Audio('assets/audio/soundscapes/darjeeling_rain.m4a?v=dj1'),
+  darjeelingBirds: new Audio('assets/audio/soundscapes/darjeeling_birds.m4a?v=dj1'),
+  saharaCampfire: new Audio('assets/audio/soundscapes/sahara_campfire.m4a?v=sh1'),
+  saharaWind: new Audio('assets/audio/soundscapes/sahara_wind.m4a?v=sh1'),
+  saharaTea: new Audio('assets/audio/soundscapes/sahara_tea.m4a?v=sh1')
 };
 
 for (const key in hotspotAudios) {
@@ -302,6 +491,22 @@ const elKaliLanterns = document.getElementById('kali-lanterns');
 const elKaliPandalFg = document.getElementById('kali-pandal-fg');
 const elKaliRainCanvas = document.getElementById('kali-rain-canvas');
 
+// Scene Darjeeling Elements (Himalayan Tea Estate Veranda)
+const elSceneDarjeeling = document.getElementById('scene-darjeeling-container');
+const elBgDarjeelingSunny = document.getElementById('bg-darjeeling-sunny');
+const elBgDarjeelingRainy = document.getElementById('bg-darjeeling-rainy');
+const elFgDarjeelingSunny = document.getElementById('fg-darjeeling-sunny');
+const elFgDarjeelingRainy = document.getElementById('fg-darjeeling-rainy');
+const elDarjeelingSunbeamsCanvas = document.getElementById('darjeeling-sunbeams-canvas');
+const elDarjeelingRainCanvas = document.getElementById('darjeeling-rain-canvas');
+
+// Scene Sahara Elements (Bedouin Tent & Starry Oasis)
+const elSceneSahara = document.getElementById('scene-sahara-container');
+const elBgSaharaSunset = document.getElementById('bg-sahara-sunset');
+const elBgSaharaNight = document.getElementById('bg-sahara-night');
+const elFgSaharaTent = document.getElementById('fg-sahara-tent');
+const elSaharaStarsCanvas = document.getElementById('sahara-stars-canvas');
+const elSaharaSandCanvas = document.getElementById('sahara-sand-canvas');
 
 const elRoomNameDisplay = document.getElementById('roomNameDisplay');
 const elSyncStatus = document.getElementById('syncStatus');
@@ -350,6 +555,10 @@ const elBreakdownDurgaPct = document.getElementById('breakdownDurgaPct');
 const elBreakdownDurgaBar = document.getElementById('breakdownDurgaBar');
 const elBreakdownKaliPct = document.getElementById('breakdownKaliPct');
 const elBreakdownKaliBar = document.getElementById('breakdownKaliBar');
+const elBreakdownDarjeelingPct = document.getElementById('breakdownDarjeelingPct');
+const elBreakdownDarjeelingBar = document.getElementById('breakdownDarjeelingBar');
+const elBreakdownSaharaPct = document.getElementById('breakdownSaharaPct');
+const elBreakdownSaharaBar = document.getElementById('breakdownSaharaBar');
 const elAddQuickFocusBtn = document.getElementById('addQuickFocusBtn');
 const elLogoutBtn = document.getElementById('logoutBtn');
 const elDigitalClock = document.getElementById('digitalClock');
@@ -381,11 +590,17 @@ const elRestDecBtn = document.getElementById('restDecBtn');
 const elRestIncBtn = document.getElementById('restIncBtn');
 const elTimerStartApplyBtn = document.getElementById('timerStartApplyBtn');
 
-const elTodoModal = document.getElementById('todoModal');
-const elCloseTodoBtn = document.getElementById('closeTodoBtn');
+const elPanelTodo = document.getElementById('panelTodo');
+const elClosePanelTodo = document.getElementById('closePanelTodo');
 const elTodoForm = document.getElementById('todoForm');
 const elTodoInput = document.getElementById('todoInput');
 const elTodoList = document.getElementById('todoList');
+const elTodoProgressPill = document.getElementById('todoProgressPill');
+const elTodoProgressBarFill = document.getElementById('todoProgressBarFill');
+const elTodoEmptyState = document.getElementById('todoEmptyState');
+const elTodoBottomActions = document.getElementById('todoBottomActions');
+const elTodoStatusSummary = document.getElementById('todoStatusSummary');
+const elClearCompletedTodoBtn = document.getElementById('clearCompletedTodoBtn');
 
 // --- RETRO ENGINE CLASSES (Hoisted to avoid TDZ errors) ---
 
@@ -942,6 +1157,454 @@ class ForestFireflyEngine {
   }
 }
 
+class DarjeelingSunbeamsEngine {
+  constructor(canvasId) {
+    this.canvas = document.getElementById(canvasId);
+    if (!this.canvas) return;
+    this.ctx = this.canvas.getContext('2d');
+    this.running = false;
+    this.animId = null;
+    this.motes = [];
+    this.time = 0;
+
+    this.resize();
+    window.addEventListener('resize', () => this.resize());
+    this.init();
+  }
+
+  resize() {
+    if (!this.canvas) return;
+    const container = document.getElementById('roomContainer');
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const w = container ? container.clientWidth : window.innerWidth;
+    const h = container ? container.clientHeight : window.innerHeight;
+    this.width = Math.round(w * dpr);
+    this.height = Math.round(h * dpr);
+    this.canvas.width = this.width;
+    this.canvas.height = this.height;
+    this.canvas.style.width = `${w}px`;
+    this.canvas.style.height = `${h}px`;
+    this.dpr = dpr;
+  }
+
+  init() {
+    this.motes = [];
+    const count = 45;
+    const w = this.width || 800;
+    const h = this.height || 600;
+    for (let i = 0; i < count; i++) {
+      this.motes.push({
+        x: Math.random() * w,
+        y: Math.random() * h,
+        radius: (Math.random() * 2.2 + 0.8) * (this.dpr || 1),
+        baseAlpha: Math.random() * 0.35 + 0.15,
+        pulseSpeed: Math.random() * 0.03 + 0.012,
+        phase: Math.random() * Math.PI * 2,
+        vx: (Math.random() * 0.35 + 0.1) * (this.dpr || 1),
+        vy: (Math.random() * 0.25 - 0.12) * (this.dpr || 1)
+      });
+    }
+  }
+
+  start() {
+    if (this.running) return;
+    this.running = true;
+    this.animate();
+  }
+
+  stop() {
+    this.running = false;
+    if (this.animId) {
+      cancelAnimationFrame(this.animId);
+      this.animId = null;
+    }
+    if (this.ctx) {
+      this.ctx.clearRect(0, 0, this.width, this.height);
+    }
+  }
+
+  animate() {
+    if (!this.running) return;
+    this.ctx.clearRect(0, 0, this.width, this.height);
+    this.time += 0.015;
+
+    // Soft golden morning sunbeam across the misty Himalayan valley
+    const grad = this.ctx.createLinearGradient(0, 0, this.width * 0.85, this.height);
+    const beamPulse = (Math.sin(this.time * 0.8) * 0.035) + 0.07;
+    grad.addColorStop(0, `rgba(255, 238, 180, ${beamPulse + 0.04})`);
+    grad.addColorStop(0.35, `rgba(255, 228, 155, ${beamPulse * 0.5})`);
+    grad.addColorStop(1, 'rgba(255, 255, 255, 0)');
+    this.ctx.fillStyle = grad;
+    this.ctx.fillRect(0, 0, this.width, this.height);
+
+    // Drifting sunlit mountain mist particles
+    for (let m of this.motes) {
+      m.phase += m.pulseSpeed;
+      m.x += m.vx;
+      m.y += m.vy;
+
+      if (m.x > this.width + 15) m.x = -15;
+      if (m.y < -15) m.y = this.height + 15;
+      if (m.y > this.height + 15) m.y = -15;
+
+      const alpha = Math.max(0, m.baseAlpha + Math.sin(m.phase) * 0.2);
+      this.ctx.beginPath();
+      this.ctx.arc(m.x, m.y, m.radius, 0, Math.PI * 2);
+      this.ctx.fillStyle = `rgba(255, 248, 215, ${alpha})`;
+      this.ctx.shadowBlur = 6 * (this.dpr || 1);
+      this.ctx.shadowColor = 'rgba(255, 220, 130, 0.5)';
+      this.ctx.fill();
+    }
+    this.ctx.shadowBlur = 0;
+
+    this.animId = requestAnimationFrame(() => this.animate());
+  }
+}
+
+class SaharaStarsEngine {
+  constructor(canvasId) {
+    this.canvas = document.getElementById(canvasId);
+    if (!this.canvas) return;
+    this.ctx = this.canvas.getContext('2d');
+    this.running = false;
+    this.animId = null;
+    this.stars = [];
+    this.shootingStars = [];
+    this.nextShootingTime = 0;
+    this.time = 0;
+    this.isObscured = false;
+
+    this.resize();
+    window.addEventListener('resize', () => this.resize());
+    this.init();
+  }
+
+  resize() {
+    if (!this.canvas) return;
+    const container = document.getElementById('roomContainer');
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const w = container ? container.clientWidth : window.innerWidth;
+    const h = container ? container.clientHeight : window.innerHeight;
+    this.width = Math.round(w * dpr);
+    this.height = Math.round(h * dpr);
+    this.canvas.width = this.width;
+    this.canvas.height = this.height;
+    this.canvas.style.width = `${w}px`;
+    this.canvas.style.height = `${h}px`;
+    this.dpr = dpr;
+    this.init();
+  }
+
+  setObscured(val) {
+    this.isObscured = !!val;
+  }
+
+  init() {
+    this.stars = [];
+    this.shootingStars = [];
+    this.nextShootingTime = performance.now() + 1500;
+    const count = 75;
+    const w = this.width || 800;
+    const h = this.height || 600;
+    for (let i = 0; i < count; i++) {
+      this.stars.push({
+        x: Math.random() * w,
+        y: Math.random() * (h * 0.72),
+        radius: (Math.random() * 1.5 + 0.6) * (this.dpr || 1),
+        baseAlpha: Math.random() * 0.5 + 0.3,
+        twinkleSpeed: Math.random() * 0.04 + 0.015,
+        phase: Math.random() * Math.PI * 2,
+        hue: Math.random() > 0.8 ? 'rgba(180, 220, 255,' : (Math.random() > 0.6 ? 'rgba(255, 235, 190,' : 'rgba(255, 255, 255,')
+      });
+    }
+  }
+
+  spawnShootingStar() {
+    const w = this.width || 800;
+    const h = this.height || 600;
+    const startX = Math.random() * (w * 0.7) + (w * 0.1);
+    const startY = Math.random() * (h * 0.35);
+    const speed = (Math.random() * 7 + 14) * (this.dpr || 1);
+    const angle = (Math.random() * 0.25 + 0.55) * Math.PI; // roughly downward right
+    const length = (Math.random() * 60 + 90) * (this.dpr || 1);
+
+    this.shootingStars.push({
+      x: startX,
+      y: startY,
+      vx: Math.cos(angle) * speed,
+      vy: Math.sin(angle) * speed,
+      length: length,
+      life: 0,
+      maxLife: Math.floor(Math.random() * 18 + 28),
+      size: (Math.random() * 1.2 + 1.2) * (this.dpr || 1)
+    });
+  }
+
+  start() {
+    if (this.running) return;
+    this.running = true;
+    this.nextShootingTime = performance.now() + 1200;
+    this.animate();
+  }
+
+  stop() {
+    this.running = false;
+    if (this.animId) {
+      cancelAnimationFrame(this.animId);
+      this.animId = null;
+    }
+    if (this.ctx) {
+      this.ctx.clearRect(0, 0, this.width, this.height);
+    }
+  }
+
+  animate() {
+    if (!this.running) return;
+    this.ctx.clearRect(0, 0, this.width, this.height);
+    this.time += 0.02;
+    const now = performance.now();
+
+    // Spawn shooting stars periodically (obscured during heavy sandstorm)
+    if (!this.isObscured && now >= this.nextShootingTime) {
+      this.spawnShootingStar();
+      this.nextShootingTime = now + (Math.random() * 3200 + 2200);
+    }
+
+    // Draw twinkling celestial stars
+    const obscureFactor = this.isObscured ? 0.12 : 1.0;
+    for (let s of this.stars) {
+      s.phase += s.twinkleSpeed;
+      const alpha = Math.max(0.04, Math.min(1.0, (s.baseAlpha + Math.sin(s.phase) * 0.35) * obscureFactor));
+      this.ctx.beginPath();
+      this.ctx.arc(s.x, s.y, s.radius, 0, Math.PI * 2);
+      this.ctx.fillStyle = `${s.hue} ${alpha})`;
+      if (!this.isObscured && s.radius > 1.4 * (this.dpr || 1)) {
+        this.ctx.shadowBlur = 4 * (this.dpr || 1);
+        this.ctx.shadowColor = 'rgba(210, 235, 255, 0.7)';
+      }
+      this.ctx.fill();
+      this.ctx.shadowBlur = 0;
+    }
+
+    // Draw shooting stars with trailing tail (skip if sandstorm obscured)
+    if (!this.isObscured) {
+      for (let i = this.shootingStars.length - 1; i >= 0; i--) {
+        const ss = this.shootingStars[i];
+        ss.x += ss.vx;
+        ss.y += ss.vy;
+        ss.life++;
+
+        const progress = ss.life / ss.maxLife;
+        const alpha = progress < 0.2 ? progress / 0.2 : Math.max(0, 1 - (progress - 0.2) / 0.8);
+
+        const tailX = ss.x - (ss.vx / Math.hypot(ss.vx, ss.vy)) * ss.length;
+        const tailY = ss.y - (ss.vy / Math.hypot(ss.vx, ss.vy)) * ss.length;
+
+        const grad = this.ctx.createLinearGradient(ss.x, ss.y, tailX, tailY);
+        grad.addColorStop(0, `rgba(255, 255, 255, ${alpha * 0.95})`);
+        grad.addColorStop(0.3, `rgba(180, 220, 255, ${alpha * 0.65})`);
+        grad.addColorStop(1, 'rgba(120, 180, 255, 0)');
+
+        this.ctx.beginPath();
+        this.ctx.moveTo(ss.x, ss.y);
+        this.ctx.lineTo(tailX, tailY);
+        this.ctx.strokeStyle = grad;
+        this.ctx.lineWidth = ss.size;
+        this.ctx.lineCap = 'round';
+        this.ctx.stroke();
+
+        // Bright head point
+        this.ctx.beginPath();
+        this.ctx.arc(ss.x, ss.y, ss.size * 1.1, 0, Math.PI * 2);
+        this.ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`;
+        this.ctx.fill();
+
+        if (ss.life >= ss.maxLife) {
+          this.shootingStars.splice(i, 1);
+        }
+      }
+    }
+
+    this.animId = requestAnimationFrame(() => this.animate());
+  }
+}
+
+class SaharaSandEngine {
+  constructor(canvasId) {
+    this.canvas = document.getElementById(canvasId);
+    if (!this.canvas) return;
+    this.ctx = this.canvas.getContext('2d');
+    this.particles = [];
+    this.embers = [];
+    this.numParticles = 35;
+    this.wind = 0.2;
+    this.isSandstorm = false;
+    this.isNight = true;
+    this.running = false;
+    this.animId = null;
+
+    this.resize();
+    window.addEventListener('resize', () => this.resize());
+    this.init();
+  }
+
+  resize() {
+    if (!this.canvas) return;
+    const container = document.getElementById('roomContainer');
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const w = container ? container.clientWidth : window.innerWidth;
+    const h = container ? container.clientHeight : window.innerHeight;
+    this.width = Math.round(w * dpr);
+    this.height = Math.round(h * dpr);
+    this.canvas.width = this.width;
+    this.canvas.height = this.height;
+    this.canvas.style.width = `${w}px`;
+    this.canvas.style.height = `${h}px`;
+    this.dpr = dpr;
+    this.init();
+  }
+
+  setNightMode(isNight) {
+    this.isNight = !!isNight;
+  }
+
+  createParticle() {
+    const dpr = this.dpr || 1;
+    if (this.isSandstorm) {
+      return {
+        x: Math.random() * this.width,
+        y: Math.random() * this.height,
+        size: (Math.random() * 1.5 + 0.7) * dpr,
+        speedX: (Math.random() * 6 + 6) * dpr,
+        speedY: (Math.random() * 2 + 1) * dpr,
+        opacity: Math.random() * 0.55 + 0.25
+      };
+    } else {
+      return {
+        x: Math.random() * this.width,
+        y: Math.random() * this.height,
+        size: (Math.random() * 1.3 + 0.6) * dpr,
+        speedX: (Math.random() * 0.8 + 0.3) * dpr,
+        speedY: (Math.random() * 0.5 - 0.2) * dpr,
+        opacity: Math.random() * 0.35 + 0.15
+      };
+    }
+  }
+
+  spawnEmber() {
+    const dpr = this.dpr || 1;
+    const w = this.width || 800;
+    const h = this.height || 600;
+    const originX = w * 0.82 + (Math.random() * 20 - 10) * dpr;
+    const originY = h * 0.66 + (Math.random() * 10 - 5) * dpr;
+
+    this.embers.push({
+      x: originX,
+      y: originY,
+      vx: (Math.random() * -1.0 - 0.3) * dpr,
+      vy: (Math.random() * -1.8 - 1.0) * dpr,
+      radius: (Math.random() * 1.3 + 0.7) * dpr,
+      life: 0,
+      maxLife: Math.floor(Math.random() * 40 + 30),
+      swayPhase: Math.random() * Math.PI * 2,
+      swaySpeed: Math.random() * 0.08 + 0.04
+    });
+  }
+
+  activateSandstorm() {
+    this.isSandstorm = true;
+    this.numParticles = 550;
+    this.wind = 8 * (this.dpr || 1);
+    this.init();
+  }
+
+  deactivateSandstorm() {
+    this.isSandstorm = false;
+    this.numParticles = this.isNight ? 35 : 55;
+    this.wind = 0.2 * (this.dpr || 1);
+    this.init();
+  }
+
+  init() {
+    this.particles = [];
+    this.embers = [];
+    for (let i = 0; i < this.numParticles; i++) {
+      this.particles.push(this.createParticle());
+    }
+  }
+
+  start() {
+    if (this.running) return;
+    this.running = true;
+    this.animate();
+  }
+
+  stop() {
+    this.running = false;
+    if (this.animId) {
+      cancelAnimationFrame(this.animId);
+      this.animId = null;
+    }
+    if (this.ctx) {
+      this.ctx.clearRect(0, 0, this.width, this.height);
+    }
+  }
+
+  animate() {
+    if (!this.running) return;
+    this.ctx.clearRect(0, 0, this.width, this.height);
+
+    // Warm desert sand tone
+    this.ctx.fillStyle = this.isNight ? 'rgba(235, 215, 175, 0.85)' : 'rgba(245, 205, 145, 0.9)';
+
+    // Render sand particles (exact BlizzardEngine structure)
+    for (let p of this.particles) {
+      this.ctx.globalAlpha = p.opacity;
+      this.ctx.beginPath();
+      this.ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+      this.ctx.fill();
+
+      p.y += p.speedY;
+      p.x += p.speedX + this.wind;
+
+      if (p.y > this.height + 10) { p.y = -10; p.x = Math.random() * this.width; }
+      if (p.x > this.width + 10) { p.x = -10; p.y = Math.random() * this.height; }
+      else if (p.x < -10) { p.x = this.width + 10; p.y = Math.random() * this.height; }
+    }
+
+    // In calm night mode, subtle campfire embers rise from the fire threshold
+    if (!this.isSandstorm && this.isNight) {
+      if (Math.random() < 0.3) {
+        this.spawnEmber();
+      }
+
+      for (let i = this.embers.length - 1; i >= 0; i--) {
+        const e = this.embers[i];
+        e.swayPhase += e.swaySpeed;
+        e.x += e.vx + Math.sin(e.swayPhase) * (0.6 * (this.dpr || 1));
+        e.y += e.vy;
+        e.life++;
+
+        const progress = e.life / e.maxLife;
+        const alpha = Math.max(0, 1 - progress);
+
+        this.ctx.globalAlpha = alpha * 0.9;
+        this.ctx.beginPath();
+        this.ctx.arc(e.x, e.y, e.radius * (1 - progress * 0.4), 0, Math.PI * 2);
+        this.ctx.fillStyle = `rgba(255, ${Math.floor(140 + 80 * (1 - progress))}, 40, 1)`;
+        this.ctx.fill();
+
+        if (e.life >= e.maxLife) {
+          this.embers.splice(i, 1);
+        }
+      }
+    }
+
+    this.ctx.globalAlpha = 1.0;
+    this.animId = requestAnimationFrame(() => this.animate());
+  }
+}
+
 // Preload Forest House sunny and rainy artwork
 const preloadForestSunny = new Image();
 preloadForestSunny.src = 'assets/images/scene_forest/forest_sunny.png?v=new_v2';
@@ -967,6 +1630,16 @@ const preloadKaliPandal = new Image();
 preloadKaliPandal.src = 'assets/images/scene_kali_puja/pandal_fg.png?v=kp1';
 const preloadKaliLanterns = new Image();
 preloadKaliLanterns.src = 'assets/images/scene_kali_puja/lanterns.png?v=kp1';
+
+// Preload Darjeeling Veranda artwork
+const preloadDarjeelingSunnyBg = new Image();
+preloadDarjeelingSunnyBg.src = 'assets/images/scene_darjeeling/bg_sunny.jpg?v=dj2';
+const preloadDarjeelingRainyBg = new Image();
+preloadDarjeelingRainyBg.src = 'assets/images/scene_darjeeling/bg_rainy.jpg?v=dj2';
+const preloadDarjeelingSunnyFg = new Image();
+preloadDarjeelingSunnyFg.src = 'assets/images/scene_darjeeling/foreground_sunny.png?v=dj2';
+const preloadDarjeelingRainyFg = new Image();
+preloadDarjeelingRainyFg.src = 'assets/images/scene_darjeeling/foreground_rainy.png?v=dj2';
 
 // Kali Puja Fireworks Manager in designated portion of the sky (crashmax-dev/fireworks-js)
 function initKaliFireworks() {
@@ -1102,8 +1775,12 @@ window.addEventListener('DOMContentLoaded', () => {
   window.durgaRainEngine = new ForestRainEngine('durga-rain-canvas');
   window.durgaSparklesEngine = new ForestFireflyEngine('durga-sparkles-canvas');
   window.kaliRainEngine = new ForestRainEngine('kali-rain-canvas');
+  window.darjeelingRainEngine = new ForestRainEngine('darjeeling-rain-canvas');
+  window.darjeelingSunbeamsEngine = new DarjeelingSunbeamsEngine('darjeeling-sunbeams-canvas');
+  window.saharaStarsEngine = new SaharaStarsEngine('sahara-stars-canvas');
+  window.saharaSandEngine = new SaharaSandEngine('sahara-sand-canvas');
   initAudio();
-  switchTheme('scene_kali_puja', false);
+  switchTheme('scene2', false);
   state.isPlaying = false;
   if (musicAudio) {
     musicAudio.pause();
@@ -1166,6 +1843,115 @@ async function signInWithGoogle() {
   } catch (err) {
     console.error("Google login failed:", err);
     alert("Google Sign-In failed: " + err.message);
+  }
+}
+
+// --- SUPABASE DATABASE SYNC (PROFILES & TODOS) ---
+async function syncProfileFromSupabase(user) {
+  const client = getSupabase();
+  if (!client || !user || !user.id) return;
+  try {
+    const { data, error } = await client
+      .from('profiles')
+      .select('*')
+      .eq('id', user.id)
+      .maybeSingle();
+
+    if (error) {
+      console.warn("Supabase profile fetch error:", error.message);
+      return;
+    }
+
+    if (data) {
+      if (!profileState) loadProfileData();
+      if (data.username) profileState.username = data.username;
+      if (data.avatar_url) profileState.avatarUrl = data.avatar_url;
+      if (data.avatar_animal) profileState.avatarAnimal = data.avatar_animal;
+      if (data.total_focus_minutes !== undefined && data.total_focus_minutes > (profileState.totalMinutes || 0)) {
+        profileState.totalMinutes = data.total_focus_minutes;
+      }
+      if (data.streak_days !== undefined && data.streak_days > (profileState.streakDays || 1)) {
+        profileState.streakDays = data.streak_days;
+      }
+      state.username = profileState.username;
+      try { localStorage.setItem(STORAGE_KEY_PROFILE, JSON.stringify(profileState)); } catch (_) {}
+      renderProfileUI();
+      if (typeof syncMyPresence === 'function') syncMyPresence();
+    } else {
+      // First time user in database, save initial profile
+      saveProfileToSupabase(user);
+    }
+  } catch (err) {
+    console.warn("syncProfileFromSupabase error:", err);
+  }
+}
+
+async function saveProfileToSupabase(user = state.currentUser) {
+  const client = getSupabase();
+  if (!client || !user || !user.id || !profileState) return;
+  try {
+    await client.from('profiles').upsert({
+      id: user.id,
+      username: profileState.username || 'Cozy Scholar',
+      avatar_url: profileState.avatarUrl || null,
+      avatar_animal: profileState.avatarAnimal || 'cat',
+      total_focus_minutes: profileState.totalMinutes || 0,
+      streak_days: profileState.streakDays || 1,
+      last_active_date: profileState.lastActiveDate || getTodayDateString(),
+      updated_at: new Date().toISOString()
+    });
+  } catch (err) {
+    console.warn("saveProfileToSupabase error:", err);
+  }
+}
+
+async function syncTodosFromSupabase(user) {
+  const client = getSupabase();
+  if (!client || !user || !user.id) return;
+  try {
+    const { data, error } = await client
+      .from('user_todos')
+      .select('*')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: true });
+
+    if (error) {
+      console.warn("Supabase todos fetch error:", error.message);
+      return;
+    }
+
+    if (data && data.length > 0) {
+      state.todos = data.map(t => ({
+        id: t.id,
+        text: t.text,
+        completed: !!t.completed,
+        createdAt: new Date(t.created_at).getTime() || Date.now()
+      }));
+      saveTodosToStorage();
+      updateTodoUI();
+    }
+  } catch (err) {
+    console.warn("syncTodosFromSupabase error:", err);
+  }
+}
+
+async function saveTodoToSupabase(todoItem, action = 'upsert') {
+  const client = getSupabase();
+  const user = state.currentUser;
+  if (!client || !user || !user.id) return;
+  try {
+    if (action === 'delete') {
+      await client.from('user_todos').delete().eq('id', todoItem.id).eq('user_id', user.id);
+    } else {
+      await client.from('user_todos').upsert({
+        id: todoItem.id,
+        user_id: user.id,
+        text: todoItem.text,
+        completed: !!todoItem.completed
+      });
+    }
+  } catch (err) {
+    console.warn("saveTodoToSupabase error:", err);
   }
 }
 
@@ -1303,6 +2089,10 @@ function handleAuthUser(user) {
         syncMyPresence();
       }
     }
+
+    // Sync cloud profile and todos from Supabase
+    syncProfileFromSupabase(user);
+    syncTodosFromSupabase(user);
   }
 }
 
@@ -2040,6 +2830,26 @@ function loadTrack(vibe, index) {
 }
 
 function togglePlay() {
+  // If YouTube custom player is active, toggle YouTube playback
+  if (typeof customMusicState !== 'undefined' && customMusicState.active && customMusicState.service === 'youtube' && ytPlayer) {
+    try {
+      const pState = ytPlayer.getPlayerState ? ytPlayer.getPlayerState() : -1;
+      if (pState === 1) { // Currently playing -> pause
+        ytPlayer.pauseVideo();
+        state.isPlaying = false;
+      } else { // Paused -> play
+        ytPlayer.playVideo();
+        state.isPlaying = true;
+      }
+      if (elBtnPlay) elBtnPlay.innerHTML = state.isPlaying ? '<i class="fa-solid fa-pause"></i>' : '<i class="fa-solid fa-play"></i>';
+      updateTvPowerLed();
+      updateNowPlayingStatus();
+      return;
+    } catch (e) {
+      console.warn("YouTube play/pause error:", e);
+    }
+  }
+
   if (audioContext && audioContext.state === 'suspended') {
     audioContext.resume();
   }
@@ -2091,6 +2901,16 @@ function togglePlay() {
 }
 
 function playNextTrack() {
+  // If YouTube custom player is active, advance to next video in playlist
+  if (typeof customMusicState !== 'undefined' && customMusicState.active && customMusicState.service === 'youtube' && ytPlayer && ytPlayer.nextVideo) {
+    try {
+      ytPlayer.nextVideo();
+      return;
+    } catch (e) {
+      console.warn("YouTube nextVideo error:", e);
+    }
+  }
+
   const currentPlaylist = PLAYLISTS[state.currentVibe] || PLAYLISTS.focus;
   const nextIndex = (state.currentTrackIndex + 1) % currentPlaylist.length;
   state.currentTrackIndex = nextIndex;
@@ -2116,6 +2936,16 @@ function playNextTrack() {
 }
 
 function playPrevTrack() {
+  // If YouTube custom player is active, go back to previous video in playlist
+  if (typeof customMusicState !== 'undefined' && customMusicState.active && customMusicState.service === 'youtube' && ytPlayer && ytPlayer.previousVideo) {
+    try {
+      ytPlayer.previousVideo();
+      return;
+    } catch (e) {
+      console.warn("YouTube previousVideo error:", e);
+    }
+  }
+
   const currentPlaylist = PLAYLISTS[state.currentVibe] || PLAYLISTS.focus;
   let prevIndex = state.currentTrackIndex - 1;
   if (prevIndex < 0) {
@@ -2192,6 +3022,12 @@ function handleMasterVolume(val) {
     musicAudio.volume = clamped;
     musicAudio.muted = (clamped === 0);
   }
+  if (typeof customMusicState !== 'undefined' && customMusicState.active && customMusicState.service === 'youtube' && ytPlayer && ytPlayer.setVolume) {
+    try {
+      ytPlayer.setVolume(clamped * 100);
+      if (clamped === 0) ytPlayer.mute(); else ytPlayer.unMute();
+    } catch (e) {}
+  }
   if (masterGainNode && audioContext) {
     masterGainNode.gain.setValueAtTime(clamped, audioContext.currentTime);
   }
@@ -2211,6 +3047,12 @@ function toggleMute() {
     if (musicAudio) {
       musicAudio.muted = false;
       musicAudio.volume = restoreVol;
+    }
+    if (typeof customMusicState !== 'undefined' && customMusicState.active && customMusicState.service === 'youtube' && ytPlayer && ytPlayer.unMute) {
+      try {
+        ytPlayer.unMute();
+        ytPlayer.setVolume(restoreVol * 100);
+      } catch (e) {}
     }
     if (elSliderMaster) elSliderMaster.value = restoreVol;
     if (masterGainNode && audioContext) {
@@ -2236,6 +3078,11 @@ function toggleMute() {
     if (musicAudio) {
       musicAudio.muted = true;
       musicAudio.volume = 0;
+    }
+    if (typeof customMusicState !== 'undefined' && customMusicState.active && customMusicState.service === 'youtube' && ytPlayer && ytPlayer.mute) {
+      try {
+        ytPlayer.mute();
+      } catch (e) {}
     }
     if (elSliderMaster) elSliderMaster.value = 0;
     if (masterGainNode && audioContext) {
@@ -2270,12 +3117,10 @@ function updateMuteIcon() {
 // --- INTERACTIVE HOTSPOTS LOOPS ---
 // --- INTERACTIVE HOTSPOTS LOOPS ---
 function setupInteractiveRoom() {
-  if (elCloseTodoBtn && elTodoModal) {
-    elCloseTodoBtn.addEventListener('click', () => {
-      elTodoModal.classList.remove('active');
-    });
-  }
   setupRoomPanelControls();
+  if (typeof setupTodoPanelControls === 'function') {
+    setupTodoPanelControls();
+  }
 }
 
 function setupRoomPanelControls() {
@@ -2296,6 +3141,7 @@ function setupRoomPanelControls() {
     if (elPanelProfile) elPanelProfile.classList.remove('open');
     const elToggleProfileBtn = document.getElementById('toggleProfileBtn');
     if (elToggleProfileBtn) elToggleProfileBtn.classList.remove('active');
+    if (typeof closeTodoPanel === 'function') closeTodoPanel();
     updateRoomUI();
   }
 
@@ -2495,73 +3341,263 @@ function updateListenersUI(listeners) {
 
 
 
-// --- STUDY CHECKLIST HANDLERS ---
+// --- STUDY CHECKLIST & TO-DO LIST (TV SCREEN PANEL) ---
+const LOCAL_STORAGE_TODO_KEY = 'lofify_study_todos_v1';
+let currentTodoFilter = 'all'; // 'all' | 'active' | 'completed'
+
+function loadTodosFromStorage() {
+  try {
+    const raw = localStorage.getItem(LOCAL_STORAGE_TODO_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        state.todos = parsed;
+        return;
+      }
+    }
+  } catch (err) {
+    console.warn("Could not read todos from localStorage:", err);
+  }
+
+  // Sensible default starter tasks for first-time visitors
+  state.todos = [
+    { id: 'todo-sample-1', text: 'Study with lo-fi beats (25m focus)', completed: false, createdAt: Date.now() },
+    { id: 'todo-sample-2', text: 'Drink water & stretch during break', completed: false, createdAt: Date.now() + 1 }
+  ];
+  saveTodosToStorage();
+}
+
+function saveTodosToStorage() {
+  try {
+    localStorage.setItem(LOCAL_STORAGE_TODO_KEY, JSON.stringify(state.todos));
+  } catch (err) {
+    console.warn("Could not save todos to localStorage:", err);
+  }
+}
+
+function escapeHtml(str) {
+  if (!str) return '';
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
 function updateTodoUI() {
   if (!elTodoList) return;
   elTodoList.innerHTML = '';
-  state.todos.forEach(task => {
+
+  const total = state.todos.length;
+  const completedCount = state.todos.filter(t => t.completed).length;
+  const activeCount = total - completedCount;
+  const pct = total > 0 ? Math.round((completedCount / total) * 100) : 0;
+
+  // Update progress badge & bar
+  if (elTodoProgressPill) {
+    elTodoProgressPill.textContent = `${completedCount} / ${total} done`;
+  }
+  if (elTodoProgressBarFill) {
+    elTodoProgressBarFill.style.width = `${pct}%`;
+  }
+
+  // Filter tasks
+  let filtered = state.todos;
+  if (currentTodoFilter === 'active') {
+    filtered = state.todos.filter(t => !t.completed);
+  } else if (currentTodoFilter === 'completed') {
+    filtered = state.todos.filter(t => t.completed);
+  }
+
+  // Empty state handling
+  if (elTodoEmptyState) {
+    if (filtered.length === 0) {
+      elTodoEmptyState.style.display = 'flex';
+      const emptyP = elTodoEmptyState.querySelector('p');
+      if (emptyP) {
+        if (total === 0) {
+          emptyP.innerHTML = 'No study tasks yet.<br><span>Add your first goal above to get in the zone!</span>';
+        } else if (currentTodoFilter === 'active') {
+          emptyP.innerHTML = 'All tasks completed! 🎉<br><span>Take a rest or add a new study goal.</span>';
+        } else if (currentTodoFilter === 'completed') {
+          emptyP.innerHTML = 'No completed tasks yet.<br><span>Check off tasks as you finish them!</span>';
+        }
+      }
+    } else {
+      elTodoEmptyState.style.display = 'none';
+    }
+  }
+
+  // Bottom action bar (Clear completed)
+  if (elTodoBottomActions && elTodoStatusSummary) {
+    if (total > 0) {
+      elTodoBottomActions.style.display = 'flex';
+      elTodoStatusSummary.textContent = `${activeCount} task${activeCount === 1 ? '' : 's'} remaining`;
+      if (elClearCompletedTodoBtn) {
+        elClearCompletedTodoBtn.style.display = completedCount > 0 ? 'inline-block' : 'none';
+      }
+    } else {
+      elTodoBottomActions.style.display = 'none';
+    }
+  }
+
+  // Render items
+  filtered.forEach(task => {
     const li = document.createElement('li');
     li.className = `todo-item ${task.completed ? 'completed' : ''}`;
-    
+    li.dataset.id = task.id;
+
     li.innerHTML = `
       <div class="todo-item-content">
-        <i class="fa-regular ${task.completed ? 'fa-circle-check' : 'fa-circle'}"></i>
-        <span>${task.text}</span>
+        <i class="todo-check-icon fa-regular ${task.completed ? 'fa-circle-check' : 'fa-circle'}"></i>
+        <span class="todo-text">${escapeHtml(task.text)}</span>
       </div>
-      <button class="delete-todo-btn" data-id="${task.id}"><i class="fa-solid fa-trash"></i></button>
+      <button type="button" class="delete-todo-btn" data-id="${task.id}" title="Delete task">
+        <i class="fa-solid fa-trash-can"></i>
+      </button>
     `;
-    
+
     // Toggle completion listener
     li.querySelector('.todo-item-content').addEventListener('click', () => {
       const willBeCompleted = !task.completed;
+      task.completed = willBeCompleted;
       if (willBeCompleted && typeof recordCompletedTask === 'function') {
         recordCompletedTask();
       }
-      if (!USE_MOCK_MODE) {
-        toggleFirebaseTodo(task.id, willBeCompleted);
-      } else {
-        task.completed = willBeCompleted;
-        updateTodoUI();
-      }
+      saveTodosToStorage();
+      saveTodoToSupabase(task, 'upsert');
+      updateTodoUI();
     });
 
     // Delete listener
     li.querySelector('.delete-todo-btn').addEventListener('click', (e) => {
       e.stopPropagation();
-      if (!USE_MOCK_MODE) {
-        deleteFirebaseTodo(task.id);
-      } else {
-        state.todos = state.todos.filter(t => t.id !== task.id);
-        updateTodoUI();
-      }
+      state.todos = state.todos.filter(t => t.id !== task.id);
+      saveTodosToStorage();
+      saveTodoToSupabase(task, 'delete');
+      updateTodoUI();
     });
 
     elTodoList.appendChild(li);
   });
 }
 
-// --- FORM SUBMIT ACTIONS ---
+function openTodoPanel() {
+  if (!elPanelTodo) return;
+  elPanelTodo.classList.add('open');
+  if (elToggleTodoBtn) elToggleTodoBtn.classList.add('active');
+  if (elPanelRoom) elPanelRoom.classList.remove('open');
+  if (elToggleRoomBtn) elToggleRoomBtn.classList.remove('active');
+  if (elPanelProfile) elPanelProfile.classList.remove('open');
+  if (elToggleProfileBtn) elToggleProfileBtn.classList.remove('active');
+  updateTodoUI();
+  if (elTodoInput) elTodoInput.focus();
+}
 
-// Todo List Submit Form
-elTodoForm.addEventListener('submit', (e) => {
-  e.preventDefault();
-  const taskText = elTodoInput.value.trim();
-  if (!taskText) return;
+function closeTodoPanel() {
+  if (!elPanelTodo) return;
+  elPanelTodo.classList.remove('open');
+  if (elToggleTodoBtn) elToggleTodoBtn.classList.remove('active');
+}
 
-  if (!USE_MOCK_MODE) {
-    window.addFirebaseTodo(taskText);
+function toggleTodoPanel() {
+  if (!elPanelTodo) return;
+  if (elPanelTodo.classList.contains('open')) {
+    closeTodoPanel();
   } else {
-    const newTask = {
-      id: 'task-' + Date.now(),
-      text: taskText,
-      completed: false
-    };
-    state.todos.push(newTask);
-    updateTodoUI();
+    openTodoPanel();
+  }
+}
+
+function setupTodoPanelControls() {
+  // Bezel toggle button
+  if (elToggleTodoBtn) {
+    elToggleTodoBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      toggleTodoPanel();
+    });
   }
 
-  elTodoInput.value = '';
-});
+  // Panel close button
+  if (elClosePanelTodo) {
+    elClosePanelTodo.addEventListener('click', (e) => {
+      e.stopPropagation();
+      closeTodoPanel();
+    });
+  }
+
+  // Filter tabs
+  const filterBtns = document.querySelectorAll('.todo-filter-btn');
+  filterBtns.forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      filterBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentTodoFilter = btn.dataset.filter || 'all';
+      updateTodoUI();
+    });
+  });
+
+  // Quick suggestion chips
+  const chips = document.querySelectorAll('.todo-chip-btn');
+  chips.forEach(chip => {
+    chip.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const taskText = chip.dataset.text || chip.textContent.replace('+', '').trim();
+      if (!taskText) return;
+      const taskId = (typeof crypto !== 'undefined' && crypto.randomUUID) ? crypto.randomUUID() : ('00000000-0000-4000-8000-' + Date.now().toString(16).padStart(12, '0'));
+      const newTask = {
+        id: taskId,
+        text: taskText,
+        completed: false,
+        createdAt: Date.now()
+      };
+      state.todos.unshift(newTask);
+      saveTodosToStorage();
+      saveTodoToSupabase(newTask, 'upsert');
+      updateTodoUI();
+    });
+  });
+
+  // Clear completed button
+  if (elClearCompletedTodoBtn) {
+    elClearCompletedTodoBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const completedTasks = state.todos.filter(t => t.completed);
+      completedTasks.forEach(t => saveTodoToSupabase(t, 'delete'));
+      state.todos = state.todos.filter(t => !t.completed);
+      saveTodosToStorage();
+      updateTodoUI();
+    });
+  }
+
+  // Todo Form submit
+  if (elTodoForm && elTodoInput) {
+    elTodoForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const taskText = elTodoInput.value.trim();
+      if (!taskText) return;
+
+      const taskId = (typeof crypto !== 'undefined' && crypto.randomUUID) ? crypto.randomUUID() : ('00000000-0000-4000-8000-' + Date.now().toString(16).padStart(12, '0'));
+      const newTask = {
+        id: taskId,
+        text: taskText,
+        completed: false,
+        createdAt: Date.now()
+      };
+      state.todos.unshift(newTask);
+      saveTodosToStorage();
+      saveTodoToSupabase(newTask, 'upsert');
+      updateTodoUI();
+      elTodoInput.value = '';
+    });
+  }
+
+  // Initial load
+  loadTodosFromStorage();
+  updateTodoUI();
+}
 
 // --- BUTTONS EVENTS WIRE UP ---
 if (elBtnPlay) elBtnPlay.addEventListener('click', togglePlay);
@@ -2982,7 +4018,8 @@ function getDefaultProfileData() {
       scene_forest: 0,
       scene_forest_cabin: 0,
       scene_durga_puja: 0,
-      scene_kali_puja: 0
+      scene_kali_puja: 0,
+      scene_darjeeling: 0
     }
   };
 }
@@ -2999,12 +4036,13 @@ function loadProfileData() {
         profileState.weeklyMinutes = { Mon: 0, Tue: 0, Wed: 0, Thu: 0, Fri: 0, Sat: 0, Sun: 0 };
       }
       if (!profileState.themeMinutes) {
-        profileState.themeMinutes = { scene2: 0, scene_library: 0, scene_forest: 0, scene_forest_cabin: 0, scene_durga_puja: 0, scene_kali_puja: 0 };
+        profileState.themeMinutes = { scene2: 0, scene_library: 0, scene_forest: 0, scene_forest_cabin: 0, scene_durga_puja: 0, scene_kali_puja: 0, scene_darjeeling: 0 };
       } else {
         if (profileState.themeMinutes.scene_forest === undefined) profileState.themeMinutes.scene_forest = 0;
         if (profileState.themeMinutes.scene_forest_cabin === undefined) profileState.themeMinutes.scene_forest_cabin = 0;
         if (profileState.themeMinutes.scene_durga_puja === undefined) profileState.themeMinutes.scene_durga_puja = 0;
         if (profileState.themeMinutes.scene_kali_puja === undefined) profileState.themeMinutes.scene_kali_puja = 0;
+        if (profileState.themeMinutes.scene_darjeeling === undefined) profileState.themeMinutes.scene_darjeeling = 0;
       }
 
       // Check if new week has started, roll over weekly chart
@@ -3040,6 +4078,9 @@ function saveProfileData() {
   try {
     if (!profileState) return;
     localStorage.setItem(STORAGE_KEY_PROFILE, JSON.stringify(profileState));
+    if (state.currentUser && state.currentUser.id) {
+      saveProfileToSupabase(state.currentUser);
+    }
   } catch (e) {
     console.error("Failed to save profile data:", e);
   }
@@ -3131,21 +4172,27 @@ function renderThemeBreakdown() {
   const forestCabinMins = tm.scene_forest_cabin || 0;
   const durgaMins = tm.scene_durga_puja || 0;
   const kaliMins = tm.scene_kali_puja || 0;
-  const total = cabinMins + libraryMins + forestMins + forestCabinMins + durgaMins + kaliMins;
+  const darjeelingMins = tm.scene_darjeeling || 0;
+  const saharaMins = tm.scene_sahara || 0;
+  const total = cabinMins + libraryMins + forestMins + forestCabinMins + durgaMins + kaliMins + darjeelingMins + saharaMins;
 
-  let cabinPct = 16;
-  let libraryPct = 16;
-  let forestPct = 17;
-  let forestCabinPct = 17;
-  let durgaPct = 17;
-  let kaliPct = 17;
+  let cabinPct = 12;
+  let libraryPct = 12;
+  let forestPct = 12;
+  let forestCabinPct = 12;
+  let durgaPct = 12;
+  let kaliPct = 14;
+  let darjeelingPct = 13;
+  let saharaPct = 13;
   if (total > 0) {
     cabinPct = Math.round((cabinMins / total) * 100);
     libraryPct = Math.round((libraryMins / total) * 100);
     forestPct = Math.round((forestMins / total) * 100);
     forestCabinPct = Math.round((forestCabinMins / total) * 100);
     durgaPct = Math.round((durgaMins / total) * 100);
-    kaliPct = Math.max(0, 100 - cabinPct - libraryPct - forestPct - forestCabinPct - durgaPct);
+    kaliPct = Math.round((kaliMins / total) * 100);
+    darjeelingPct = Math.round((darjeelingMins / total) * 100);
+    saharaPct = Math.max(0, 100 - cabinPct - libraryPct - forestPct - forestCabinPct - durgaPct - kaliPct - darjeelingPct);
   }
 
   if (elBreakdownCabinPct) elBreakdownCabinPct.textContent = `${cabinPct}%`;
@@ -3160,6 +4207,10 @@ function renderThemeBreakdown() {
   if (elBreakdownDurgaBar) elBreakdownDurgaBar.style.width = `${durgaPct}%`;
   if (elBreakdownKaliPct) elBreakdownKaliPct.textContent = `${kaliPct}%`;
   if (elBreakdownKaliBar) elBreakdownKaliBar.style.width = `${kaliPct}%`;
+  if (elBreakdownDarjeelingPct) elBreakdownDarjeelingPct.textContent = `${darjeelingPct}%`;
+  if (elBreakdownDarjeelingBar) elBreakdownDarjeelingBar.style.width = `${darjeelingPct}%`;
+  if (elBreakdownSaharaPct) elBreakdownSaharaPct.textContent = `${saharaPct}%`;
+  if (elBreakdownSaharaBar) elBreakdownSaharaBar.style.width = `${saharaPct}%`;
 }
 
 function renderProfileUI() {
@@ -3253,6 +4304,12 @@ function setupProfileAndAnalytics() {
   // Slide panel toggle button on bezel
   if (elToggleProfileBtn && elPanelProfile) {
     elToggleProfileBtn.addEventListener('click', () => {
+      const willOpen = !elPanelProfile.classList.contains('open');
+      if (willOpen) {
+        if (elPanelRoom) elPanelRoom.classList.remove('open');
+        if (elToggleRoomBtn) elToggleRoomBtn.classList.remove('active');
+        if (typeof closeTodoPanel === 'function') closeTodoPanel();
+      }
       elPanelProfile.classList.toggle('open');
       elToggleProfileBtn.classList.toggle('active');
     });
@@ -3348,13 +4405,6 @@ function setupProfileAndAnalytics() {
   });
 }
 
-// To-Do list modal trigger via bottom bar
-if (elToggleTodoBtn && elTodoModal) {
-  elToggleTodoBtn.addEventListener('click', () => {
-    elTodoModal.classList.add('active');
-  });
-}
-
 // Cursor Parallax Engine
 function initParallax() {
   const layerBg = document.getElementById('layerBg');
@@ -3390,6 +4440,8 @@ function isThemeWeatherActive(themeId) {
   if (themeId === 'scene_forest_cabin') return !!state.isForestCabinRainActive;
   if (themeId === 'scene_durga_puja') return false;
   if (themeId === 'scene_kali_puja') return false;
+  if (themeId === 'scene_darjeeling') return !!state.isDarjeelingRainActive;
+  if (themeId === 'scene_sahara') return !!state.isSaharaSandstormActive;
   return false;
 }
 
@@ -3401,6 +4453,8 @@ function getThemeDisplayName(themeId) {
     case 'scene_forest_cabin': return 'Forest Cabin';
     case 'scene_durga_puja': return 'Durga Puja';
     case 'scene_kali_puja': return 'Kali Puja';
+    case 'scene_darjeeling': return 'Darjeeling Veranda';
+    case 'scene_sahara': return 'Sahara Oasis';
     default: return 'Cozy Room';
   }
 }
@@ -3492,6 +4546,46 @@ function applyThemeWeather(themeId, isActive, isRemote = false) {
       if (isActive) window.kaliRainEngine.start();
       else window.kaliRainEngine.stop();
     }
+  } else if (themeId === 'scene_darjeeling') {
+    state.isDarjeelingRainActive = isActive;
+    state.hotspots.darjeelingRain = isActive;
+    const sceneDj = document.getElementById('scene-darjeeling-container');
+    if (sceneDj) sceneDj.classList.toggle('rainy', isActive);
+    if (window.darjeelingRainEngine) {
+      if (isActive) window.darjeelingRainEngine.start();
+      else window.darjeelingRainEngine.stop();
+    }
+    if (window.darjeelingSunbeamsEngine) {
+      if (!isActive) window.darjeelingSunbeamsEngine.start();
+      else window.darjeelingSunbeamsEngine.stop();
+    }
+    const elDjRain = document.getElementById('hotspotDarjeelingRain');
+    if (elDjRain) {
+      elDjRain.classList.toggle('active', isActive);
+      const tt = elDjRain.querySelector('.hotspot-tooltip');
+      if (tt) tt.textContent = isActive ? 'Monsoon Rain: Active' : 'Monsoon Rain: Off';
+    }
+  } else if (themeId === 'scene_sahara') {
+    state.isSaharaSandstormActive = isActive;
+    state.hotspots.saharaWind = isActive;
+    const bgSunset = document.getElementById('bg-sahara-sunset');
+    const bgNight = document.getElementById('bg-sahara-night');
+    if (bgSunset) bgSunset.classList.toggle('sandstorm-fog', isActive);
+    if (bgNight) bgNight.classList.toggle('sandstorm-fog', isActive);
+
+    if (window.saharaSandEngine) {
+      if (isActive) window.saharaSandEngine.activateSandstorm();
+      else window.saharaSandEngine.deactivateSandstorm();
+    }
+    if (window.saharaStarsEngine) {
+      window.saharaStarsEngine.setObscured(isActive);
+    }
+    const elWind = document.getElementById('hotspotSaharaWind');
+    if (elWind) {
+      elWind.classList.toggle('active', isActive);
+      const tt = elWind.querySelector('.hotspot-tooltip');
+      if (tt) tt.textContent = isActive ? 'Sandstorm: Howling' : 'Desert Wind: Calm';
+    }
   }
 
   // Update physical TV toggle switch position if active theme matches
@@ -3515,7 +4609,10 @@ function applyThemeWeather(themeId, isActive, isRemote = false) {
           isForestRainActive: state.isForestRainActive,
           isForestCabinRainActive: state.isForestCabinRainActive,
           isDurgaPujaRainActive: state.isDurgaPujaRainActive,
-          isKaliPujaRainActive: state.isKaliPujaRainActive
+          isKaliPujaRainActive: state.isKaliPujaRainActive,
+          isDarjeelingRainActive: state.isDarjeelingRainActive,
+          isSaharaNightActive: state.isSaharaNightActive,
+          isSaharaSandstormActive: state.isSaharaSandstormActive
         }
       },
       hotspots: state.hotspots
@@ -3524,6 +4621,55 @@ function applyThemeWeather(themeId, isActive, isRemote = false) {
 }
 
 // --- DISCORD LOFI-STYLE INTERACTIVE HOTSPOTS ---
+const previousHotspotVolumes = {};
+
+function updateHotspotSpeakerIcon(key, vol) {
+  const sliders = document.querySelectorAll(`.hotspot-vol-slider[data-hotspot="${key}"]`);
+  sliders.forEach(slider => {
+    const bar = slider.closest('.hotspot-vol-bar');
+    if (!bar) return;
+    const icon = bar.querySelector('i');
+    if (!icon) return;
+    const numericVol = parseFloat(vol);
+    if (numericVol <= 0.001) {
+      icon.className = 'fa-solid fa-volume-xmark muted';
+      icon.title = 'Unmute';
+    } else if (numericVol >= 0.5) {
+      icon.className = 'fa-solid fa-volume-high';
+      icon.title = 'Mute';
+    } else {
+      icon.className = 'fa-solid fa-volume-low';
+      icon.title = 'Mute';
+    }
+  });
+}
+
+function toggleHotspotMute(key) {
+  if (!key) return;
+  const currentVol = (state.hotspotVolumes && state.hotspotVolumes[key] !== undefined)
+    ? state.hotspotVolumes[key]
+    : 0.7;
+
+  let targetVol;
+  if (currentVol > 0.001) {
+    previousHotspotVolumes[key] = currentVol;
+    targetVol = 0;
+  } else {
+    targetVol = (previousHotspotVolumes[key] && previousHotspotVolumes[key] > 0.001)
+      ? previousHotspotVolumes[key]
+      : 0.7;
+  }
+
+  // Update slider input value across all matching elements
+  const sliders = document.querySelectorAll(`.hotspot-vol-slider[data-hotspot="${key}"]`);
+  sliders.forEach(slider => {
+    slider.value = targetVol;
+  });
+
+  handleHotspotVolumeChange(key, targetVol);
+  updateHotspotSpeakerIcon(key, targetVol);
+}
+
 function updateHotspotVolumes() {
   const masterVol = isMuted ? 0 : (previousMasterVolume ?? 0.7);
   for (const key in hotspotAudios) {
@@ -3542,8 +4688,13 @@ function handleHotspotVolumeChange(hotspotKey, value) {
   const numVal = parseFloat(value);
   if (isNaN(numVal)) return;
   if (!state.hotspotVolumes) state.hotspotVolumes = {};
-  state.hotspotVolumes[hotspotKey] = Math.max(0, Math.min(1, numVal));
+  const clamped = Math.max(0, Math.min(1, numVal));
+  state.hotspotVolumes[hotspotKey] = clamped;
+  if (clamped > 0.001) {
+    previousHotspotVolumes[hotspotKey] = clamped;
+  }
   updateHotspotVolumes();
+  updateHotspotSpeakerIcon(hotspotKey, clamped);
 }
 
 function updateHotspotThemeAudios() {
@@ -3610,6 +4761,44 @@ function updateHotspotThemeAudios() {
   } else {
     hotspotAudios.kaliShyama.pause();
   }
+
+  // Darjeeling Veranda (scene_darjeeling)
+  if (theme === 'scene_darjeeling' && state.hotspots.darjeelingRain) {
+    hotspotAudios.darjeelingRain.play().catch(() => {});
+  } else {
+    hotspotAudios.darjeelingRain.pause();
+  }
+
+  if (theme === 'scene_darjeeling' && state.hotspots.darjeelingChai) {
+    hotspotAudios.darjeelingChai.play().catch(() => {});
+  } else {
+    hotspotAudios.darjeelingChai.pause();
+  }
+
+  if (theme === 'scene_darjeeling' && state.hotspots.darjeelingBirds) {
+    hotspotAudios.darjeelingBirds.play().catch(() => {});
+  } else {
+    hotspotAudios.darjeelingBirds.pause();
+  }
+
+  // Sahara Oasis (scene_sahara)
+  if (theme === 'scene_sahara' && state.hotspots.saharaCampfire) {
+    hotspotAudios.saharaCampfire.play().catch(() => {});
+  } else {
+    hotspotAudios.saharaCampfire.pause();
+  }
+
+  if (theme === 'scene_sahara' && state.hotspots.saharaWind) {
+    hotspotAudios.saharaWind.play().catch(() => {});
+  } else {
+    hotspotAudios.saharaWind.pause();
+  }
+
+  if (theme === 'scene_sahara' && state.hotspots.saharaTea) {
+    hotspotAudios.saharaTea.play().catch(() => {});
+  } else {
+    hotspotAudios.saharaTea.pause();
+  }
 }
 
 function toggleHotspot(hotspotId, forceState = null, isRemote = false) {
@@ -3627,7 +4816,14 @@ function toggleHotspot(hotspotId, forceState = null, isRemote = false) {
     forestCabinRain: { btn: 'hotspotForestCabinRain', wrap: 'wrapForestCabinRain', label: 'Rain', onTxt: 'Pouring', offTxt: 'Clear' },
     durgaDhak: { btn: 'hotspotDurgaDhak', wrap: 'wrapDurgaDhak', label: 'Dhak', onTxt: 'Playing', offTxt: 'Paused' },
     kaliFireworks: { btn: 'hotspotKaliFireworks', wrap: 'wrapKaliFireworks', label: 'Fireworks', onTxt: 'Active', offTxt: 'Off' },
-    kaliShyama: { btn: 'hotspotKaliShyama', wrap: 'wrapKaliShyama', label: 'Shyama Sangeet', onTxt: 'Playing', offTxt: 'Paused' }
+    kaliShyama: { btn: 'hotspotKaliShyama', wrap: 'wrapKaliShyama', label: 'Shyama Sangeet', onTxt: 'Playing', offTxt: 'Paused' },
+    darjeelingChai: { btn: 'hotspotDarjeelingChai', wrap: 'wrapDarjeelingChai', label: 'Masala Chai', onTxt: 'Hot & Steaming', offTxt: 'Off' },
+    darjeelingRain: { btn: 'hotspotDarjeelingRain', wrap: 'wrapDarjeelingRain', label: 'Tin Roof Rain', onTxt: 'Monsoon Pouring', offTxt: 'Off' },
+    darjeelingBirds: { btn: 'hotspotDarjeelingBirds', wrap: 'wrapDarjeelingBirds', label: 'Himalayan Birds', onTxt: 'Singing', offTxt: 'Quiet' },
+    saharaCampfire: { btn: 'hotspotSaharaCampfire', wrap: 'wrapSaharaCampfire', label: 'Cedar Campfire', onTxt: 'Crackling', offTxt: 'Quiet' },
+    saharaWind: { btn: 'hotspotSaharaWind', wrap: 'wrapSaharaWind', label: 'Sandstorm', onTxt: 'Howling', offTxt: 'Calm' },
+    saharaTea: { btn: 'hotspotSaharaTea', wrap: 'wrapSaharaTea', label: 'Mint Tea Pot', onTxt: 'Bubbling', offTxt: 'Off' },
+    saharaSky: { btn: 'hotspotSaharaSky', wrap: 'wrapSaharaSky', label: 'Sky', onTxt: 'Starlit Night', offTxt: 'Sunset Twilight' }
   };
 
   const meta = hotspotElements[hotspotId];
@@ -3679,6 +4875,45 @@ function toggleHotspot(hotspotId, forceState = null, isRemote = false) {
 
     case 'kaliShyama':
       break;
+
+    case 'darjeelingRain':
+      applyThemeWeather('scene_darjeeling', newState, true);
+      break;
+
+    case 'darjeelingChai':
+      break;
+
+    case 'darjeelingBirds':
+      break;
+
+    case 'saharaCampfire':
+      break;
+
+    case 'saharaWind':
+      applyThemeWeather('scene_sahara', newState, true);
+      break;
+
+    case 'saharaTea':
+      break;
+
+    case 'saharaSky':
+      state.isSaharaNightActive = !state.isSaharaNightActive;
+      const sceneSh = document.getElementById('scene-sahara-container');
+      if (sceneSh) sceneSh.classList.toggle('night', state.isSaharaNightActive);
+      if (window.saharaSandEngine) {
+        window.saharaSandEngine.setNightMode(state.isSaharaNightActive);
+      }
+      if (window.saharaStarsEngine) {
+        if (state.isSaharaNightActive) window.saharaStarsEngine.start();
+        else window.saharaStarsEngine.stop();
+      }
+      const elSky = document.getElementById('hotspotSaharaSky');
+      if (elSky) {
+        elSky.classList.toggle('active', state.isSaharaNightActive);
+        const tt = elSky.querySelector('.hotspot-tooltip');
+        if (tt) tt.textContent = state.isSaharaNightActive ? 'Sky: Starlit Night' : 'Sky: Sunset Twilight';
+      }
+      break;
   }
 
   updateHotspotThemeAudios();
@@ -3700,7 +4935,14 @@ function initHotspots() {
     { id: 'hotspotForestCabinRain', key: 'forestCabinRain' },
     { id: 'hotspotDurgaDhak', key: 'durgaDhak' },
     { id: 'hotspotKaliFireworks', key: 'kaliFireworks' },
-    { id: 'hotspotKaliShyama', key: 'kaliShyama' }
+    { id: 'hotspotKaliShyama', key: 'kaliShyama' },
+    { id: 'hotspotDarjeelingChai', key: 'darjeelingChai' },
+    { id: 'hotspotDarjeelingRain', key: 'darjeelingRain' },
+    { id: 'hotspotDarjeelingBirds', key: 'darjeelingBirds' },
+    { id: 'hotspotSaharaCampfire', key: 'saharaCampfire' },
+    { id: 'hotspotSaharaWind', key: 'saharaWind' },
+    { id: 'hotspotSaharaTea', key: 'saharaTea' },
+    { id: 'hotspotSaharaSky', key: 'saharaSky' }
   ];
 
   binds.forEach(({ id, key }) => {
@@ -3732,6 +4974,21 @@ function initHotspots() {
     });
   });
 
+  // Wire speaker icons for instant mute toggle like Spotify
+  document.querySelectorAll('.hotspot-vol-bar i').forEach(icon => {
+    icon.style.cursor = 'pointer';
+    icon.addEventListener('click', (e) => {
+      e.stopPropagation();
+      e.preventDefault();
+      const slider = icon.parentElement ? icon.parentElement.querySelector('.hotspot-vol-slider') : null;
+      if (slider && slider.dataset.hotspot) {
+        toggleHotspotMute(slider.dataset.hotspot);
+      }
+    });
+    icon.addEventListener('pointerdown', (e) => e.stopPropagation());
+    icon.addEventListener('mousedown', (e) => e.stopPropagation());
+  });
+
   // Prevent clicks inside the volume capsule from bubbling to the scene
   document.querySelectorAll('.hotspot-vol-bar').forEach(bar => {
     bar.addEventListener('click', (e) => e.stopPropagation());
@@ -3739,9 +4996,14 @@ function initHotspots() {
     bar.addEventListener('mousedown', (e) => e.stopPropagation());
   });
 
-  // Sync initial UI classes
+  // Sync initial UI classes & volume icons
   for (const key in state.hotspots) {
     toggleHotspot(key, state.hotspots[key], true);
+  }
+  if (state.hotspotVolumes) {
+    for (const key in state.hotspotVolumes) {
+      updateHotspotSpeakerIcon(key, state.hotspotVolumes[key]);
+    }
   }
 }
 
@@ -3799,6 +5061,8 @@ function switchTheme(themeId = 'scene2', triggerPlay = false, isRemote = false) 
   if (elSceneForestCabin) elSceneForestCabin.style.display = (themeId === 'scene_forest_cabin') ? 'block' : 'none';
   if (elSceneDurgaPuja) elSceneDurgaPuja.style.display = (themeId === 'scene_durga_puja') ? 'block' : 'none';
   if (elSceneKaliPuja) elSceneKaliPuja.style.display = (themeId === 'scene_kali_puja') ? 'block' : 'none';
+  if (elSceneDarjeeling) elSceneDarjeeling.style.display = (themeId === 'scene_darjeeling') ? 'block' : 'none';
+  if (elSceneSahara) elSceneSahara.style.display = (themeId === 'scene_sahara') ? 'block' : 'none';
 
   // Manage Winter Cabin engine
   if (themeId === 'scene2') {
@@ -3928,6 +5192,56 @@ function switchTheme(themeId = 'scene2', triggerPlay = false, isRemote = false) 
     }
   }
 
+  // Manage Darjeeling Veranda engine (Himalayan Tea Estate)
+  if (themeId === 'scene_darjeeling') {
+    const sceneDj = document.getElementById('scene-darjeeling-container');
+    if (sceneDj) {
+      sceneDj.classList.toggle('rainy', !!state.isDarjeelingRainActive);
+    }
+    if (window.darjeelingRainEngine) {
+      window.darjeelingRainEngine.resize();
+      if (state.isDarjeelingRainActive) window.darjeelingRainEngine.start();
+      else window.darjeelingRainEngine.stop();
+    }
+    if (window.darjeelingSunbeamsEngine) {
+      window.darjeelingSunbeamsEngine.resize();
+      if (!state.isDarjeelingRainActive) window.darjeelingSunbeamsEngine.start();
+      else window.darjeelingSunbeamsEngine.stop();
+    }
+  } else {
+    if (window.darjeelingRainEngine) window.darjeelingRainEngine.stop();
+    if (window.darjeelingSunbeamsEngine) window.darjeelingSunbeamsEngine.stop();
+  }
+
+  // Manage Sahara Oasis engine (Bedouin Tent & Desert Stars)
+  if (themeId === 'scene_sahara') {
+    const sceneSh = document.getElementById('scene-sahara-container');
+    if (sceneSh) {
+      sceneSh.classList.toggle('night', !!state.isSaharaNightActive);
+    }
+    const bgSunset = document.getElementById('bg-sahara-sunset');
+    const bgNight = document.getElementById('bg-sahara-night');
+    if (bgSunset) bgSunset.classList.toggle('sandstorm-fog', !!state.isSaharaSandstormActive);
+    if (bgNight) bgNight.classList.toggle('sandstorm-fog', !!state.isSaharaSandstormActive);
+
+    if (window.saharaStarsEngine) {
+      window.saharaStarsEngine.resize();
+      window.saharaStarsEngine.setObscured(!!state.isSaharaSandstormActive);
+      if (state.isSaharaNightActive) window.saharaStarsEngine.start();
+      else window.saharaStarsEngine.stop();
+    }
+    if (window.saharaSandEngine) {
+      window.saharaSandEngine.resize();
+      window.saharaSandEngine.setNightMode(!!state.isSaharaNightActive);
+      if (state.isSaharaSandstormActive) window.saharaSandEngine.activateSandstorm();
+      else window.saharaSandEngine.deactivateSandstorm();
+      window.saharaSandEngine.start();
+    }
+  } else {
+    if (window.saharaStarsEngine) window.saharaStarsEngine.stop();
+    if (window.saharaSandEngine) window.saharaSandEngine.stop();
+  }
+
   // Durga Puja & Kali Puja use relaxing Lo-Fi beats same as all other themes
   if (state.currentVibe === 'durga_puja' || state.currentVibe === 'kali_puja') {
     state.currentVibe = 'focus';
@@ -3935,8 +5249,11 @@ function switchTheme(themeId = 'scene2', triggerPlay = false, isRemote = false) 
     loadTrack('focus', 0);
   }
 
-  // Audio Playback State on Theme Switch (Paused by Default)
-  if (triggerPlay) {
+  // Audio Playback State on Theme Switch (Seamlessly preserve active playback)
+  const wasPlaying = Boolean(state.isPlaying || (musicAudio && !musicAudio.paused));
+  const shouldPlay = triggerPlay || wasPlaying;
+
+  if (shouldPlay) {
     if (musicAudio) {
       if (isMuted) {
         isMuted = false;
@@ -3946,27 +5263,36 @@ function switchTheme(themeId = 'scene2', triggerPlay = false, isRemote = false) 
         if (elSliderMaster) elSliderMaster.value = restoreVol;
         updateMuteIcon();
       }
-      musicAudio.play().then(() => {
+      if (musicAudio.paused) {
+        musicAudio.play().then(() => {
+          state.isPlaying = true;
+          if (elBtnPlay) elBtnPlay.innerHTML = '<i class="fa-solid fa-pause"></i>';
+          if (elTrackIcon) elTrackIcon.style.animationPlayState = 'running';
+          updateTvPowerLed();
+          updateNowPlayingStatus();
+          updateMusicMenuSelection();
+          if (typeof window.updateFirebaseRoomState === 'function') {
+            window.updateFirebaseRoomState({
+              currentVibe: state.currentVibe,
+              currentTrackIndex: state.currentTrackIndex,
+              trackStartTime: Date.now(),
+              isPlaying: true
+            });
+          }
+        }).catch(err => {
+          console.log("Audio playback waiting for user interaction:", err);
+        });
+      } else {
         state.isPlaying = true;
         if (elBtnPlay) elBtnPlay.innerHTML = '<i class="fa-solid fa-pause"></i>';
         if (elTrackIcon) elTrackIcon.style.animationPlayState = 'running';
         updateTvPowerLed();
         updateNowPlayingStatus();
         updateMusicMenuSelection();
-        if (typeof window.updateFirebaseRoomState === 'function') {
-          window.updateFirebaseRoomState({
-            currentVibe: state.currentVibe,
-            currentTrackIndex: state.currentTrackIndex,
-            trackStartTime: Date.now(),
-            isPlaying: true
-          });
-        }
-      }).catch(err => {
-        console.log("Audio playback waiting for user interaction:", err);
-      });
+      }
     }
   } else {
-    // Always paused by default on theme switch
+    // Only pause if music was not playing and triggerPlay was false
     state.isPlaying = false;
     if (musicAudio) {
       musicAudio.pause();
@@ -4193,6 +5519,10 @@ function handleAllResizes() {
     }
   }
   if (window.kaliRainEngine) window.kaliRainEngine.resize();
+  if (window.darjeelingRainEngine) window.darjeelingRainEngine.resize();
+  if (window.darjeelingSunbeamsEngine) window.darjeelingSunbeamsEngine.resize();
+  if (window.saharaStarsEngine) window.saharaStarsEngine.resize();
+  if (window.saharaSandEngine) window.saharaSandEngine.resize();
   drawCabinForeground();
   drawLibraryForeground();
 }
@@ -4428,6 +5758,14 @@ function setupTvBezelControls() {
         tvChannelBtn.classList.remove('active');
       }
     });
+
+    // Initial load: Theme menu is open by default so user can immediately browse
+    // but once closed, it never re-opens automatically at random times
+    if (screenThemeMenu.classList.contains('active')) {
+      tvChannelBtn.classList.add('active');
+      updateThemeNavButtons();
+      setTimeout(scrollActiveCardIntoView, 120);
+    }
   }
 
   // 3. Weather Toggle Switch (Blizzard in Cabin / Rain in Library / Rain in Forest House)
@@ -4509,6 +5847,320 @@ function setupTvBezelControls() {
   }
 }
 
+// --- RETRO YOUTUBE PLAYER & DRAGGABLE SCREEN WIDGET ---
+let customMusicState = {
+  active: false,
+  service: 'youtube',
+  url: '',
+  title: '',
+  artist: '',
+  minimized: false
+};
+
+let ytPlayer = null;
+let isYtApiReady = false;
+let pendingYtCommand = null;
+
+window.onYouTubeIframeAPIReady = function() {
+  isYtApiReady = true;
+  if (pendingYtCommand) {
+    const cmd = pendingYtCommand;
+    pendingYtCommand = null;
+    cmd();
+  }
+};
+
+function parseYouTubeUrl(url) {
+  if (!url || typeof url !== 'string') return null;
+  url = url.trim();
+
+  // YouTube Playlist
+  const ytPlaylistMatch = url.match(/[?&]list=([a-zA-Z0-9_-]+)/i);
+  if (ytPlaylistMatch && (url.includes('youtube.com') || url.includes('youtu.be'))) {
+    return {
+      service: 'youtube',
+      type: 'playlist',
+      listId: ytPlaylistMatch[1]
+    };
+  }
+
+  // YouTube Video / Livestream / Shorts
+  const ytVideoMatch = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|live\/|v\/|shorts\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/i);
+  if (ytVideoMatch) {
+    return {
+      service: 'youtube',
+      type: 'video',
+      videoId: ytVideoMatch[1]
+    };
+  }
+
+  return null;
+}
+
+function loadYoutubeStream(listId, isPlaylist = true, videoId = null) {
+  // Pause built-in audio
+  if (musicAudio) musicAudio.pause();
+
+  const ytPanel = document.getElementById('screenYoutubePanel');
+  if (ytPanel) ytPanel.classList.add('active');
+
+  customMusicState.active = true;
+  customMusicState.service = 'youtube';
+  customMusicState.minimized = false;
+  customMusicState.title = isPlaylist ? "YouTube Playlist" : "YouTube Stream";
+  customMusicState.artist = "YouTube Player";
+
+  if (elTrackTitle) elTrackTitle.textContent = customMusicState.title;
+  if (elTrackArtist) elTrackArtist.textContent = customMusicState.artist;
+  updateCustomDockPill();
+
+  const initOrPlay = () => {
+    const masterVol = elSliderMaster ? parseFloat(elSliderMaster.value) : 0.7;
+    if (!ytPlayer) {
+      ytPlayer = new YT.Player('youtubePlayerTarget', {
+        height: '100%',
+        width: '100%',
+        playerVars: {
+          autoplay: 1,
+          controls: 1,
+          enablejsapi: 1,
+          modestbranding: 1,
+          rel: 0,
+          origin: window.location.origin
+        },
+        events: {
+          onReady: (e) => {
+            e.target.setVolume(masterVol * 100);
+            if (isPlaylist) {
+              e.target.loadPlaylist({ list: listId, listType: 'playlist' });
+            } else {
+              e.target.loadVideoById(videoId);
+            }
+            state.isPlaying = true;
+            if (elBtnPlay) elBtnPlay.innerHTML = '<i class="fa-solid fa-pause"></i>';
+            updateTvPowerLed();
+            updateNowPlayingStatus();
+          },
+          onStateChange: onYtStateChange
+        }
+      });
+    } else {
+      ytPlayer.setVolume(masterVol * 100);
+      if (isPlaylist) {
+        ytPlayer.loadPlaylist({ list: listId, listType: 'playlist' });
+      } else {
+        ytPlayer.loadVideoById(videoId);
+      }
+      state.isPlaying = true;
+      if (elBtnPlay) elBtnPlay.innerHTML = '<i class="fa-solid fa-pause"></i>';
+      updateTvPowerLed();
+      updateNowPlayingStatus();
+    }
+  };
+
+  if (isYtApiReady && window.YT && window.YT.Player) {
+    initOrPlay();
+  } else {
+    pendingYtCommand = initOrPlay;
+  }
+}
+
+function onYtStateChange(e) {
+  if (e.data === 1) { // Playing
+    state.isPlaying = true;
+    if (elBtnPlay) elBtnPlay.innerHTML = '<i class="fa-solid fa-pause"></i>';
+    try {
+      const data = ytPlayer.getVideoData ? ytPlayer.getVideoData() : null;
+      if (data && data.title) {
+        customMusicState.title = data.title;
+        customMusicState.artist = data.author || "YouTube Stream";
+        if (elTrackTitle) elTrackTitle.textContent = data.title;
+        if (elTrackArtist) elTrackArtist.textContent = customMusicState.artist;
+        const ytTitle = document.getElementById('youtubePanelTitle');
+        if (ytTitle) ytTitle.textContent = data.title.length > 28 ? data.title.slice(0, 28) + '...' : data.title;
+      }
+    } catch (err) {}
+    updateTvPowerLed();
+    updateNowPlayingStatus();
+    updateCustomDockPill();
+  } else if (e.data === 2) { // Paused
+    state.isPlaying = false;
+    if (elBtnPlay) elBtnPlay.innerHTML = '<i class="fa-solid fa-play"></i>';
+    updateTvPowerLed();
+    updateNowPlayingStatus();
+  }
+}
+
+function resetCustomMusic() {
+  customMusicState.active = false;
+  customMusicState.minimized = false;
+  customMusicState.url = '';
+
+  if (ytPlayer && ytPlayer.stopVideo) {
+    try { ytPlayer.stopVideo(); } catch (e) {}
+  }
+  const ytPanel = document.getElementById('screenYoutubePanel');
+  if (ytPanel) {
+    ytPanel.classList.remove('active');
+    // Reset position to center for next opening
+    ytPanel.style.left = '50%';
+    ytPanel.style.top = '50%';
+    ytPanel.style.transform = 'translate(-50%, -50%)';
+  }
+
+  const dockPill = document.getElementById('customMusicDockPill');
+  if (dockPill) dockPill.style.display = 'none';
+
+  loadTrack(state.currentVibe, state.currentTrackIndex);
+  if (musicAudio) {
+    musicAudio.pause();
+    musicAudio.currentTime = 0;
+  }
+  state.isPlaying = false;
+  if (elBtnPlay) elBtnPlay.innerHTML = '<i class="fa-solid fa-play"></i>';
+  updateTvPowerLed();
+  updateNowPlayingStatus();
+  updateMusicMenuSelection();
+  renderMusicList();
+}
+
+function updateCustomDockPill() {
+  const dockPill = document.getElementById('customMusicDockPill');
+  const dockLabel = document.getElementById('dockPillLabel');
+  if (!dockPill) return;
+
+  if (customMusicState.active && customMusicState.minimized) {
+    dockPill.style.display = 'flex';
+    if (dockLabel) dockLabel.textContent = `YouTube: ${customMusicState.title || 'Playing'}`;
+  } else {
+    dockPill.style.display = 'none';
+  }
+}
+
+// Enable free dragging of YouTube player across the screen
+function makeYoutubePanelDraggable() {
+  const panel = document.getElementById('screenYoutubePanel');
+  const header = document.getElementById('youtubePanelHeader');
+  if (!panel || !header) return;
+
+  let isDragging = false;
+  let startX = 0;
+  let startY = 0;
+  let initLeft = 0;
+  let initTop = 0;
+
+  const onPointerDown = (e) => {
+    // Ignore clicks on control buttons (minimize, close)
+    if (e.target.closest('.youtube-panel-btn')) return;
+
+    isDragging = true;
+    panel.classList.add('dragging');
+
+    if (header.setPointerCapture && e.pointerId !== undefined) {
+      try { header.setPointerCapture(e.pointerId); } catch (_) {}
+    }
+
+    startX = e.clientX;
+    startY = e.clientY;
+
+    const rect = panel.getBoundingClientRect();
+    initLeft = rect.left;
+    initTop = rect.top;
+
+    // Convert centered transform to absolute coordinates
+    panel.style.transform = 'none';
+    panel.style.left = `${initLeft}px`;
+    panel.style.top = `${initTop}px`;
+    panel.style.bottom = 'auto';
+    panel.style.right = 'auto';
+
+    window.addEventListener('pointermove', onPointerMove, { passive: false });
+    window.addEventListener('pointerup', onPointerUp);
+    window.addEventListener('pointercancel', onPointerUp);
+  };
+
+  const onPointerMove = (e) => {
+    if (!isDragging) return;
+    e.preventDefault();
+
+    const dx = e.clientX - startX;
+    const dy = e.clientY - startY;
+
+    let newLeft = initLeft + dx;
+    let newTop = initTop + dy;
+
+    // Keep panel comfortably inside screen bounds
+    const pWidth = panel.offsetWidth;
+    const pHeight = panel.offsetHeight;
+    const maxLeft = Math.max(10, window.innerWidth - pWidth - 10);
+    const maxTop = Math.max(10, window.innerHeight - pHeight - 10);
+
+    newLeft = Math.max(10, Math.min(maxLeft, newLeft));
+    newTop = Math.max(10, Math.min(maxTop, newTop));
+
+    panel.style.left = `${newLeft}px`;
+    panel.style.top = `${newTop}px`;
+  };
+
+  const onPointerUp = (e) => {
+    if (!isDragging) return;
+    isDragging = false;
+    panel.classList.remove('dragging');
+    if (header.releasePointerCapture && e && e.pointerId !== undefined) {
+      try { header.releasePointerCapture(e.pointerId); } catch (_) {}
+    }
+    window.removeEventListener('pointermove', onPointerMove);
+    window.removeEventListener('pointerup', onPointerUp);
+    window.removeEventListener('pointercancel', onPointerUp);
+  };
+
+  header.addEventListener('pointerdown', onPointerDown);
+}
+
+function initCustomMusicPanels() {
+  const btnMinYt = document.getElementById('btnMinimizeYoutube');
+  const btnCloseYt = document.getElementById('btnCloseYoutube');
+  const ytPanel = document.getElementById('screenYoutubePanel');
+
+  if (btnMinYt && ytPanel) {
+    btnMinYt.addEventListener('click', (e) => {
+      e.stopPropagation();
+      ytPanel.classList.remove('active');
+      customMusicState.minimized = true;
+      updateCustomDockPill();
+    });
+  }
+  if (btnCloseYt) {
+    btnCloseYt.addEventListener('click', (e) => {
+      e.stopPropagation();
+      resetCustomMusic();
+    });
+  }
+
+  const dockPill = document.getElementById('customMusicDockPill');
+  const dockPillExpand = document.getElementById('dockPillExpandBtn');
+  const dockPillClose = document.getElementById('dockPillCloseBtn');
+
+  if (dockPill) {
+    dockPill.addEventListener('click', (e) => {
+      if (e.target.closest('#dockPillCloseBtn')) return;
+      customMusicState.minimized = false;
+      updateCustomDockPill();
+      if (ytPanel) ytPanel.classList.add('active');
+    });
+  }
+
+  if (dockPillClose) {
+    dockPillClose.addEventListener('click', (e) => {
+      e.stopPropagation();
+      resetCustomMusic();
+    });
+  }
+
+  // Activate free drag-and-drop repositioning
+  makeYoutubePanelDraggable();
+}
+
 // --- ON-SCREEN CRT MUSIC MENU FUNCTIONS ---
 let currentMusicTabFilter = 'all';
 
@@ -4516,6 +6168,140 @@ function renderMusicList(filter = currentMusicTabFilter) {
   currentMusicTabFilter = filter;
   const listEl = document.getElementById('screenMusicList');
   if (!listEl) return;
+
+  // Dedicated YouTube Stream & Playlist Studio Tab
+  if (filter === 'youtube' || filter === 'custom') {
+    listEl.innerHTML = '';
+    const studio = document.createElement('div');
+    studio.className = 'custom-music-studio';
+
+    let activeBannerHtml = '';
+    if (customMusicState.active) {
+      activeBannerHtml = `
+        <div class="custom-active-bar">
+          <div class="custom-active-info">
+            <i class="fa-brands fa-youtube" style="color:#ff4444;"></i>
+            <span>Active: <strong>${customMusicState.title}</strong></span>
+          </div>
+          <button class="custom-reset-btn" id="btnReturnToBuiltinRadio">
+            <i class="fa-solid fa-rotate-left"></i> Return to Lofify Radio
+          </button>
+        </div>
+      `;
+    }
+
+    studio.innerHTML = `
+      ${activeBannerHtml}
+      <div class="custom-input-card">
+        <div class="custom-service-badges">
+          <span class="service-badge youtube"><i class="fa-brands fa-youtube"></i> Full-Length YouTube Playlists, Livestreams & Videos</span>
+        </div>
+        <div class="custom-input-row">
+          <input type="text" class="custom-music-input" id="customMusicInput" placeholder="Paste YouTube playlist or video link..." autocomplete="off">
+          <button class="custom-music-submit-btn" id="btnLoadCustomMusic">
+            <i class="fa-solid fa-play"></i> Play
+          </button>
+        </div>
+        <div class="custom-music-status" id="customMusicStatus"></div>
+      </div>
+
+      <div class="custom-presets-title">⚡ Curated 24/7 Lo-Fi Streams</div>
+      <div class="custom-presets-grid">
+        <button class="custom-preset-btn" data-url="https://www.youtube.com/watch?v=jfKfPfyJRdk">
+          <span>☕ Lofi Girl - 24/7 Relax / Study Beats</span>
+          <span class="custom-preset-badge youtube"><i class="fa-brands fa-youtube"></i> Live</span>
+        </button>
+        <button class="custom-preset-btn" data-url="https://www.youtube.com/watch?v=5yx6BWlEVcY">
+          <span>🌧️ Chillhop Radio - Jazzy & Lofi Hip Hop</span>
+          <span class="custom-preset-badge youtube"><i class="fa-brands fa-youtube"></i> Live</span>
+        </button>
+        <button class="custom-preset-btn" data-url="https://www.youtube.com/watch?v=4xDzrJKXOOY">
+          <span>🌌 Synthwave Radio - Chill Synth / Lofi</span>
+          <span class="custom-preset-badge youtube"><i class="fa-brands fa-youtube"></i> Live</span>
+        </button>
+        <button class="custom-preset-btn" data-url="https://www.youtube.com/watch?v=lP26UCnoH9s">
+          <span>☕ Coffee Shop Lo-Fi / Jazz Study Cafe</span>
+          <span class="custom-preset-badge youtube"><i class="fa-brands fa-youtube"></i> Beats</span>
+        </button>
+        <button class="custom-preset-btn" data-url="https://www.youtube.com/watch?v=HuFYqnbVbzQ">
+          <span>🌙 Tokyo Night Drive - Late Night Chill</span>
+          <span class="custom-preset-badge youtube"><i class="fa-brands fa-youtube"></i> Lo-Fi</span>
+        </button>
+      </div>
+    `;
+
+    listEl.appendChild(studio);
+
+    const inputEl = studio.querySelector('#customMusicInput');
+    const submitBtn = studio.querySelector('#btnLoadCustomMusic');
+    const statusEl = studio.querySelector('#customMusicStatus');
+    const returnBtn = studio.querySelector('#btnReturnToBuiltinRadio');
+
+    const handleLoad = () => {
+      const url = inputEl.value.trim();
+      if (!url) {
+        if (statusEl) {
+          statusEl.textContent = "Please paste a YouTube playlist or video URL first.";
+          statusEl.className = "custom-music-status error";
+        }
+        return;
+      }
+      const parsed = parseYouTubeUrl(url);
+      if (!parsed) {
+        if (statusEl) {
+          statusEl.textContent = "Invalid link. Please enter a valid YouTube video or playlist URL.";
+          statusEl.className = "custom-music-status error";
+        }
+        return;
+      }
+      if (statusEl) {
+        statusEl.textContent = "Loading YouTube stream...";
+        statusEl.className = "custom-music-status success";
+      }
+
+      if (parsed.type === 'playlist') {
+        loadYoutubeStream(parsed.listId, true, null);
+      } else {
+        loadYoutubeStream(null, false, parsed.videoId);
+      }
+
+      const screenMusicMenu = document.getElementById('screenMusicMenu');
+      if (screenMusicMenu) screenMusicMenu.classList.remove('active');
+    };
+
+    if (submitBtn) submitBtn.addEventListener('click', handleLoad);
+    if (inputEl) {
+      inputEl.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') handleLoad();
+      });
+    }
+
+    if (returnBtn) {
+      returnBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        resetCustomMusic();
+      });
+    }
+
+    studio.querySelectorAll('.custom-preset-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const url = btn.dataset.url;
+        const parsed = parseYouTubeUrl(url);
+        if (parsed) {
+          if (parsed.type === 'playlist') {
+            loadYoutubeStream(parsed.listId, true, null);
+          } else {
+            loadYoutubeStream(null, false, parsed.videoId);
+          }
+          const screenMusicMenu = document.getElementById('screenMusicMenu');
+          if (screenMusicMenu) screenMusicMenu.classList.remove('active');
+        }
+      });
+    });
+
+    return;
+  }
 
   const currentTrackUrl = (musicAudio && musicAudio.src) ? musicAudio.src : '';
 
@@ -4560,6 +6346,24 @@ function renderMusicList(filter = currentMusicTabFilter) {
 }
 
 function selectTrack(track) {
+  // If returning to built-in music from external YouTube stream, clear custom player
+  if (customMusicState && customMusicState.active) {
+    if (ytPlayer && ytPlayer.stopVideo) {
+      try { ytPlayer.stopVideo(); } catch (e) {}
+    }
+    const ytPanel = document.getElementById('screenYoutubePanel');
+    if (ytPanel) {
+      ytPanel.classList.remove('active');
+      ytPanel.style.left = '50%';
+      ytPanel.style.top = '50%';
+      ytPanel.style.transform = 'translate(-50%, -50%)';
+    }
+    const dockPill = document.getElementById('customMusicDockPill');
+    if (dockPill) dockPill.style.display = 'none';
+    customMusicState.active = false;
+    customMusicState.minimized = false;
+  }
+
   state.currentVibe = track.vibe;
   state.currentTrackIndex = track.index;
   loadTrack(track.vibe, track.index);
@@ -4613,5 +6417,10 @@ function updateNowPlayingStatus() {
   }
 }
 
+// Initialize Custom Music panels & drag handling
+initCustomMusicPanels();
+
 // Trigger initial canvas resizes once the layout is fully rendered on window load
 window.addEventListener('load', handleAllResizes);
+
+
