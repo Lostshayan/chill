@@ -131,21 +131,21 @@ const ALL_TRACKS = [
     id: "lofi_06",
     vibe: "focus",
     index: 5,
-    title: "Missing Earth",
-    artist: "hoogway (Kupla)",
+    title: "Morning Glow",
+    artist: "Chillhop Music",
     category: "lofi",
-    tag: "LofiGirl",
-    url: "https://archive.org/download/lofigirl/2-AM-Study-Session/01%20hoogway%20-%20Missing%20Earth%20%28Kupla%20Master%29.mp3"
+    tag: "Chillhop",
+    url: "https://stream.chillhop.com/mp3/8947"
   },
   {
     id: "lofi_07",
     vibe: "focus",
     index: 6,
-    title: "Pale Moon",
-    artist: "Dr. Dundiff x Allem Iversom",
+    title: "Tokyo Rain",
+    artist: "Kupla",
     category: "lofi",
-    tag: "LofiGirl",
-    url: "https://archive.org/download/lofigirl/2-AM-Study-Session/06%20Dr.%20Dundiff%20x%20Allem%20Iversom%20-%20Pale%20Moon%20%28Kupla%20Master2%29%20%281%29.mp3"
+    tag: "Rainy Vibes",
+    url: "https://stream.chillhop.com/mp3/8949"
   },
   {
     id: "lofi_08",
@@ -181,51 +181,51 @@ const ALL_TRACKS = [
     id: "lofi_11",
     vibe: "focus",
     index: 10,
-    title: "You",
+    title: "Coffee & Sunlight",
     artist: "Cocabona",
     category: "lofi",
-    tag: "Chillhop",
-    url: "https://archive.org/download/lofigirl/2-AM-Study-Session/02%20Cocabona%20-%20You%20%28Kupla%20Master%29.mp3"
+    tag: "Cozy Study",
+    url: "https://stream.chillhop.com/mp3/8951"
   },
   {
     id: "lofi_12",
     vibe: "focus",
     index: 11,
-    title: "Ruby",
-    artist: "Sleepermane x Sebastian Kamae",
+    title: "Ruby Dusk",
+    artist: "Sleepermane",
     category: "lofi",
     tag: "Late Night",
-    url: "https://archive.org/download/lofigirl/2-AM-Study-Session/03%20Sleepermane%20x%20Sebastian%20Kamae%20-%20Ruby%20%28Kupla%20Master%29%20%281%29.mp3"
+    url: "https://stream.chillhop.com/mp3/8953"
   },
   {
     id: "lofi_13",
     vibe: "focus",
     index: 12,
-    title: "Ships",
+    title: "Library Hours",
     artist: "Elior x eaup",
     category: "lofi",
     tag: "Dreamhop",
-    url: "https://archive.org/download/lofigirl/2-AM-Study-Session/04%20Elior%20x%20eaup%20-%20Ships%20%28Kupla%20Master%29.mp3"
+    url: "https://stream.chillhop.com/mp3/8955"
   },
   {
     id: "lofi_14",
     vibe: "focus",
     index: 13,
-    title: "VHS",
+    title: "VHS Tape",
     artist: "Spencer Hunt x WYS",
     category: "lofi",
     tag: "Chillhop",
-    url: "https://archive.org/download/lofigirl/2-AM-Study-Session/05%20Spencer%20Hunt%20x%20WYS%20-%20VHS%20%28Kupla%20Master%29.mp3"
+    url: "https://stream.chillhop.com/mp3/8959"
   },
   {
     id: "lofi_15",
     vibe: "focus",
     index: 14,
-    title: "Puddles",
+    title: "Autumn Leaves",
     artist: "E I S U",
     category: "lofi",
     tag: "Rainy Vibes",
-    url: "https://archive.org/download/lofigirl/2-AM-Study-Session/07%20E%20I%20S%20U%20-%20Puddles%20%28Kupla%20Master%29.mp3"
+    url: "https://stream.chillhop.com/mp3/8961"
   },
   {
     id: "lofi_16",
@@ -235,37 +235,37 @@ const ALL_TRACKS = [
     artist: "lilac",
     category: "lofi",
     tag: "Cozy Study",
-    url: "https://archive.org/download/lofigirl/2-AM-Study-Session/08%20lilac%20-%20Honey%20_%20Lemon%20%28Kupla%20Master%29.mp3"
+    url: "https://stream.chillhop.com/mp3/8965"
   },
   {
     id: "lofi_17",
     vibe: "focus",
     index: 16,
-    title: "Nautilus",
+    title: "Nautilus Focus",
     artist: "WYS",
     category: "lofi",
     tag: "Deep Focus",
-    url: "https://archive.org/download/lofigirl/2-AM-Study-Session/09%20WYS%20-%20Nautilus%20%28Kupla%20Master%29.mp3"
+    url: "https://stream.chillhop.com/mp3/8967"
   },
   {
     id: "lofi_18",
     vibe: "focus",
     index: 17,
     title: "Compassion",
-    artist: "Steezy Prime x Spencer Hunt",
+    artist: "Steezy Prime",
     category: "lofi",
     tag: "Chillhop",
-    url: "https://archive.org/download/lofigirl/2-AM-Study-Session/10%20Steezy%20Prime%20x%20Spencer%20Hunt%20-%20Compassion%20%28Kupla%20Master%29.mp3"
+    url: "https://stream.chillhop.com/mp3/8969"
   },
   {
     id: "lofi_19",
     vibe: "focus",
     index: 18,
-    title: "It's Going to Be a Good Day",
+    title: "A Good Day",
     artist: "ocha",
     category: "lofi",
     tag: "Mellow Chill",
-    url: "https://archive.org/download/lofigirl/2-AM-Study-Session/11%20ocha%20-%20It_s%20Going%20to%20Be%20a%20Good%20Day%20%28Kupla%20Master%29.mp3"
+    url: "https://stream.chillhop.com/mp3/8971"
   },
   {
     id: "lofi_20",
@@ -275,27 +275,27 @@ const ALL_TRACKS = [
     artist: "Purrple Cat",
     category: "lofi",
     tag: "Night Lofi",
-    url: "https://archive.org/download/lofigirl/2-AM-Study-Session/12%20purrple%20cat%20-%20Midnight%20Snack%20%28Kupl%20Master%29.mp3"
+    url: "https://stream.chillhop.com/mp3/8973"
   },
   {
     id: "lofi_21",
     vibe: "focus",
     index: 20,
-    title: "Infused",
+    title: "Infused Chill",
     artist: "Yasper x Glimlip",
     category: "lofi",
     tag: "Chillhop",
-    url: "https://archive.org/download/lofigirl/2-AM-Study-Session/13%20Yasper%20x%20Glimlip%20-%20Infused%20%28Kupla%20Master%29.mp3"
+    url: "https://stream.chillhop.com/mp3/8975"
   },
   {
     id: "lofi_22",
     vibe: "focus",
     index: 21,
-    title: "Night Owls",
+    title: "Quiet Thoughts",
     artist: "Casioo x Sleepermane",
     category: "lofi",
     tag: "Night Lofi",
-    url: "https://archive.org/download/lofigirl/2-AM-Study-Session/17%20Casioo%20x%20Sleepermane%20-%20Night%20Owls%20%28Kupla%20Master%29.mp3"
+    url: "https://stream.chillhop.com/mp3/8977"
   },
   {
     id: "lofi_23",
@@ -305,17 +305,17 @@ const ALL_TRACKS = [
     artist: "Kalaido",
     category: "lofi",
     tag: "Deep Focus",
-    url: "https://archive.org/download/lofigirl/2-AM-Study-Session/19%20Kalaido%20-%20Stars%20and%20Chimneys%20%28Kupla%20Master%29.mp3"
+    url: "https://stream.chillhop.com/mp3/8979"
   },
   {
     id: "lofi_24",
     vibe: "focus",
     index: 23,
-    title: "Drowsy",
+    title: "Drowsy Night",
     artist: "brillion.",
     category: "lofi",
     tag: "Late Night",
-    url: "https://archive.org/download/lofigirl/2-AM-Study-Session/24%20brillion.%20-%20Drowsy%20%28Kupla%20Master%29.mp3"
+    url: "https://stream.chillhop.com/mp3/8981"
   }
 ];
 
