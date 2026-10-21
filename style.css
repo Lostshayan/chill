@@ -611,9 +611,8 @@ body {
 
 .theme-scroll-nav-btn.disabled,
 .theme-scroll-nav-btn:disabled {
-  opacity: 0.2;
-  cursor: default;
-  pointer-events: none;
+  opacity: 0.25;
+  cursor: not-allowed;
   transform: none;
 }
 
@@ -625,7 +624,7 @@ body {
   overflow-y: hidden;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior-x: contain;
-  scroll-snap-type: x proximity;
+  scroll-behavior: smooth;
   padding: 4px 6px 8px;
   flex-grow: 1;
   cursor: grab;
@@ -635,7 +634,6 @@ body {
 
 .screen-theme-track.is-dragging {
   cursor: grabbing;
-  scroll-snap-type: none;
   scroll-behavior: auto !important;
 }
 
@@ -665,7 +663,6 @@ body {
   overflow: hidden;
   cursor: pointer;
   transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
-  scroll-snap-align: center;
   display: flex;
   flex-direction: column;
   text-align: left;
