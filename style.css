@@ -55,7 +55,7 @@ body {
   transition: transform 0.1s ease-out;
 }
 
-/* Inside-Screen Digital Clock Widget (Top Right Corner) */
+/* Inside-Screen Digital Clock Widget (Top Right Corner - Glassmorphism) */
 .screen-clock-widget {
   position: absolute;
   top: 14px;
@@ -64,14 +64,39 @@ body {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 6px 14px;
-  border-radius: 20px;
-  background: rgba(14, 12, 22, 0.65);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  padding: 7px 16px;
+  border-radius: 24px;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.16) 0%,
+    rgba(255, 255, 255, 0.04) 60%,
+    rgba(0, 0, 0, 0.15) 100%
+  ), rgba(18, 14, 22, 0.42);
+  backdrop-filter: blur(18px) saturate(190%);
+  -webkit-backdrop-filter: blur(18px) saturate(190%);
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  box-shadow: 
+    0 8px 24px rgba(0, 0, 0, 0.4),
+    inset 0 1px 1px 0 rgba(255, 255, 255, 0.4),
+    inset 0 -1px 1px 0 rgba(0, 0, 0, 0.25);
   user-select: none;
+  cursor: default;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.screen-clock-widget:hover {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.22) 0%,
+    rgba(255, 255, 255, 0.07) 60%,
+    rgba(0, 0, 0, 0.1) 100%
+  ), rgba(24, 18, 30, 0.52);
+  border-color: rgba(212, 163, 115, 0.5);
+  box-shadow: 
+    0 12px 28px rgba(0, 0, 0, 0.48),
+    0 0 16px rgba(212, 163, 115, 0.22),
+    inset 0 1px 1.5px 0 rgba(255, 255, 255, 0.55);
+  transform: translateY(-1px);
 }
 
 .clock-icon {
@@ -93,7 +118,7 @@ body {
 /* Inside-Screen Focus & Rest Pomodoro Timer Widget (Top Center) */
 .screen-timer-widget {
   position: absolute;
-  top: 18px;
+  top: 75px;
   left: 50%;
   transform: translateX(-50%);
   z-index: 25;
@@ -113,50 +138,72 @@ body {
 .timer-pill {
   display: flex;
   align-items: center;
-  gap: 16px;
-  padding: 10px 20px 10px 22px;
-  border-radius: 32px;
-  background: rgba(18, 14, 12, 0.9);
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
-  border: 1.5px solid rgba(212, 163, 115, 0.2);
-  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.14);
-  transition: all 0.2s ease;
+  gap: 20px;
+  padding: 13px 26px 13px 28px;
+  border-radius: 40px;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.18) 0%,
+    rgba(255, 255, 255, 0.05) 55%,
+    rgba(0, 0, 0, 0.18) 100%
+  ), rgba(16, 12, 20, 0.46);
+  backdrop-filter: blur(22px) saturate(200%);
+  -webkit-backdrop-filter: blur(22px) saturate(200%);
+  border: 1.5px solid rgba(255, 255, 255, 0.26);
+  box-shadow: 
+    0 16px 40px rgba(0, 0, 0, 0.52),
+    inset 0 1.5px 1.5px 0 rgba(255, 255, 255, 0.45),
+    inset 0 -1.5px 1.5px 0 rgba(0, 0, 0, 0.3);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .timer-pill:hover {
-  border-color: rgba(212, 163, 115, 0.55);
-  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.8), 0 0 24px rgba(212, 163, 115, 0.25);
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.24) 0%,
+    rgba(255, 255, 255, 0.08) 55%,
+    rgba(0, 0, 0, 0.12) 100%
+  ), rgba(22, 16, 28, 0.56);
+  border-color: rgba(212, 163, 115, 0.6);
+  box-shadow: 
+    0 20px 48px rgba(0, 0, 0, 0.62),
+    0 0 28px rgba(212, 163, 115, 0.25),
+    inset 0 1.5px 1.5px 0 rgba(255, 255, 255, 0.6);
+  transform: translateY(-1px);
 }
 
 /* Phase Badge */
 .timer-phase-badge {
   display: flex;
   align-items: center;
-  gap: 7px;
-  font-size: 0.78rem;
+  gap: 8px;
+  font-size: 0.88rem;
   font-weight: 700;
   letter-spacing: 0.08em;
-  padding: 5px 12px;
-  border-radius: 16px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   transition: all 0.3s ease;
 }
 
 .timer-phase-badge.focus {
-  background: rgba(212, 163, 115, 0.18);
-  color: #D4A373;
-  border: 1px solid rgba(212, 163, 115, 0.4);
+  background: linear-gradient(135deg, rgba(212, 163, 115, 0.3), rgba(212, 163, 115, 0.12));
+  color: #F8D7B0;
+  border: 1px solid rgba(212, 163, 115, 0.45);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25), 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 .timer-phase-badge.rest {
-  background: rgba(163, 177, 138, 0.18);
-  color: #A3B18A;
-  border: 1px solid rgba(163, 177, 138, 0.4);
+  background: linear-gradient(135deg, rgba(163, 177, 138, 0.3), rgba(163, 177, 138, 0.12));
+  color: #C2D5A8;
+  border: 1px solid rgba(163, 177, 138, 0.45);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25), 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 .timer-phase-dot {
-  width: 8px;
-  height: 8px;
+  width: 9px;
+  height: 9px;
   border-radius: 50%;
   background: currentColor;
   box-shadow: 0 0 8px currentColor;
@@ -164,7 +211,7 @@ body {
 
 .timer-time-display {
   font-family: 'Outfit', sans-serif;
-  font-size: 2.15rem;
+  font-size: 2.75rem;
   font-weight: 700;
   color: #ffffff;
   letter-spacing: 0.06em;
@@ -172,7 +219,7 @@ body {
   line-height: 1;
   font-feature-settings: "tnum";
   transition: color 0.2s ease, transform 0.2s ease;
-  text-shadow: 0 0 14px rgba(255, 255, 255, 0.3);
+  text-shadow: 0 0 16px rgba(255, 255, 255, 0.35);
 }
 
 .timer-time-display:hover {
@@ -183,58 +230,72 @@ body {
 .timer-controls {
   display: flex;
   align-items: center;
-  gap: 9px;
+  gap: 11px;
 }
 
 .timer-action-btn {
-  width: 32px;
-  height: 32px;
+  width: 38px;
+  height: 38px;
   border-radius: 50%;
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  background: rgba(255, 255, 255, 0.09);
-  color: #d1cde0;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  color: #f1edfc;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 14px;
-  transition: all 0.15s ease;
+  font-size: 16px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25), 0 2px 6px rgba(0, 0, 0, 0.2);
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .timer-action-btn:hover {
-  background: rgba(212, 163, 115, 0.35);
-  border-color: #D4A373;
+  background: rgba(212, 163, 115, 0.38);
+  border-color: rgba(212, 163, 115, 0.7);
   color: #ffffff;
-  transform: scale(1.1);
+  box-shadow: 0 0 14px rgba(212, 163, 115, 0.38), inset 0 1px 0 rgba(255, 255, 255, 0.45);
+  transform: scale(1.08);
 }
 
 .timer-action-btn.close {
-  width: 26px;
-  height: 26px;
-  font-size: 12px;
+  width: 30px;
+  height: 30px;
+  font-size: 13px;
   margin-left: 3px;
-  background: rgba(255, 255, 255, 0.05);
-  border: none;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.14);
 }
 
 .timer-action-btn.close:hover {
   background: rgba(239, 68, 68, 0.85);
+  border-color: rgba(239, 68, 68, 0.9);
   color: #fff;
+  box-shadow: 0 0 12px rgba(239, 68, 68, 0.5);
 }
 
-/* Settings Dropdown / Popover */
+/* Settings Dropdown / Popover - Glassmorphism */
 .timer-settings-modal {
   position: absolute;
   top: calc(100% + 10px);
   left: 50%;
   transform: translateX(-50%) translateY(-6px);
   width: 290px;
-  background: rgba(16, 14, 24, 0.94);
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
-  border: 1.5px solid rgba(255, 255, 255, 0.15);
-  border-radius: 16px;
-  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.75), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.14) 0%,
+    rgba(255, 255, 255, 0.03) 60%,
+    rgba(0, 0, 0, 0.2) 100%
+  ), rgba(16, 13, 22, 0.76);
+  backdrop-filter: blur(24px) saturate(190%);
+  -webkit-backdrop-filter: blur(24px) saturate(190%);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 20px;
+  box-shadow: 
+    0 20px 48px rgba(0, 0, 0, 0.65),
+    inset 0 1.5px 1.5px 0 rgba(255, 255, 255, 0.35),
+    inset 0 -1px 1px 0 rgba(0, 0, 0, 0.25);
   padding: 14px 16px;
   box-sizing: border-box;
   opacity: 0;
@@ -2505,37 +2566,46 @@ body {
   transform: translateX(-50%) translateY(1px);
 }
 
-/* --- RETRO TELEVISION SET HOUSED VIEWPORT --- */
+/* --- GLASSMORPHIC TELEVISION SET HOUSED VIEWPORT --- */
 #tv-set {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #2e2620 0%, #15100d 100%); /* Walnut wood grain finish vibe */
-  border: 12px solid #3c322b;
-  border-radius: 20px;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.14) 0%,
+    rgba(255, 255, 255, 0.03) 45%,
+    rgba(0, 0, 0, 0.25) 100%
+  ), rgba(18, 14, 22, 0.52);
+  backdrop-filter: blur(28px) saturate(200%);
+  -webkit-backdrop-filter: blur(28px) saturate(200%);
+  border: 2px solid rgba(255, 255, 255, 0.22);
+  border-bottom: 4px solid rgba(255, 255, 255, 0.16);
+  border-radius: 26px;
   box-shadow: 
-    inset 0 0 20px rgba(0, 0, 0, 0.9),
-    0 25px 60px rgba(0, 0, 0, 0.95),
-    0 0 100px rgba(0, 0, 0, 0.4);
-  padding: 18px 18px 0 18px;
+    0 30px 80px rgba(0, 0, 0, 0.8),
+    inset 0 2px 2px 0 rgba(255, 255, 255, 0.45),
+    inset 0 -2px 3px 0 rgba(0, 0, 0, 0.35),
+    0 0 50px rgba(212, 163, 115, 0.12);
+  padding: 16px 16px 0 16px;
   box-sizing: border-box;
   width: 94vw;
   max-width: 1100px;
   margin: auto;
   position: relative;
-  border-bottom: 24px solid #1a1512; /* Sturdier wood base */
 }
 
-/* Screen bezel overlay frame */
+/* Screen bezel overlay frame - Glassmorphism */
 .tv-screen-bezel {
   width: 100%;
-  background: #121214;
-  border: 16px solid #232328; /* Thick retro dark plastic bezel */
-  border-radius: 12px;
+  background: rgba(10, 8, 14, 0.65);
+  border: 3px solid rgba(255, 255, 255, 0.15);
+  border-radius: 18px;
   box-shadow: 
-    inset 0 6px 12px rgba(0, 0, 0, 0.8),
-    inset 0 -6px 12px rgba(255, 255, 255, 0.05);
+    inset 0 2px 10px rgba(0, 0, 0, 0.85),
+    inset 0 1px 1px rgba(255, 255, 255, 0.25),
+    0 4px 20px rgba(0, 0, 0, 0.4);
   box-sizing: border-box;
   overflow: hidden;
   position: relative;
@@ -2583,37 +2653,43 @@ body {
   transform: translateX(-50%);
 }
 
-/* TV Bezel Control Panel (Bottom) */
+/* TV Bezel Control Panel (Bottom) - Glassmorphism */
 .tv-control-panel {
   width: 100%;
   height: 90px;
-  background: linear-gradient(180deg, #1c1c20 0%, #101012 100%);
-  border-top: 6px solid #2d2d35;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.08) 0%,
+    rgba(255, 255, 255, 0.02) 100%
+  ), rgba(15, 12, 18, 0.54);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border-top: 1px solid rgba(255, 255, 255, 0.16);
   box-sizing: border-box;
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 0 24px;
-  border-radius: 0 0 8px 8px;
-  color: #c9c5bc;
+  border-radius: 0 0 22px 22px;
+  color: #dedad2;
 }
 
-/* Retro Speaker Grille */
+/* Retro Speaker Grille - Frosted Glass Slats */
 .tv-speaker {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   height: 55px;
   width: 120px;
-  opacity: 0.65;
+  opacity: 0.85;
 }
 
 .grille-line {
   height: 3px;
   width: 100%;
-  background: #000;
+  background: rgba(255, 255, 255, 0.09);
   border-radius: 2px;
-  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.08);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px 2px rgba(0, 0, 0, 0.4);
 }
 
 /* Bezel Controls Middle Group */
@@ -2624,10 +2700,17 @@ body {
 }
 
 /* LED Digital Track Screen on bezel (Clickable to open song menu) */
+/* LED Digital Track Screen on bezel (Clickable to open song menu) - Glassmorphism */
 .tv-screen-display {
-  background: #09090b;
-  border: 2px solid #232328;
-  border-radius: 6px;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.1) 0%,
+    rgba(0, 0, 0, 0.3) 100%
+  ), rgba(10, 8, 14, 0.65);
+  backdrop-filter: blur(14px) saturate(180%);
+  -webkit-backdrop-filter: blur(14px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
   width: 195px;
   height: 52px;
   padding: 4px 10px;
@@ -2636,18 +2719,27 @@ body {
   flex-direction: column;
   justify-content: center;
   font-family: monospace;
-  box-shadow: inset 0 0 10px rgba(255, 0, 0, 0.2);
+  box-shadow: 
+    inset 0 1px 1px rgba(255, 255, 255, 0.25),
+    inset 0 0 12px rgba(255, 60, 60, 0.18),
+    0 4px 16px rgba(0, 0, 0, 0.35);
   cursor: pointer;
   position: relative;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   user-select: none;
 }
 
 .tv-screen-display:hover {
-  border-color: #ff4d4d;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.15) 0%,
+    rgba(0, 0, 0, 0.2) 100%
+  ), rgba(16, 12, 20, 0.75);
+  border-color: rgba(255, 80, 80, 0.6);
   box-shadow: 
-    inset 0 0 12px rgba(255, 51, 51, 0.35),
-    0 0 12px rgba(255, 51, 51, 0.3);
+    inset 0 1px 1px rgba(255, 255, 255, 0.35),
+    inset 0 0 16px rgba(255, 51, 51, 0.3),
+    0 0 16px rgba(255, 80, 80, 0.25);
   transform: translateY(-1px);
 }
 
@@ -2722,56 +2814,73 @@ body {
   line-height: 1.1;
 }
 
-/* Bezel push buttons */
+/* Bezel push buttons - Glassmorphism */
 .tv-push-buttons {
   display: flex;
   gap: 8px;
 }
 
 .tv-push-btn {
-  width: 32px;
-  height: 32px;
+  width: 34px;
+  height: 34px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #7a7a7a 0%, #3a3a3a 100%);
-  border: 1px solid #1c1c1c;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.16) 0%,
+    rgba(255, 255, 255, 0.04) 100%
+  ), rgba(28, 22, 34, 0.55);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.22);
   box-shadow: 
-    0 3px 0 #181818,
-    inset 0 1px 0 rgba(255,255,255,0.2),
-    0 4px 6px rgba(0,0,0,0.5);
-  color: #d1d1d1;
+    0 4px 10px rgba(0, 0, 0, 0.4),
+    inset 0 1px 1px rgba(255, 255, 255, 0.35);
+  color: #dedad2;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.75rem;
-  transition: all 0.15s ease;
+  font-size: 0.78rem;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.tv-push-btn:hover {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.24) 0%,
+    rgba(255, 255, 255, 0.08) 100%
+  ), rgba(38, 30, 48, 0.65);
+  border-color: rgba(212, 163, 115, 0.55);
+  color: #ffffff;
+  box-shadow: 0 0 12px rgba(212, 163, 115, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.5);
+  transform: translateY(-1px);
 }
 
 .tv-push-btn:active {
-  transform: translateY(2px);
+  transform: translateY(1px);
   box-shadow: 
-    0 1px 0 #181818,
-    inset 0 1px 2px rgba(0,0,0,0.5);
+    0 2px 4px rgba(0, 0, 0, 0.4),
+    inset 0 1.5px 3px rgba(0, 0, 0, 0.6);
 }
 
 .tv-push-btn.mute-btn.muted {
   color: #ff5252;
-  border-color: rgba(255, 82, 82, 0.5);
+  border-color: rgba(255, 82, 82, 0.6);
   box-shadow: 
-    0 3px 0 #181818,
-    inset 0 1px 0 rgba(255,255,255,0.2),
-    0 0 10px rgba(255, 82, 82, 0.35);
+    0 4px 10px rgba(0, 0, 0, 0.4),
+    inset 0 1px 1px rgba(255, 255, 255, 0.35),
+    0 0 12px rgba(255, 82, 82, 0.45);
 }
 
 .tv-push-btn.mute-btn:not(.muted) {
   color: #00ffaa;
   box-shadow: 
-    0 3px 0 #181818,
-    inset 0 1px 0 rgba(255,255,255,0.2),
-    0 0 8px rgba(0, 255, 170, 0.25);
+    0 4px 10px rgba(0, 0, 0, 0.4),
+    inset 0 1px 1px rgba(255, 255, 255, 0.35),
+    0 0 10px rgba(0, 255, 170, 0.3);
 }
 
-/* Volume and Channel Knobs */
+/* Volume and Channel Knobs - Glassmorphism */
 .tv-knob-container {
   display: flex;
   flex-direction: column;
@@ -2783,28 +2892,36 @@ body {
   font-size: 0.6rem;
   font-weight: 700;
   letter-spacing: 0.1em;
-  color: #8a8880;
-  text-shadow: 0 -1px 0 #000;
+  color: #c9c5bc;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
 }
 
 .tv-knob {
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  background: radial-gradient(circle, #555 40%, #282828 100%);
-  border: 3px solid #1c1c20;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.18) 0%, rgba(40, 32, 50, 0.7) 65%, rgba(18, 14, 24, 0.88) 100%);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 2px solid rgba(255, 255, 255, 0.24);
   box-shadow: 
-    0 4px 8px rgba(0,0,0,0.6),
-    inset 0 1px 0 rgba(255,255,255,0.15);
+    0 6px 16px rgba(0, 0, 0, 0.5),
+    inset 0 1.5px 1.5px rgba(255, 255, 255, 0.45);
   position: relative;
   cursor: pointer;
-  transition: transform 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+  transition: transform 0.2s cubic-bezier(0.25, 0.8, 0.25, 1), border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.tv-knob:hover {
+  border-color: rgba(212, 163, 115, 0.6);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.55), 0 0 14px rgba(212, 163, 115, 0.25), inset 0 1.5px 1.5px rgba(255, 255, 255, 0.6);
 }
 
 .knob-marker {
   width: 3px;
   height: 12px;
-  background: #e2dfd5;
+  background: #f4f1ea;
+  box-shadow: 0 0 4px rgba(255, 255, 255, 0.6);
   position: absolute;
   top: 3px;
   left: 50%;
@@ -2812,7 +2929,7 @@ body {
   border-radius: 1px;
 }
 
-/* TV Bezel Channel Button */
+/* TV Bezel Channel Button - Glassmorphism */
 .tv-channel-btn-container {
   display: flex;
   flex-direction: column;
@@ -2823,38 +2940,49 @@ body {
 .tv-channel-btn {
   width: 44px;
   height: 44px;
-  border-radius: 8px;
-  background: radial-gradient(circle, #45454d 30%, #1e1e22 100%);
-  border: 2px solid #161618;
+  border-radius: 12px;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.16) 0%,
+    rgba(255, 255, 255, 0.04) 100%
+  ), rgba(28, 22, 34, 0.55);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.24);
   box-shadow: 
-    0 4px 0 #0d0d0f,
-    0 5px 8px rgba(0, 0, 0, 0.6),
-    inset 0 1px 0 rgba(255, 255, 255, 0.2);
-  color: #d1cfc7;
+    0 4px 12px rgba(0, 0, 0, 0.4),
+    inset 0 1px 1px rgba(255, 255, 255, 0.35);
+  color: #dedad2;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 1.05rem;
-  transition: all 0.12s ease;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
   user-select: none;
 }
 
 .tv-channel-btn:hover {
-  background: radial-gradient(circle, #52525c 30%, #26262c 100%);
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.24) 0%,
+    rgba(255, 255, 255, 0.08) 100%
+  ), rgba(38, 30, 48, 0.65);
+  border-color: rgba(212, 163, 115, 0.6);
   color: #ffffff;
-  border-color: #383842;
+  box-shadow: 0 0 14px rgba(212, 163, 115, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.5);
+  transform: translateY(-1px);
 }
 
 .tv-channel-btn:active,
 .tv-channel-btn.active {
-  transform: translateY(3px);
+  transform: translateY(1px);
   box-shadow: 
-    0 1px 0 #0d0d0f,
-    inset 0 2px 4px rgba(0, 0, 0, 0.7);
+    0 2px 4px rgba(0, 0, 0, 0.4),
+    inset 0 1.5px 3px rgba(0, 0, 0, 0.7);
   color: #D4A373;
   border-color: #D4A373;
-  background: radial-gradient(circle, #382c20 30%, #1f1610 100%);
+  background: linear-gradient(135deg, rgba(212, 163, 115, 0.25), rgba(212, 163, 115, 0.08)), rgba(22, 16, 26, 0.7);
 }
 
 /* Bezel Switch and indicators group (Right) */
@@ -2864,7 +2992,7 @@ body {
   gap: 28px;
 }
 
-/* Toggle Switch */
+/* Toggle Switch - Glassmorphism */
 .tv-switch-container {
   display: flex;
   flex-direction: column;
@@ -2876,35 +3004,44 @@ body {
   font-size: 0.55rem;
   font-weight: 700;
   letter-spacing: 0.1em;
-  color: #8a8880;
+  color: #c9c5bc;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
 }
 
 .tv-toggle-switch {
-  width: 16px;
-  height: 36px;
-  background: #09090b;
-  border-radius: 4px;
-  border: 2px solid #232328;
+  width: 18px;
+  height: 38px;
+  background: rgba(12, 10, 16, 0.6);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.6), inset 0 0 1px rgba(255, 255, 255, 0.2);
   position: relative;
   cursor: pointer;
+  transition: border-color 0.2s ease;
+}
+
+.tv-toggle-switch:hover {
+  border-color: rgba(212, 163, 115, 0.5);
 }
 
 .switch-handle {
-  width: 10px;
-  height: 14px;
-  background: linear-gradient(90deg, #b5b5b5, #757575);
-  border: 1px solid #1f1f1f;
-  border-radius: 2px;
+  width: 12px;
+  height: 15px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.45) 0%, rgba(180, 175, 190, 0.85) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 4px;
   position: absolute;
-  left: 1px;
-  top: 18px; /* Default (Down) */
-  box-shadow: 0 2px 4px rgba(0,0,0,0.4);
+  left: 2px;
+  top: 19px; /* Default (Down) */
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.5);
   transition: top 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 /* Switch active state (up position) */
 .tv-toggle-switch.switch-up .switch-handle {
-  top: 1px;
+  top: 2px;
 }
 
 /* Power Indicator LED */
@@ -3735,14 +3872,11 @@ canvas {
     width: 96vw;
     max-width: 960px;
     padding: 14px 14px 0 14px;
-    border-width: 10px;
-    border-bottom-width: 18px;
-    border-radius: 16px;
+    border-radius: 22px;
   }
 
   .tv-screen-bezel {
-    border-width: 12px;
-    border-radius: 10px;
+    border-radius: 14px;
   }
 
   .tv-speaker {
@@ -3782,14 +3916,14 @@ canvas {
     max-width: 100%;
     margin: 0 auto;
     padding: 8px 8px 0 8px;
-    border: 7px solid #3c322b;
-    border-bottom: 14px solid #1a1512;
-    border-radius: 12px;
+    border: 1.5px solid rgba(255, 255, 255, 0.2);
+    border-bottom: 3px solid rgba(255, 255, 255, 0.15);
+    border-radius: 18px;
   }
 
   .tv-screen-bezel {
-    border: 8px solid #232328;
-    border-radius: 8px;
+    border: 2px solid rgba(255, 255, 255, 0.14);
+    border-radius: 12px;
   }
 
   /* Hide decorative speaker grill to make room for interactive controls */
@@ -3826,34 +3960,34 @@ canvas {
 
   /* Timer Pill on Tablet/Mobile Landscape */
   .screen-timer-widget {
-    top: 10px;
+    top: 55px;
   }
 
   .timer-pill {
-    padding: 8px 14px 8px 16px;
-    gap: 12px;
-    border-radius: 26px;
+    padding: 10px 18px 10px 20px;
+    gap: 15px;
+    border-radius: 32px;
   }
 
   .timer-time-display {
-    font-size: 1.65rem;
+    font-size: 2.15rem;
   }
 
   .timer-action-btn {
-    width: 28px;
-    height: 28px;
-    font-size: 12px;
+    width: 32px;
+    height: 32px;
+    font-size: 14px;
   }
 
   .timer-action-btn.close {
-    width: 22px;
-    height: 22px;
-    font-size: 10px;
+    width: 26px;
+    height: 26px;
+    font-size: 11px;
   }
 
   .timer-phase-badge {
-    font-size: 0.68rem;
-    padding: 4px 8px;
+    font-size: 0.78rem;
+    padding: 5px 10px;
   }
 
   /* Clock Widget */
@@ -3922,16 +4056,16 @@ canvas {
     width: 100vw;
     border-left: none;
     border-right: none;
-    border-top: 5px solid #3c322b;
-    border-bottom: 8px solid #1a1512;
+    border-top: 1.5px solid rgba(255, 255, 255, 0.2);
+    border-bottom: 2px solid rgba(255, 255, 255, 0.15);
     border-radius: 0;
     padding: 4px 4px 0 4px;
-    box-shadow: none;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
   }
 
   .tv-screen-bezel {
-    border: 5px solid #232328;
-    border-radius: 5px;
+    border: 1.5px solid rgba(255, 255, 255, 0.14);
+    border-radius: 8px;
   }
 
   /* Stack TV Bezel controls into 2 clear ergonomic retro rows */
@@ -4064,36 +4198,36 @@ canvas {
 
   /* Timer Pill on Compact Mobile Screen */
   .screen-timer-widget {
-    top: 6px;
+    top: 42px;
   }
 
   .timer-pill {
-    padding: 5px 10px 5px 12px;
-    gap: 8px;
-    border-radius: 20px;
+    padding: 7px 14px 7px 16px;
+    gap: 10px;
+    border-radius: 24px;
   }
 
   .timer-time-display {
-    font-size: 1.35rem;
+    font-size: 1.6rem;
   }
 
   .timer-action-btn {
-    width: 24px;
-    height: 24px;
-    font-size: 10px;
+    width: 28px;
+    height: 28px;
+    font-size: 12px;
   }
 
   .timer-action-btn.close {
-    width: 20px;
-    height: 20px;
-    font-size: 9px;
-    margin-left: 1px;
+    width: 24px;
+    height: 24px;
+    font-size: 11px;
+    margin-left: 2px;
   }
 
   .timer-phase-badge {
-    font-size: 0.60rem;
-    padding: 2px 6px;
-    border-radius: 10px;
+    font-size: 0.70rem;
+    padding: 3px 8px;
+    border-radius: 12px;
   }
 
   .timer-settings-modal {
@@ -4290,21 +4424,38 @@ canvas {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 6px 14px;
-  border-radius: 20px;
-  background: rgba(14, 12, 22, 0.65);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  padding: 7px 16px;
+  border-radius: 24px;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.16) 0%,
+    rgba(255, 255, 255, 0.04) 60%,
+    rgba(0, 0, 0, 0.15) 100%
+  ), rgba(18, 14, 22, 0.42);
+  backdrop-filter: blur(18px) saturate(190%);
+  -webkit-backdrop-filter: blur(18px) saturate(190%);
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  box-shadow: 
+    0 8px 24px rgba(0, 0, 0, 0.4),
+    inset 0 1px 1px 0 rgba(255, 255, 255, 0.4),
+    inset 0 -1px 1px 0 rgba(0, 0, 0, 0.25);
   user-select: none;
   cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .screen-room-widget:hover {
-  background: rgba(26, 18, 14, 0.85);
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.22) 0%,
+    rgba(255, 255, 255, 0.07) 60%,
+    rgba(0, 0, 0, 0.1) 100%
+  ), rgba(24, 18, 30, 0.52);
   border-color: rgba(212, 163, 115, 0.5);
+  box-shadow: 
+    0 12px 28px rgba(0, 0, 0, 0.48),
+    0 0 16px rgba(212, 163, 115, 0.22),
+    inset 0 1px 1.5px 0 rgba(255, 255, 255, 0.55);
   transform: translateY(-1px);
 }
 
@@ -4339,14 +4490,18 @@ canvas {
 .room-users-count {
   font-family: 'Outfit', sans-serif;
   font-size: 0.78rem;
-  font-weight: 500;
+  font-weight: 600;
   color: #D4A373;
-  background: rgba(212, 163, 115, 0.14);
-  padding: 2px 7px;
-  border-radius: 10px;
+  background: linear-gradient(135deg, rgba(212, 163, 115, 0.22), rgba(212, 163, 115, 0.08));
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(212, 163, 115, 0.32);
+  padding: 3px 8px;
+  border-radius: 12px;
   display: flex;
   align-items: center;
   gap: 4px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 
 /* Panel */
@@ -5408,6 +5563,7 @@ canvas {
   display: flex;
   align-items: center;
   gap: 8px;
+  padding: 6px;
   z-index: 10;
   pointer-events: auto;
 }
@@ -5513,26 +5669,33 @@ canvas {
   }
 }
 
-/* Tooltip on hover */
+/* Tooltip on hover - Glassmorphism */
 .hotspot-tooltip {
   position: absolute;
   bottom: calc(100% + 9px);
   left: 50%;
   transform: translateX(-50%) translateY(4px);
-  background: rgba(28, 25, 23, 0.88);
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.16) 0%,
+    rgba(255, 255, 255, 0.04) 60%,
+    rgba(0, 0, 0, 0.2) 100%
+  ), rgba(18, 14, 22, 0.58);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
   color: #FAF7F2;
   font-size: 11px;
   font-family: 'Outfit', sans-serif;
   font-weight: 500;
   letter-spacing: 0.02em;
-  padding: 4px 10px;
-  border-radius: 6px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 5px 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.22);
   white-space: nowrap;
   pointer-events: none;
   opacity: 0;
   transition: opacity 0.2s cubic-bezier(0.2, 0.8, 0.2, 1), transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45), inset 0 1px 1px rgba(255, 255, 255, 0.35);
   z-index: 25;
 }
 
@@ -5544,7 +5707,7 @@ canvas {
   transform: translateX(-50%);
   border-width: 4px;
   border-style: solid;
-  border-color: rgba(28, 25, 23, 0.88) transparent transparent transparent;
+  border-color: rgba(22, 17, 28, 0.8) transparent transparent transparent;
 }
 
 .scene-hotspot:hover .hotspot-tooltip {
@@ -5552,18 +5715,26 @@ canvas {
   transform: translateX(-50%) translateY(0);
 }
 
-/* Volume bar alongside the circle (Only visible when sound is ON) */
+/* Volume bar alongside the circle (Only visible when sound is ON - Glassmorphism) */
 .hotspot-vol-bar {
   display: flex;
   align-items: center;
-  gap: 7px;
-  background: rgba(24, 22, 20, 0.88);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.22);
-  border-radius: 20px;
-  padding: 4px 10px 4px 8px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  gap: 8px;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.18) 0%,
+    rgba(255, 255, 255, 0.04) 60%,
+    rgba(0, 0, 0, 0.15) 100%
+  ), rgba(18, 15, 22, 0.44);
+  backdrop-filter: blur(18px) saturate(190%);
+  -webkit-backdrop-filter: blur(18px) saturate(190%);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 22px;
+  padding: 5px 12px 5px 10px;
+  box-shadow: 
+    0 8px 24px rgba(0, 0, 0, 0.45),
+    inset 0 1px 1px 0 rgba(255, 255, 255, 0.4),
+    inset 0 -1px 1px 0 rgba(0, 0, 0, 0.25);
   color: #FAF7F2;
   font-size: 10px;
   opacity: 0;
@@ -5571,13 +5742,30 @@ canvas {
   transform: translateX(-8px) scale(0.92);
   transition: opacity 0.25s cubic-bezier(0.2, 0.8, 0.2, 1), 
               transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1),
-              visibility 0.25s ease;
+              visibility 0.25s ease,
+              background 0.2s ease,
+              border-color 0.2s ease,
+              box-shadow 0.2s ease;
   pointer-events: none;
   user-select: none;
 }
 
-.scene-hotspot-wrap.active .hotspot-vol-bar,
-.scene-hotspot-wrap:has(.scene-hotspot.active) .hotspot-vol-bar {
+.hotspot-vol-bar:hover {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.22) 0%,
+    rgba(255, 255, 255, 0.07) 60%,
+    rgba(0, 0, 0, 0.1) 100%
+  ), rgba(24, 18, 30, 0.54);
+  border-color: rgba(212, 163, 115, 0.5);
+  box-shadow: 
+    0 10px 28px rgba(0, 0, 0, 0.5),
+    0 0 16px rgba(212, 163, 115, 0.22),
+    inset 0 1px 1.5px 0 rgba(255, 255, 255, 0.55);
+}
+
+.scene-hotspot-wrap.active:hover .hotspot-vol-bar,
+.scene-hotspot-wrap:has(.scene-hotspot.active):hover .hotspot-vol-bar {
   opacity: 1;
   visibility: visible;
   transform: translateX(0) scale(1);

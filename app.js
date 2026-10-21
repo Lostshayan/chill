@@ -195,7 +195,7 @@ let state = {
     forestRain: 0.7,
     forestCabinRain: 0.7,
     durgaDhak: 0.7,
-    kaliFireworks: 0.7,
+    kaliFireworks: 0.85,
     kaliShyama: 0.7
   },
   todos: []
@@ -209,7 +209,7 @@ const hotspotAudios = {
   forestRain: new Audio('assets/audio/soundscapes/rain.m4a'),
   forestCabinRain: new Audio('assets/audio/soundscapes/rain.m4a'),
   durgaDhak: new Audio('assets/audio/music/durga_puja_dhak_beats.mp3'),
-  kaliFireworks: new Audio('assets/audio/soundscapes/fireworks.m4a'),
+  kaliFireworks: new Audio('assets/audio/soundscapes/fireworks.m4a?v=pure_v2'),
   kaliShyama: new Audio('assets/audio/music/kali_puja_shyama_sangeet.m4a')
 };
 
