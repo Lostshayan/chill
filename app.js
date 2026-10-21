@@ -2405,7 +2405,7 @@ function handleTodoBroadcast(payload) {
   }
 }
 
-async function initSupabaseRoom() {
+async function initSupabaseRoom(forcedRoomId = null) {
   const client = getSupabase();
   if (!client) {
     console.warn("Supabase client unavailable, using simulation room");
@@ -2414,11 +2414,15 @@ async function initSupabaseRoom() {
   }
 
   // 1. Resolve room ID
-  const roomFromUrl = getRoomIdFromUrl();
-  if (roomFromUrl) {
-    state.roomId = roomFromUrl;
-  } else if (!state.roomId) {
-    state.roomId = "cozy-study";
+  if (forcedRoomId) {
+    state.roomId = forcedRoomId;
+  } else {
+    const roomFromUrl = getRoomIdFromUrl();
+    if (roomFromUrl) {
+      state.roomId = roomFromUrl;
+    } else if (!state.roomId) {
+      state.roomId = "cozy-study";
+    }
   }
 
   // Reflect room query param in browser address bar without reload
@@ -2643,9 +2647,23 @@ async function initSupabaseRoom() {
 async function switchStudyRoom(newRoomId) {
   if (!newRoomId || !newRoomId.trim()) return;
   const cleanId = newRoomId.trim().toLowerCase().replace(/[^a-z0-9_-]/g, '-').slice(0, 32);
-  if (cleanId === state.roomId) return;
+  if (!cleanId) return;
+  if (cleanId === state.roomId) {
+    showRoomToast(`ℹ️ Already in room: <strong>${cleanId}</strong>`);
+    return;
+  }
   state.roomId = cleanId;
-  await initSupabaseRoom();
+
+  // Immediately update query param in URL
+  try {
+    const currentParams = new URLSearchParams(window.location.search);
+    currentParams.set('room', cleanId);
+    const newUrl = `${window.location.pathname}?${currentParams.toString()}${window.location.hash}`;
+    window.history.replaceState({}, '', newUrl);
+  } catch (e) {}
+
+  await initSupabaseRoom(cleanId);
+  updateRoomUI();
   showRoomToast(`🚪 Switched to room: <strong>${cleanId}</strong>`);
 }
 
@@ -5637,37 +5655,36 @@ function setupTvBezelControls() {
       });
     }
 
-    // Scroll navigation arrows (scroll by 1 card step = 160px width + 12px gap)
-    const cardStep = 172;
+    // Scroll navigation arrows (scroll smoothly by ~65% of track width)
     if (themeScrollPrevBtn && screenThemeTrack) {
       themeScrollPrevBtn.addEventListener('click', (e) => {
         e.stopPropagation();
-        screenThemeTrack.scrollBy({ left: -cardStep, behavior: 'smooth' });
+        const step = Math.max(240, Math.round(screenThemeTrack.clientWidth * 0.65));
+        screenThemeTrack.scrollBy({ left: -step, behavior: 'smooth' });
         setTimeout(updateThemeNavButtons, 250);
       });
     }
     if (themeScrollNextBtn && screenThemeTrack) {
       themeScrollNextBtn.addEventListener('click', (e) => {
         e.stopPropagation();
-        screenThemeTrack.scrollBy({ left: cardStep, behavior: 'smooth' });
+        const step = Math.max(240, Math.round(screenThemeTrack.clientWidth * 0.65));
+        screenThemeTrack.scrollBy({ left: step, behavior: 'smooth' });
         setTimeout(updateThemeNavButtons, 250);
       });
     }
 
-    // Mouse & Trackpad Wheel Handling:
-    // When trackpad horizontal swipe (deltaX dominates), allow native momentum scroll.
-    // When vertical mouse wheel (deltaY dominates), map deltaY to horizontal scroll without stutter.
+    // Mouse & Trackpad Wheel Handling
     if (screenThemeTrack) {
       screenThemeTrack.addEventListener('wheel', (e) => {
-        if (Math.abs(e.deltaX) >= Math.abs(e.deltaY) && Math.abs(e.deltaX) > 0) {
-          // Native horizontal trackpad gesture — do not preventDefault
+        // Native horizontal trackpad gesture
+        if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
           return;
         }
 
+        // Vertical mouse wheel mapped to horizontal scroll
         if (e.deltaY !== 0) {
           e.preventDefault();
-          const delta = e.deltaMode === 1 ? e.deltaY * 30 : (e.deltaMode === 2 ? screenThemeTrack.clientWidth : e.deltaY);
-          screenThemeTrack.scrollLeft += delta;
+          screenThemeTrack.scrollLeft += e.deltaY;
           updateThemeNavButtons();
         }
       }, { passive: false });
@@ -5678,47 +5695,41 @@ function setupTvBezelControls() {
       let isDown = false;
       let startX = 0;
       let scrollStart = 0;
-      let hasDragged = false;
+      let draggedDist = 0;
 
       screenThemeTrack.addEventListener('mousedown', (e) => {
         if (e.button !== 0) return;
         isDown = true;
-        hasDragged = false;
-        startX = e.pageX - screenThemeTrack.offsetLeft;
+        draggedDist = 0;
+        startX = e.pageX;
         scrollStart = screenThemeTrack.scrollLeft;
+      });
+
+      window.addEventListener('mousemove', (e) => {
+        if (!isDown) return;
+        const diff = e.pageX - startX;
+        draggedDist = Math.abs(diff);
+        if (draggedDist > 5) {
+          screenThemeTrack.classList.add('is-dragging');
+          screenThemeTrack.scrollLeft = scrollStart - diff;
+          updateThemeNavButtons();
+        }
       });
 
       window.addEventListener('mouseup', () => {
         if (!isDown) return;
         isDown = false;
-        screenThemeTrack.classList.remove('is-dragging');
-        if (hasDragged) {
-          setTimeout(() => {
-            hasDragged = false;
-          }, 80);
-        }
-      });
-
-      window.addEventListener('mousemove', (e) => {
-        if (!isDown) return;
-        const x = e.pageX - screenThemeTrack.offsetLeft;
-        const walk = x - startX;
-        if (Math.abs(walk) > 6) {
-          hasDragged = true;
-          screenThemeTrack.classList.add('is-dragging');
-        }
-        if (hasDragged) {
-          e.preventDefault();
-          screenThemeTrack.scrollLeft = scrollStart - walk;
-          updateThemeNavButtons();
-        }
+        setTimeout(() => {
+          screenThemeTrack.classList.remove('is-dragging');
+          draggedDist = 0;
+        }, 60);
       });
 
       // Click handler for theme cards inside the on-screen menu
       const screenThemeCards = document.querySelectorAll('.screen-theme-card');
       screenThemeCards.forEach(card => {
         card.addEventListener('click', (e) => {
-          if (hasDragged) {
+          if (draggedDist > 6) {
             e.preventDefault();
             e.stopPropagation();
             return;
@@ -5727,14 +5738,7 @@ function setupTvBezelControls() {
           const theme = card.dataset.theme;
           if (theme) {
             switchTheme(theme, false);
-            // Scroll the card into center view within the track only
-            // (do NOT use scrollIntoView which scrolls the window too)
-            const cardLeft = card.offsetLeft;
-            const cardWidth = card.offsetWidth;
-            const trackWidth = screenThemeTrack.offsetWidth;
-            const targetScroll = cardLeft - (trackWidth / 2) + (cardWidth / 2);
-            screenThemeTrack.scrollTo({ left: targetScroll, behavior: 'smooth' });
-            setTimeout(updateThemeNavButtons, 300);
+            scrollActiveCardIntoView();
           }
         });
       });
