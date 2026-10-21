@@ -33,7 +33,7 @@
   <link rel="icon" type="image/svg+xml" href="assets/images/logo.svg?v=lofify1">
 
   <!-- Core Styles -->
-  <link rel="stylesheet" href="style.css?v=lofify_room_tabs_v2">
+  <link rel="stylesheet" href="style.css?v=lofify_mobile_v5">
 </head>
 <body>
   <!-- MINIMAL VIBE-CODED AESTHETIC LANDING -->
@@ -544,11 +544,10 @@
       <span class="dock-pill-dot youtube" id="dockPillDot"></span>
       <span class="dock-pill-label" id="dockPillLabel">YouTube Active</span>
       <button class="dock-pill-expand-btn" id="dockPillExpandBtn" title="Expand Player"><i class="fa-solid fa-up-right-and-down-left-from-center"></i></button>
-      <button class="dock-pill-close-btn" id="dockPillCloseBtn" title="Stop & Return to Built-in Radio"><i class="fa-solid fa-xmark"></i></button>
     </div>
 
     <!-- On-Screen TV Theme Selector Menu -->
-    <div class="screen-theme-menu active" id="screenThemeMenu">
+    <div class="screen-theme-menu" id="screenThemeMenu">
       <div class="screen-theme-header">
         <div class="screen-theme-title">
           <span class="screen-theme-headline"><i class="fa-solid fa-palette"></i> SELECT THEME</span>
@@ -702,6 +701,62 @@
         <!-- Rendered dynamically via JavaScript -->
       </div>
     </div>
+  </div> <!-- closes room-container -->
+  </div> <!-- closes tv-screen-bezel -->
+
+  <!-- MIDDLE PART: Dedicated Single-Menu Stage with Dropdown Switcher -->
+  <div class="tv-middle-menu-stage" id="middleMenuStage">
+    <!-- Dropdown Menu Header -->
+    <div class="middle-stage-header">
+      <div class="menu-dropdown-wrap">
+        <i class="fa-solid fa-sliders menu-dropdown-icon" id="menuDropdownIcon"></i>
+        <select id="mobileMenuSelect" class="mobile-menu-select" aria-label="Select Menu">
+          <option value="ambient" selected>🎧 Ambient Soundscapes</option>
+          <option value="room">👥 Study Room & Buddies</option>
+          <option value="todo">📝 Study Checklist</option>
+          <option value="profile">👤 Profile & Stats</option>
+        </select>
+        <i class="fa-solid fa-chevron-down dropdown-arrow"></i>
+      </div>
+      <button type="button" class="middle-stage-close-btn" id="middleStageCloseBtn" title="Reset to Soundscapes">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+
+    <!-- PANE 1: Ambient Soundscapes (Theme-Based) & Now Playing -->
+    <div class="middle-pane active" id="paneAmbient">
+      <!-- Mobile Now Playing Card -->
+      <div class="mobile-now-playing-box">
+        <div class="mobile-np-header">
+          <span class="mobile-np-live"><span class="pulse-dot"></span> NOW PLAYING</span>
+          <span class="mobile-np-vibe" id="mobileNpVibe">focus</span>
+        </div>
+        <div class="mobile-np-track-name" id="mobileNpTrackName">Tôzen</div>
+        <div class="mobile-np-artist-name" id="mobileNpArtistName">Chillhop Beats</div>
+        <!-- Progress bar -->
+        <div class="mobile-np-progress-bar">
+          <div class="mobile-np-progress-fill" id="mobileNpProgressFill" style="width: 0%;"></div>
+        </div>
+        <div class="mobile-np-time-row">
+          <span id="mobileNpCurrentTime">0:00</span>
+          <span id="mobileNpDuration">0:00</span>
+        </div>
+      </div>
+
+      <!-- Dynamic Theme Ambient Soundscapes Box -->
+      <div class="theme-soundscapes-box">
+        <div class="theme-soundscapes-header">
+          <span><i class="fa-solid fa-sliders"></i> <span id="themeSoundscapesTitle">WINTER CABIN AMBIENCE</span></span>
+          <span class="theme-soundscapes-hint" id="themeSoundscapesHint">Theme Audio</span>
+        </div>
+        <div class="theme-soundscapes-faders" id="themeSoundscapesFaders">
+          <!-- Populated dynamically via JS based on current theme -->
+        </div>
+      </div>
+    </div>
+
+    <!-- PANE 2: Study Room & Buddies -->
+    <div class="middle-pane" id="paneRoom">
 
     <!-- On-Screen TV Room & Study Together Panel -->
     <div class="screen-room-panel" id="panelRoom">
@@ -809,7 +864,10 @@
         </div>
       </div>
     </div>
+    </div> <!-- closes paneRoom -->
 
+    <!-- PANE 4: Profile & Stats -->
+    <div class="middle-pane" id="paneProfile">
     <!-- On-Screen TV Profile & Analytics Panel (Inside CRT Screen) -->
     <div class="screen-profile-panel" id="panelProfile">
       <div class="panel-header">
@@ -1046,7 +1104,10 @@
         </div>
       </div>
     </div>
+    </div> <!-- closes paneProfile -->
 
+    <!-- PANE 3: Study Checklist -->
+    <div class="middle-pane" id="paneTodo">
     <!-- On-Screen TV To-Do List & Study Checklist Panel (Inside CRT Screen) -->
     <div class="screen-todo-panel" id="panelTodo">
       <div class="panel-header">
@@ -1102,8 +1163,8 @@
         </div>
       </div>
     </div>
-  </div> <!-- closes room-container -->
-  </div> <!-- closes tv-screen-bezel -->
+    </div> <!-- closes paneTodo -->
+  </div> <!-- closes middleMenuStage -->
 
   <!-- TV Control Panel Bezel (Bottom Panel) -->
   <div class="tv-control-panel">
@@ -1169,9 +1230,6 @@
         </div>
       </div>
 
-      <!-- Glowing LED Power Indicator -->
-      <div class="tv-led-indicator" id="tvPowerLed" title="Power Indicator"></div>
-
       <!-- Extra Bezel Buttons -->
       <div class="tv-buttons-extra">
         <button class="tv-small-btn" id="toggleRoomBtn" title="Study Room & Invite Link">
@@ -1187,6 +1245,9 @@
           <i class="fa-solid fa-user"></i>
         </button>
       </div>
+
+      <!-- Glowing LED Power Indicator -->
+      <div class="tv-led-indicator" id="tvPowerLed" title="Power Indicator"></div>
     </div>
   </div>
   </div> <!-- closes tv-set -->
@@ -1315,6 +1376,6 @@
   <script src="https://www.youtube.com/iframe_api"></script>
 
   <script src="config.js" defer></script>
-  <script src="app.js?v=lofify_room_tabs_v2" defer></script>
+  <script src="app.js?v=lofify_mobile_v5" defer></script>
 </body>
 </html>

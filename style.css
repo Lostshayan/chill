@@ -485,6 +485,31 @@ body {
   box-shadow: 0 6px 16px rgba(212, 163, 115, 0.45);
 }
 
+/* TV Middle Menu Stage (Desktop: overlay aligned to CRT screen bezel) */
+@media (min-width: 769px) {
+  .tv-middle-menu-stage {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    right: 16px;
+    bottom: 90px;
+    pointer-events: none;
+    z-index: 100;
+    border-radius: 18px;
+    overflow: hidden;
+  }
+
+  /* Mobile dropdown header and ambient pane are hidden on desktop */
+  .middle-stage-header,
+  #paneAmbient {
+    display: none !important;
+  }
+
+  .middle-pane {
+    display: contents !important;
+  }
+}
+
 /* On-Screen TV Theme & Channel Selector Menu */
 .screen-theme-menu {
   position: absolute;
@@ -4393,491 +4418,766 @@ canvas {
   }
 }
 
-/* 2. Tablets & Mobile Landscape / Small Screens (max-width: 768px), or Short Viewports (max-height: 640px) */
-@media (max-width: 768px), (max-height: 640px) {
-  body {
-    height: auto;
-    min-height: 100vh;
-    min-height: 100dvh;
-    overflow-y: auto;
-    overflow-x: hidden;
-    padding: 10px 4px 16px;
-    align-items: flex-start;
-    -webkit-overflow-scrolling: touch;
-    touch-action: pan-y;
+/* ==========================================================================
+   2. MOBILE VIEWPORT ARCHITECTURE: 3-PART VERTICAL PHONE LAYOUT
+   Top Part: Theme Scenery Screen (Uncluttered 16:9 Bezel)
+   Middle Part: Dedicated Menu Stage (Companion Dashboard / Opened Menus)
+   Bottom Part: Retro TV Monitor Keypad (LED Display + Push Buttons + Knobs)
+   ========================================================================== */
+@media (max-width: 768px) {
+  html, body {
+    height: 100vh !important;
+    height: 100dvh !important;
+    max-height: 100dvh !important;
+    overflow: hidden !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #0d0a09 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: flex-start !important;
+    align-items: center !important;
+    touch-action: manipulation;
   }
 
+  /* 3-PART VERTICAL CHASSIS */
   #tv-set {
-    width: 98vw;
-    max-width: 100%;
-    margin: 0 auto;
-    padding: 8px 8px 0 8px;
-    border: 1.5px solid rgba(255, 255, 255, 0.2);
-    border-bottom: 3px solid rgba(255, 255, 255, 0.15);
-    border-radius: 18px;
+    display: grid !important;
+    grid-template-rows: auto 1fr auto !important;
+    grid-template-columns: 100% !important;
+    height: 100vh !important;
+    height: 100dvh !important;
+    max-height: 100dvh !important;
+    width: 100vw !important;
+    max-width: 440px !important;
+    margin: 0 auto !important;
+    padding: 6px 6px max(8px, env(safe-area-inset-bottom)) !important;
+    border: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    gap: 6px !important;
+    box-sizing: border-box !important;
+    background: #0d0a09 !important;
+    overflow: hidden !important;
+    position: relative !important;
   }
 
+  /* --------------------------------------------------------------------------
+     1. TOP PART: THEME SCENERY SCREEN (WITH CRT ON-SCREEN THEME & SONG MENUS)
+     -------------------------------------------------------------------------- */
   .tv-screen-bezel {
-    border: 2px solid rgba(255, 255, 255, 0.14);
-    border-radius: 12px;
+    grid-row: 1 !important;
+    width: 100% !important;
+    aspect-ratio: 16/9 !important;
+    max-height: 25vh !important;
+    min-height: 140px !important;
+    border-radius: 12px !important;
+    border: 1.5px solid rgba(212, 163, 115, 0.28) !important;
+    overflow: hidden !important;
+    position: relative !important;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6) !important;
+    background: #000 !important;
   }
 
-  /* Hide decorative speaker grill to make room for interactive controls */
+  .room-container {
+    width: 100% !important;
+    height: 100% !important;
+    aspect-ratio: 16/9 !important;
+    border-radius: 0 !important;
+    position: relative !important;
+    overflow: hidden !important;
+  }
+
+  /* Compact HUD Widgets on Scenery Screen */
+  .screen-clock-widget {
+    top: 6px !important;
+    right: 6px !important;
+    padding: 3px 8px !important;
+    font-size: 0.72rem !important;
+    border-radius: 12px !important;
+    background: rgba(0, 0, 0, 0.55) !important;
+    border: 1px solid rgba(212, 163, 115, 0.25) !important;
+  }
+
+  .digital-clock {
+    font-size: 0.74rem !important;
+  }
+
+  .screen-room-widget {
+    top: 6px !important;
+    left: 6px !important;
+    padding: 3px 8px !important;
+    font-size: 0.72rem !important;
+    border-radius: 12px !important;
+    background: rgba(0, 0, 0, 0.55) !important;
+    border: 1px solid rgba(212, 163, 115, 0.25) !important;
+  }
+
+  .screen-timer-widget {
+    top: 36px !important;
+  }
+
+  .timer-pill {
+    padding: 4px 10px 4px 12px !important;
+    gap: 8px !important;
+    border-radius: 18px !important;
+    background: rgba(18, 14, 12, 0.85) !important;
+  }
+
+  .timer-time-display {
+    font-size: 1.25rem !important;
+  }
+
+  /* ON-SCREEN CRT THEME MENU (INSIDE CRT SCREEN) */
+  .screen-theme-menu {
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    bottom: auto !important;
+    transform: none !important;
+    z-index: 95 !important;
+    background: rgba(14, 10, 8, 0.94) !important;
+    backdrop-filter: blur(14px) !important;
+    -webkit-backdrop-filter: blur(14px) !important;
+    border: 1px solid rgba(212, 163, 115, 0.3) !important;
+    border-radius: 10px !important;
+    padding: 6px 8px !important;
+    box-sizing: border-box !important;
+    display: none;
+    flex-direction: column !important;
+  }
+
+  .screen-theme-menu.active {
+    display: flex !important;
+  }
+
+  .screen-theme-header {
+    flex-shrink: 0 !important;
+    margin-bottom: 4px !important;
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+  }
+
+  .screen-theme-headline {
+    font-size: 0.72rem !important;
+  }
+
+  .screen-theme-close-btn {
+    width: 24px !important;
+    height: 24px !important;
+    font-size: 0.70rem !important;
+  }
+
+  .screen-theme-track-container {
+    flex: 1 1 0 !important;
+    min-height: 0 !important;
+    position: relative !important;
+  }
+
+  .screen-theme-track {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 6px !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    height: 100% !important;
+    padding-bottom: 4px !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+
+  .screen-theme-card {
+    flex: none !important;
+    width: 100% !important;
+    border-radius: 6px !important;
+  }
+
+  .theme-card-preview {
+    height: 52px !important;
+  }
+
+  .theme-card-title {
+    font-size: 0.65rem !important;
+  }
+
+  .theme-card-tag {
+    font-size: 0.52rem !important;
+  }
+
+  .theme-scroll-nav-btn {
+    display: none !important;
+  }
+
+  /* ON-SCREEN CRT MUSIC MENU (INSIDE CRT SCREEN) */
+  .screen-music-menu {
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    bottom: auto !important;
+    transform: none !important;
+    z-index: 95 !important;
+    background: rgba(14, 10, 8, 0.94) !important;
+    backdrop-filter: blur(14px) !important;
+    -webkit-backdrop-filter: blur(14px) !important;
+    border: 1px solid rgba(212, 163, 115, 0.3) !important;
+    border-radius: 10px !important;
+    padding: 6px 8px !important;
+    box-sizing: border-box !important;
+    display: none;
+    flex-direction: column !important;
+  }
+
+  .screen-music-menu.active {
+    display: flex !important;
+  }
+
+  .screen-music-header {
+    flex-shrink: 0 !important;
+    margin-bottom: 4px !important;
+  }
+
+  .screen-music-tabs {
+    flex-shrink: 0 !important;
+    gap: 4px !important;
+    overflow-x: auto !important;
+    padding-bottom: 3px !important;
+  }
+
+  .music-tab-btn {
+    font-size: 0.60rem !important;
+    padding: 3px 6px !important;
+  }
+
+  .screen-music-list {
+    flex: 1 1 0 !important;
+    min-height: 0 !important;
+    overflow-y: auto !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 4px !important;
+  }
+
+  .screen-music-item {
+    padding: 4px 6px !important;
+    gap: 6px !important;
+  }
+
+  .music-item-name {
+    font-size: 0.68rem !important;
+  }
+
+  .music-item-artist {
+    font-size: 0.56rem !important;
+  }
+
+  /* --------------------------------------------------------------------------
+     2. MIDDLE PART: DESIGNATED MENU STAGE (ONE MENU DISPLAYED AT A TIME)
+     -------------------------------------------------------------------------- */
+  .tv-middle-menu-stage {
+    grid-row: 2 !important;
+    position: relative !important;
+    top: auto !important;
+    left: auto !important;
+    right: auto !important;
+    bottom: auto !important;
+    min-height: 0 !important;
+    height: 100% !important;
+    max-height: 100% !important;
+    width: 100% !important;
+    background: rgba(20, 15, 12, 0.94) !important;
+    backdrop-filter: blur(16px) !important;
+    -webkit-backdrop-filter: blur(16px) !important;
+    border: 1px solid rgba(212, 163, 115, 0.24) !important;
+    border-radius: 12px !important;
+    box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.55), 0 4px 16px rgba(0, 0, 0, 0.35) !important;
+    overflow: hidden !important;
+    pointer-events: auto !important;
+    display: flex !important;
+    flex-direction: column !important;
+    z-index: 15 !important;
+  }
+
+  /* Dropdown Selector Header Bar */
+  .middle-stage-header {
+    flex: 0 0 auto !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    padding: 6px 8px !important;
+    background: rgba(0, 0, 0, 0.45) !important;
+    border-bottom: 1px solid rgba(212, 163, 115, 0.18) !important;
+    gap: 6px !important;
+  }
+
+  .menu-dropdown-wrap {
+    flex: 1 1 auto;
+    display: flex;
+    align-items: center;
+    position: relative;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(212, 163, 115, 0.3);
+    border-radius: 8px;
+    padding: 0 8px;
+    height: 32px;
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.4);
+  }
+
+  .menu-dropdown-icon {
+    color: #D4A373;
+    font-size: 0.78rem;
+    margin-right: 6px;
+    pointer-events: none;
+  }
+
+  .mobile-menu-select {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: #F4F1EA;
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 600;
+    outline: none;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    padding-right: 18px;
+  }
+
+  .mobile-menu-select option {
+    background: #18120e;
+    color: #F4F1EA;
+    font-size: 0.85rem;
+  }
+
+  .dropdown-arrow {
+    position: absolute;
+    right: 8px;
+    color: #D4A373;
+    font-size: 0.65rem;
+    pointer-events: none;
+  }
+
+  .middle-stage-close-btn {
+    flex: 0 0 auto;
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(212, 163, 115, 0.2);
+    color: #c9c5bc;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 0.75rem;
+    transition: all 0.15s ease;
+  }
+
+  .middle-stage-close-btn:active {
+    background: rgba(212, 163, 115, 0.25);
+    color: #FFF;
+  }
+
+  /* Single Active Middle Pane (others are strictly hidden) */
+  .middle-pane,
+  #paneAmbient,
+  #paneRoom,
+  #paneProfile,
+  #paneTodo {
+    display: none !important;
+    width: 100% !important;
+  }
+
+  .middle-pane.active,
+  #paneAmbient.active,
+  #paneRoom.active,
+  #paneProfile.active,
+  #paneTodo.active {
+    display: flex !important;
+    flex-direction: column !important;
+    flex: 1 1 0 !important;
+    min-height: 0 !important;
+    max-height: 100% !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    padding: 8px 10px 10px !important;
+    box-sizing: border-box !important;
+    -webkit-overflow-scrolling: touch !important;
+    gap: 8px !important;
+  }
+
+  /* Panels Rendered Inside Middle Panes */
+  .middle-pane #panelRoom,
+  .middle-pane #panelProfile,
+  .middle-pane #panelTodo {
+    position: static !important;
+    transform: none !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+    height: 100% !important;
+    max-width: 100% !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    left: auto !important;
+    right: auto !important;
+    top: auto !important;
+    bottom: auto !important;
+  }
+
+  .panel-header {
+    flex-shrink: 0 !important;
+    margin-bottom: 6px !important;
+  }
+
+  .room-scroll-body,
+  .profile-scroll-body,
+  .todo-scroll-body {
+    flex: 1 1 0 !important;
+    min-height: 0 !important;
+    padding: 2px 0 10px !important;
+    overflow-y: auto !important;
+  }
+
+  /* Now Playing Mini Box in Ambient Pane */
+  .mobile-now-playing-box {
+    background: rgba(0, 0, 0, 0.45);
+    border: 1px solid rgba(212, 163, 115, 0.18);
+    border-radius: 10px;
+    padding: 7px 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    flex-shrink: 0;
+  }
+
+  .mobile-np-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .mobile-np-live {
+    font-size: 0.62rem;
+    font-weight: 700;
+    color: #A3B18A;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    letter-spacing: 0.06em;
+  }
+
+  .mobile-np-vibe {
+    font-size: 0.60rem;
+    color: #D4A373;
+    text-transform: uppercase;
+    font-weight: 700;
+    background: rgba(212, 163, 115, 0.15);
+    padding: 1px 6px;
+    border-radius: 4px;
+  }
+
+  .mobile-np-track-name {
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.90rem;
+    font-weight: 700;
+    color: #FFF;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .mobile-np-artist-name {
+    font-size: 0.70rem;
+    color: #A69080;
+  }
+
+  .mobile-np-progress-bar {
+    width: 100%;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 2px;
+    overflow: hidden;
+    margin-top: 2px;
+  }
+
+  .mobile-np-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #D4A373, #E07A5F);
+    width: 0%;
+    transition: width 0.3s ease;
+  }
+
+  .mobile-np-time-row {
+    display: flex;
+    justify-content: space-between;
+    font-family: monospace;
+    font-size: 0.65rem;
+    color: #8C7B70;
+  }
+
+  /* Dynamic Theme Ambient Soundscapes Box */
+  .theme-soundscapes-box {
+    background: rgba(0, 0, 0, 0.35);
+    border: 1px solid rgba(212, 163, 115, 0.18);
+    border-radius: 10px;
+    padding: 8px 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    flex: 1 1 0;
+    min-height: 0;
+    overflow-y: auto;
+  }
+
+  .theme-soundscapes-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.68rem;
+    font-weight: 700;
+    color: #D4A373;
+    letter-spacing: 0.05em;
+  }
+
+  .theme-soundscapes-hint {
+    font-size: 0.60rem;
+    color: #8C7B70;
+    font-weight: normal;
+  }
+
+  .theme-soundscapes-faders {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding-top: 2px;
+  }
+
+  .theme-fader-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(212, 163, 115, 0.14);
+    border-radius: 8px;
+    padding: 6px 9px;
+  }
+
+  .theme-fader-info {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 95px;
+    max-width: 115px;
+    font-size: 0.68rem;
+    color: #F4F1EA;
+    font-weight: 600;
+  }
+
+  .theme-fader-info i {
+    color: #D4A373;
+    font-size: 0.74rem;
+    width: 14px;
+    text-align: center;
+  }
+
+  .theme-sfx-slider {
+    flex: 1;
+    accent-color: #D4A373;
+    height: 4px;
+    border-radius: 2px;
+    cursor: pointer;
+    background: rgba(255, 255, 255, 0.15);
+  }
+
+  .theme-fader-pct {
+    font-family: monospace;
+    font-size: 0.62rem;
+    color: #A69080;
+    min-width: 26px;
+    text-align: right;
+  }
+
+  /* --------------------------------------------------------------------------
+     3. BOTTOM PART: RETRO TV MONITOR KEYPAD (ALWAYS VISIBLE & PINNED)
+     -------------------------------------------------------------------------- */
+  .tv-control-panel {
+    grid-row: 3 !important;
+    flex-shrink: 0 !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: auto !important;
+    background: linear-gradient(180deg, #241A14 0%, #130D0A 100%) !important;
+    border: 1.5px solid rgba(212, 163, 115, 0.28) !important;
+    border-radius: 12px !important;
+    padding: 6px 8px 7px !important;
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.6), inset 0 1px 1px rgba(255, 255, 255, 0.15) !important;
+    box-sizing: border-box !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 6px !important;
+    z-index: 50 !important;
+  }
+
   .tv-speaker {
     display: none !important;
   }
 
-  .tv-control-panel {
-    height: auto;
-    min-height: 72px;
-    padding: 10px 12px;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    gap: 10px;
-  }
-
+  /* Keypad Row 1: Track LED Display + Push Buttons + Vol Knob */
   .tv-knobs-group {
-    gap: 12px;
-    flex: 1 1 auto;
-    min-width: 0;
-    justify-content: flex-start;
+    width: 100% !important;
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    gap: 6px !important;
   }
 
   .tv-screen-display {
-    width: 170px;
-    min-width: 120px;
-    height: 48px;
-    padding: 3px 8px;
-  }
-
-  .tv-right-group {
-    gap: 16px;
-  }
-
-  /* Timer Pill on Tablet/Mobile Landscape */
-  .screen-timer-widget {
-    top: 55px;
-  }
-
-  .timer-pill {
-    padding: 8px 14px 8px 16px;
-    gap: 12px;
-    border-radius: 26px;
-  }
-
-  .timer-time-display {
-    font-size: 1.65rem;
-  }
-
-  .timer-action-btn {
-    width: 28px;
-    height: 28px;
-    font-size: 12px;
-  }
-
-  .timer-action-btn.close {
-    width: 22px;
-    height: 22px;
-    font-size: 10px;
-  }
-
-  .timer-phase-badge {
-    font-size: 0.74rem;
-    padding: 4px 9px;
-  }
-
-  /* Clock Widget */
-  .screen-clock-widget {
-    top: 10px;
-    right: 10px;
-    padding: 4px 10px;
-    gap: 6px;
-  }
-
-  .digital-clock {
-    font-size: 0.85rem;
-  }
-
-  /* On-Screen Theme Menu */
-  .screen-theme-menu {
-    width: 95%;
-    max-width: 520px;
-    bottom: 10px;
-    padding: 10px 12px;
-    border-radius: 12px;
-  }
-
-  .screen-theme-card {
-    flex: 0 0 140px;
-    width: 140px;
-  }
-
-  .theme-card-preview {
-    height: 75px;
-  }
-
-  /* On-Screen Music Menu */
-  .screen-music-menu {
-    width: 94%;
-    max-width: 480px;
-    max-height: 88%;
-    padding: 10px 12px;
-  }
-
-  /* Profile & Analytics Panel and To-Do Panel */
-  .screen-profile-panel,
-  #panelProfile,
-  .screen-todo-panel,
-  #panelTodo {
-    width: calc(100% - 20px);
-    max-width: 360px;
-    right: 10px;
-    top: 10px;
-    bottom: 10px;
-    height: calc(100% - 20px);
-  }
-
-  /* Hotspot ring scale */
-  .hotspot-ring {
-    width: 34px;
-    height: 34px;
-  }
-}
-
-/* 3. Mobile Phones in Portrait (max-width: 540px) */
-@media (max-width: 540px) {
-  body {
-    padding: 4px 0 12px;
-  }
-
-  #tv-set {
-    width: 100vw;
-    border-left: none;
-    border-right: none;
-    border-top: 1.5px solid rgba(255, 255, 255, 0.2);
-    border-bottom: 2px solid rgba(255, 255, 255, 0.15);
-    border-radius: 0;
-    padding: 4px 4px 0 4px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-  }
-
-  .tv-screen-bezel {
-    border: 1.5px solid rgba(255, 255, 255, 0.14);
-    border-radius: 8px;
-  }
-
-  /* Stack TV Bezel controls into 2 clear ergonomic retro rows */
-  .tv-control-panel {
-    padding: 8px 6px;
-    flex-direction: column;
-    gap: 8px;
-    border-radius: 0;
-  }
-
-  /* Row 1: Track LED screen + Player Push Buttons + Volume Knob */
-  .tv-knobs-group {
-    width: 100%;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 6px;
-  }
-
-  .tv-screen-display {
-    flex: 1 1 auto;
-    min-width: 95px;
-    max-width: 145px;
-    height: 44px;
-    padding: 3px 6px;
+    flex: 1 1 auto !important;
+    min-width: 80px !important;
+    max-width: 125px !important;
+    height: 38px !important;
+    padding: 3px 6px !important;
+    cursor: pointer !important;
   }
 
   .tv-led-text {
-    font-size: 0.65rem;
+    font-size: 0.65rem !important;
   }
 
   .tv-led-subtext {
-    font-size: 0.52rem;
-  }
-
-  .tv-led-tag {
-    font-size: 0.46rem;
+    font-size: 0.50rem !important;
   }
 
   .tv-push-buttons {
-    gap: 4px;
+    display: flex !important;
+    gap: 4px !important;
   }
 
   .tv-push-btn {
-    width: 28px;
-    height: 28px;
-    font-size: 0.68rem;
+    width: 30px !important;
+    height: 30px !important;
+    font-size: 0.72rem !important;
+    border-radius: 7px !important;
+  }
+
+  .tv-push-btn.play-btn {
+    width: 34px !important;
+    height: 34px !important;
+    font-size: 0.82rem !important;
+    background: linear-gradient(135deg, #E07A5F, #C45538) !important;
+    color: #FFF !important;
+    box-shadow: 0 2px 8px rgba(224, 122, 95, 0.4) !important;
   }
 
   .tv-knob-container {
-    gap: 2px;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 1px !important;
   }
 
-  .tv-knob-label {
-    font-size: 0.52rem;
+  .tv-knob-container .tv-knob-label {
+    display: block !important;
+    font-size: 0.50rem !important;
   }
 
   .tv-knob {
-    width: 34px;
-    height: 34px;
-    border-width: 2px;
+    width: 28px !important;
+    height: 28px !important;
   }
 
-  .knob-marker {
-    height: 9px;
-  }
-
-  /* Row 2: Themes Channel Button + Weather Switch + Power LED + Action Buttons */
+  /* Keypad Row 2: Hardware Mechanical Keycaps */
   .tv-right-group {
-    width: 100%;
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    gap: 8px;
-    padding-top: 6px;
-    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    width: 100% !important;
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    gap: 4px !important;
+    padding-top: 5px !important;
+    border-top: 1px solid rgba(212, 163, 115, 0.15) !important;
   }
 
   .tv-channel-btn-container {
-    gap: 2px;
-  }
-
-  .tv-channel-btn-container .tv-knob-label {
-    font-size: 0.52rem;
-  }
-
-  .tv-channel-btn {
-    width: 36px;
-    height: 36px;
-    font-size: 0.95rem;
+    flex: 1 1 0 !important;
+    max-width: 48px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
   }
 
   .tv-switch-container {
-    gap: 2px;
+    flex: 0 0 24px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
   }
 
-  .tv-switch-label {
-    font-size: 0.50rem;
+  .tv-channel-btn-container .tv-knob-label,
+  .tv-switch-container .tv-switch-label {
+    display: none !important;
   }
 
   .tv-toggle-switch {
-    width: 14px;
-    height: 30px;
+    width: 16px !important;
+    height: 30px !important;
   }
 
   .switch-handle {
-    width: 8px;
-    height: 12px;
-    top: 14px;
-  }
-
-  .tv-toggle-switch.switch-up .switch-handle {
-    top: 1px;
-  }
-
-  .tv-led-indicator {
-    width: 8px;
-    height: 8px;
+    width: 10px !important;
+    height: 12px !important;
   }
 
   .tv-buttons-extra {
-    gap: 6px;
+    display: contents !important;
   }
 
+  /* Keypad Tactile Buttons */
+  .tv-channel-btn,
   .tv-small-btn {
-    width: 28px;
-    height: 28px;
-    font-size: 0.70rem;
+    flex: 1 1 0 !important;
+    max-width: 48px !important;
+    height: 32px !important;
+    border-radius: 7px !important;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(0, 0, 0, 0.3)) !important;
+    border: 1px solid rgba(212, 163, 115, 0.25) !important;
+    color: #F4F1EA !important;
+    font-size: 0.8rem !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+    cursor: pointer !important;
+    transition: all 0.15s ease !important;
   }
 
-  /* Timer Pill on Compact Mobile Screen */
-  .screen-timer-widget {
-    top: 42px;
+  .tv-channel-btn:active,
+  .tv-small-btn:active {
+    transform: translateY(1px) !important;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.6) !important;
   }
 
-  .timer-pill {
-    padding: 5px 10px 5px 12px;
-    gap: 8px;
-    border-radius: 20px;
+  .tv-channel-btn.active,
+  .tv-small-btn.active {
+    border-color: #D4A373 !important;
+    background: linear-gradient(180deg, rgba(212, 163, 115, 0.3), rgba(139, 94, 60, 0.4)) !important;
+    box-shadow: 0 0 10px rgba(212, 163, 115, 0.35) !important;
+    color: #FFF !important;
   }
 
-  .timer-time-display {
-    font-size: 1.35rem;
-  }
-
-  .timer-action-btn {
-    width: 24px;
-    height: 24px;
-    font-size: 10px;
-  }
-
-  .timer-action-btn.close {
-    width: 20px;
-    height: 20px;
-    font-size: 9px;
-    margin-left: 1px;
-  }
-
-  .timer-phase-badge {
-    font-size: 0.60rem;
-    padding: 2px 6px;
-    border-radius: 10px;
-  }
-
-  .timer-settings-modal {
-    width: 94%;
-    max-width: 310px;
-    top: 44px;
-    padding: 12px 14px;
-  }
-
-  /* Screen Clock Widget on Mobile */
-  .screen-clock-widget {
-    top: 6px;
-    right: 6px;
-    padding: 3px 8px;
-    gap: 5px;
-    border-radius: 14px;
-  }
-
-  .digital-clock {
-    font-size: 0.78rem;
-  }
-
-  .clock-icon {
-    font-size: 0.70rem;
-  }
-
-  /* Screen Theme Menu on Mobile */
-  .screen-theme-menu {
-    width: 98%;
-    bottom: 6px;
-    padding: 8px 8px;
-    border-radius: 10px;
-  }
-
-  .screen-theme-headline {
-    font-size: 0.72rem;
-  }
-
-  .screen-theme-card {
-    flex: 0 0 120px;
-    width: 120px;
-    border-radius: 8px;
-  }
-
-  .theme-card-preview {
-    height: 64px;
-  }
-
-  .theme-card-info {
-    padding: 5px 8px 7px;
-  }
-
-  .theme-card-title {
-    font-size: 0.70rem;
-  }
-
-  .theme-card-tag {
-    font-size: 0.55rem;
-  }
-
-  .theme-scroll-nav-btn {
-    width: 26px;
-    height: 26px;
-    font-size: 0.70rem;
-  }
-
-  .channel-num-badge {
-    font-size: 0.58rem;
-    padding: 1px 5px;
-  }
-
-  .active-badge {
-    font-size: 0.52rem;
-    padding: 2px 5px;
-  }
-
-  /* Screen Music Menu on Mobile */
-  .screen-music-menu {
-    width: 96%;
-    max-height: 92%;
-    padding: 8px 10px;
-    border-radius: 10px;
-  }
-
-  .screen-music-headline {
-    font-size: 0.78rem;
-  }
-
-  .music-tab-btn {
-    padding: 4px 8px;
-    font-size: 0.68rem;
-  }
-
-  .screen-music-item {
-    padding: 6px 8px;
-    gap: 8px;
-  }
-
-  .music-item-name {
-    font-size: 0.72rem;
-  }
-
-  .music-item-artist {
-    font-size: 0.60rem;
-  }
-
-  .music-badge {
-    font-size: 0.50rem;
-    padding: 1px 5px;
-  }
-
-  /* Screen Profile Panel & To-Do Panel on Mobile */
-  .screen-profile-panel,
-  #panelProfile,
-  .screen-todo-panel,
-  #panelTodo {
-    width: calc(100% - 10px);
-    max-width: 100%;
-    top: 5px;
-    right: 5px;
-    bottom: 5px;
-    height: calc(100% - 10px);
-    border-radius: 10px;
-  }
-
-  .profile-scroll-body {
-    padding: 8px 10px 14px;
-    gap: 10px;
-  }
-
-  .stat-val {
-    font-size: 0.88rem;
-  }
-
-  .stat-lbl {
-    font-size: 0.58rem;
-  }
-
-  .weekly-bars-container {
-    height: 70px;
-  }
-
-  /* Interactive Hotspots on Mobile */
-  .hotspot-ring {
-    width: 30px;
-    height: 30px;
-  }
-
-  /* Modal Dialogs */
-  .modal-content {
-    width: 95%;
-    padding: 16px 14px;
+  .tv-led-indicator {
+    flex: 0 0 8px !important;
+    width: 8px !important;
+    height: 8px !important;
   }
 }
 
@@ -4898,9 +5198,15 @@ canvas {
     font-size: 0.64rem;
   }
 
-  .tv-knob {
+  .tv-push-btn.play-btn {
     width: 30px;
     height: 30px;
+    font-size: 0.76rem;
+  }
+
+  .tv-knob {
+    width: 26px;
+    height: 26px;
   }
 
   .timer-pill {
