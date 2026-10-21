@@ -2359,11 +2359,16 @@ function updateRoomUI() {
   const elRoomPillLabel = document.getElementById('roomPillLabel');
   if (elRoomPillLabel) elRoomPillLabel.textContent = `Room: ${currentRoom}`;
 
+  const elRoomCodeBadge = document.getElementById('roomCodeBadge');
+  if (elRoomCodeBadge) elRoomCodeBadge.textContent = currentRoom;
+
   const elRoomInviteInput = document.getElementById('roomInviteInput');
   if (elRoomInviteInput) elRoomInviteInput.value = inviteUrl;
 
   const elRoomNameInput = document.getElementById('roomNameInput');
-  if (elRoomNameInput) elRoomNameInput.value = currentRoom;
+  if (elRoomNameInput && !elRoomNameInput.value) {
+    elRoomNameInput.placeholder = `e.g. ${currentRoom}-2`;
+  }
 
   if (elRoomNameDisplay) elRoomNameDisplay.textContent = currentRoom;
 }
@@ -3141,15 +3146,71 @@ function setupInteractiveRoom() {
   }
 }
 
+function generateRandomRoomCode() {
+  const adjectives = ['cozy', 'warm', 'chill', 'rainy', 'starry', 'midnight', 'quiet', 'sunny', 'misty', 'mellow', 'lofi'];
+  const nouns = ['study', 'cafe', 'nest', 'haven', 'corner', 'library', 'cabin', 'attic', 'nook', 'parlor', 'vibes'];
+  const num = Math.floor(100 + Math.random() * 900);
+  const adj = adjectives[Math.floor(Math.random() * adjectives.length)];
+  const noun = nouns[Math.floor(Math.random() * nouns.length)];
+  return `${adj}-${noun}-${num}`;
+}
+
+function parseRoomInput(rawInput) {
+  if (!rawInput) return '';
+  let str = rawInput.trim();
+
+  // 1. If it looks like a URL
+  try {
+    if (str.includes('://') || str.startsWith('http://') || str.startsWith('https://')) {
+      const parsed = new URL(str);
+      const roomParam = parsed.searchParams.get('room');
+      if (roomParam) return cleanRoomCode(roomParam);
+      if (parsed.hash && parsed.hash.includes('room=')) {
+        const hashMatch = parsed.hash.match(/room=([a-zA-Z0-9_-]+)/i);
+        if (hashMatch) return cleanRoomCode(hashMatch[1]);
+      }
+    }
+  } catch (e) {}
+
+  // 2. Query string snippet like ?room=xyz or &room=xyz
+  const queryMatch = str.match(/[?&#]room=([a-zA-Z0-9_-]+)/i);
+  if (queryMatch) {
+    return cleanRoomCode(queryMatch[1]);
+  }
+
+  // 3. Fallback: treat as raw room code
+  return cleanRoomCode(str);
+}
+
+function cleanRoomCode(code) {
+  if (!code) return '';
+  return code.trim().toLowerCase().replace(/[^a-z0-9_-]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '').slice(0, 32);
+}
+
 function setupRoomPanelControls() {
   const elScreenRoomWidget = document.getElementById('screenRoomWidget');
   const elToggleRoomBtn = document.getElementById('toggleRoomBtn');
   const elPanelRoom = document.getElementById('panelRoom');
   const elClosePanelRoom = document.getElementById('closePanelRoom');
+
+  // Tabs
+  const elTabCreateRoom = document.getElementById('tabCreateRoom');
+  const elTabJoinRoom = document.getElementById('tabJoinRoom');
+  const elViewCreateRoom = document.getElementById('viewCreateRoom');
+  const elViewJoinRoom = document.getElementById('viewJoinRoom');
+
+  // Create / Active Room controls
+  const elBtnCopyRoomCode = document.getElementById('btnCopyRoomCode');
   const elBtnCopyRoomLink = document.getElementById('btnCopyRoomLink');
   const elRoomInviteInput = document.getElementById('roomInviteInput');
-  const elBtnSwitchRoom = document.getElementById('btnSwitchRoom');
   const elRoomNameInput = document.getElementById('roomNameInput');
+  const elBtnRandomRoom = document.getElementById('btnRandomRoom');
+  const elBtnSwitchRoom = document.getElementById('btnSwitchRoom');
+
+  // Join Room controls
+  const elRoomJoinInput = document.getElementById('roomJoinInput');
+  const elBtnPasteClipboard = document.getElementById('btnPasteClipboard');
+  const elBtnSubmitJoinRoom = document.getElementById('btnSubmitJoinRoom');
 
   function openRoomPanel() {
     if (!elPanelRoom) return;
@@ -3178,6 +3239,35 @@ function setupRoomPanelControls() {
     }
   }
 
+  function activateTab(tab) {
+    if (tab === 'join') {
+      if (elTabJoinRoom) elTabJoinRoom.classList.add('active');
+      if (elTabCreateRoom) elTabCreateRoom.classList.remove('active');
+      if (elViewJoinRoom) elViewJoinRoom.classList.add('active');
+      if (elViewCreateRoom) elViewCreateRoom.classList.remove('active');
+      if (elRoomJoinInput) setTimeout(() => elRoomJoinInput.focus(), 80);
+    } else {
+      if (elTabCreateRoom) elTabCreateRoom.classList.add('active');
+      if (elTabJoinRoom) elTabJoinRoom.classList.remove('active');
+      if (elViewCreateRoom) elViewCreateRoom.classList.add('active');
+      if (elViewJoinRoom) elViewJoinRoom.classList.remove('active');
+    }
+  }
+
+  if (elTabCreateRoom) {
+    elTabCreateRoom.addEventListener('click', (e) => {
+      e.stopPropagation();
+      activateTab('create');
+    });
+  }
+
+  if (elTabJoinRoom) {
+    elTabJoinRoom.addEventListener('click', (e) => {
+      e.stopPropagation();
+      activateTab('join');
+    });
+  }
+
   if (elScreenRoomWidget) {
     elScreenRoomWidget.addEventListener('click', (e) => {
       e.stopPropagation();
@@ -3199,6 +3289,28 @@ function setupRoomPanelControls() {
     });
   }
 
+  // Copy Room Code
+  if (elBtnCopyRoomCode) {
+    elBtnCopyRoomCode.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      const code = state.roomId || 'cozy-study';
+      try {
+        await navigator.clipboard.writeText(code);
+        elBtnCopyRoomCode.classList.add('copied');
+        elBtnCopyRoomCode.innerHTML = '<i class="fa-solid fa-check"></i> <span>Copied!</span>';
+        showRoomToast(`🔑 <strong>Room code copied:</strong> <code>${code}</code>. Share with a friend!`);
+        setTimeout(() => {
+          if (elBtnCopyRoomCode) {
+            elBtnCopyRoomCode.classList.remove('copied');
+            elBtnCopyRoomCode.innerHTML = '<i class="fa-solid fa-copy"></i> <span>Copy Code</span>';
+          }
+        }, 2200);
+      } catch (err) {
+        showRoomToast(`🔑 Room code: <strong>${code}</strong>`);
+      }
+    });
+  }
+
   // Copy invite link
   if (elBtnCopyRoomLink) {
     elBtnCopyRoomLink.addEventListener('click', async (e) => {
@@ -3212,9 +3324,9 @@ function setupRoomPanelControls() {
         setTimeout(() => {
           if (elBtnCopyRoomLink) {
             elBtnCopyRoomLink.classList.remove('copied');
-            elBtnCopyRoomLink.innerHTML = '<i class="fa-solid fa-copy"></i> <span>Copy</span>';
+            elBtnCopyRoomLink.innerHTML = '<i class="fa-solid fa-copy"></i> <span>Copy Link</span>';
           }
-        }, 2500);
+        }, 2200);
       } catch (err) {
         if (elRoomInviteInput) {
           elRoomInviteInput.select();
@@ -3232,22 +3344,97 @@ function setupRoomPanelControls() {
     });
   }
 
-  // Switch or create room
+  // Random room generator
+  if (elBtnRandomRoom && elRoomNameInput) {
+    elBtnRandomRoom.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const randomCode = generateRandomRoomCode();
+      elRoomNameInput.value = randomCode;
+      elRoomNameInput.focus();
+      showRoomToast(`🎲 Generated room name: <strong>${randomCode}</strong>`);
+    });
+  }
+
+  // Create another room
   if (elBtnSwitchRoom && elRoomNameInput) {
-    const handleSwitch = () => {
-      const targetRoom = elRoomNameInput.value.trim();
-      if (targetRoom) {
-        switchStudyRoom(targetRoom);
+    const handleCreate = () => {
+      let targetRoom = elRoomNameInput.value.trim();
+      if (!targetRoom) {
+        targetRoom = generateRandomRoomCode();
       }
+      switchStudyRoom(targetRoom);
+      elRoomNameInput.value = '';
     };
     elBtnSwitchRoom.addEventListener('click', (e) => {
       e.stopPropagation();
-      handleSwitch();
+      handleCreate();
     });
     elRoomNameInput.addEventListener('keydown', (e) => {
       if (e.key === 'Enter') {
         e.preventDefault();
-        handleSwitch();
+        handleCreate();
+      }
+    });
+  }
+
+  // Paste from clipboard into join input
+  if (elBtnPasteClipboard && elRoomJoinInput) {
+    elBtnPasteClipboard.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      try {
+        if (navigator.clipboard && navigator.clipboard.readText) {
+          const text = await navigator.clipboard.readText();
+          if (text) {
+            elRoomJoinInput.value = text.trim();
+            elRoomJoinInput.focus();
+            showRoomToast('📋 Pasted from clipboard!');
+          }
+        } else {
+          elRoomJoinInput.focus();
+        }
+      } catch (err) {
+        elRoomJoinInput.focus();
+      }
+    });
+  }
+
+  // Submit Join Room
+  if (elBtnSubmitJoinRoom && elRoomJoinInput) {
+    const handleJoin = async () => {
+      const raw = elRoomJoinInput.value;
+      const targetRoom = parseRoomInput(raw);
+
+      if (!targetRoom) {
+        elRoomJoinInput.classList.remove('input-shake');
+        void elRoomJoinInput.offsetWidth; // trigger reflow
+        elRoomJoinInput.classList.add('input-shake');
+        elRoomJoinInput.focus();
+        showRoomToast('⚠️ Please enter a room code or paste a room link.');
+        return;
+      }
+
+      if (targetRoom === state.roomId) {
+        showRoomToast(`ℹ️ You are already in room: <strong>${targetRoom}</strong>`);
+        activateTab('create');
+        return;
+      }
+
+      // Join room directly without external navigation
+      await switchStudyRoom(targetRoom);
+      elRoomJoinInput.value = '';
+      activateTab('create');
+      showRoomToast(`🎉 <strong>Joined room:</strong> ${targetRoom}! Studying together.`);
+    };
+
+    elBtnSubmitJoinRoom.addEventListener('click', (e) => {
+      e.stopPropagation();
+      handleJoin();
+    });
+
+    elRoomJoinInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        handleJoin();
       }
     });
   }
