@@ -983,58 +983,57 @@ function initKaliFireworks() {
     return;
   }
 
-  const parent = container.parentElement || document.body;
-  const w = container.clientWidth || Math.round((parent.clientWidth || window.innerWidth) * 0.65) || 600;
-  const h = container.clientHeight || Math.round((parent.clientHeight || window.innerHeight) * 0.55) || 350;
+  const w = container.clientWidth || 520;
+  const h = container.clientHeight || 280;
 
   if (!window.kaliFireworksInstance) {
     window.kaliFireworksInstance = new FireworksConstructor(container, {
       autoresize: true,
-      opacity: 0.45,
-      acceleration: 1.05,
-      friction: 0.97,
-      gravity: 1.2,
-      particles: 80,
-      traceLength: 3,
-      traceSpeed: 8,
-      explosion: 5,
-      intensity: 30,
-      flickering: 40,
+      opacity: 0.6,
+      acceleration: 1.004,
+      friction: 0.96,
+      gravity: 0.45,
+      particles: 55,
+      traceLength: 2,
+      traceSpeed: 1.2,
+      explosion: 2,
+      intensity: 15,
+      flickering: 25,
       lineStyle: 'round',
       hue: {
         min: 0,
-        max: 360,
+        max: 55,
       },
       delay: {
-        min: 25,
-        max: 50,
+        min: 40,
+        max: 75,
       },
       rocketsPoint: {
-        min: 20,
-        max: 80,
+        min: 45,
+        max: 55,
       },
       lineWidth: {
         explosion: {
-          min: 1.2,
-          max: 3.2,
-        },
-        trace: {
           min: 1,
           max: 2,
         },
+        trace: {
+          min: 1,
+          max: 1.5,
+        },
       },
       brightness: {
-        min: 55,
-        max: 88,
+        min: 65,
+        max: 92,
       },
       decay: {
-        min: 0.015,
-        max: 0.03,
+        min: 0.007,
+        max: 0.014,
       },
       mouse: {
-        click: false,
+        click: true,
         move: false,
-        max: 1,
+        max: 1000,
       },
       boundaries: {
         x: 20,
@@ -1045,41 +1044,38 @@ function initKaliFireworks() {
     });
   } else {
     window.kaliFireworksInstance.updateOptions({
-      opacity: 0.45,
-      acceleration: 1.05,
-      friction: 0.97,
-      gravity: 1.2,
-      particles: 80,
-      traceLength: 3,
-      traceSpeed: 8,
-      explosion: 5,
-      intensity: 30,
-      flickering: 40,
-      hue: { min: 0, max: 360 },
-      delay: { min: 25, max: 50 },
-      brightness: { min: 55, max: 88 },
-      decay: { min: 0.015, max: 0.03 }
+      acceleration: 1.004,
+      friction: 0.96,
+      gravity: 0.45,
+      particles: 55,
+      traceLength: 2,
+      traceSpeed: 1.2,
+      explosion: 2,
+      intensity: 15,
+      flickering: 25,
+      hue: { min: 0, max: 55 },
+      delay: { min: 40, max: 75 },
+      brightness: { min: 65, max: 92 },
+      decay: { min: 0.007, max: 0.014 }
     });
   }
 
   // Ensure size & boundaries match current container
-  window.kaliFireworksInstance.updateSize({
-    width: w,
-    height: h
-  });
-  window.kaliFireworksInstance.updateBoundaries({
-    x: 20,
-    y: 15,
-    width: w,
-    height: h
-  });
+  if (container.clientWidth > 0 && container.clientHeight > 0) {
+    window.kaliFireworksInstance.updateSize({
+      width: container.clientWidth,
+      height: container.clientHeight
+    });
+    window.kaliFireworksInstance.updateBoundaries({
+      x: 20,
+      y: 15,
+      width: container.clientWidth,
+      height: container.clientHeight
+    });
+  }
 
-  if (state.currentTheme === 'scene_kali_puja' && state.hotspots.kaliFireworks) {
-    if (!window.kaliFireworksInstance.isRunning) {
-      window.kaliFireworksInstance.start();
-    }
-  } else if (!state.hotspots.kaliFireworks && window.kaliFireworksInstance.isRunning) {
-    window.kaliFireworksInstance.stop();
+  if (state.currentTheme === 'scene_kali_puja' && state.hotspots.kaliFireworks && !window.kaliFireworksInstance.isRunning) {
+    window.kaliFireworksInstance.start();
   }
 }
 
@@ -3674,22 +3670,9 @@ function toggleHotspot(hotspotId, forceState = null, isRemote = false) {
     case 'kaliFireworks':
       if (window.kaliFireworksInstance) {
         if (newState && state.currentTheme === 'scene_kali_puja') {
-          const container = document.getElementById('kali-fireworks-container');
-          if (container) {
-            const parent = container.parentElement || document.body;
-            const w = container.clientWidth || Math.round((parent.clientWidth || window.innerWidth) * 0.65) || 600;
-            const h = container.clientHeight || Math.round((parent.clientHeight || window.innerHeight) * 0.55) || 350;
-            window.kaliFireworksInstance.updateSize({ width: w, height: h });
-            window.kaliFireworksInstance.updateBoundaries({ x: 20, y: 15, width: w, height: h });
-          }
-          if (!window.kaliFireworksInstance.isRunning) {
-            window.kaliFireworksInstance.start();
-          }
-          window.kaliFireworksInstance.launch(3);
+          if (!window.kaliFireworksInstance.isRunning) window.kaliFireworksInstance.start();
         } else {
-          if (window.kaliFireworksInstance.isRunning) {
-            window.kaliFireworksInstance.stop();
-          }
+          window.kaliFireworksInstance.stop();
         }
       }
       break;
