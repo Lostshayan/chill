@@ -8,55 +8,55 @@ const PLAYLISTS = {
     { title: "Swiss", artist: "Cozy Lofi Study", url: "assets/audio/music/lofi_03_swiss.mp3" },
     { title: "Endless Sunset", artist: "Lofi Sunset Radio", url: "assets/audio/music/lofi_04_endless_sunset.mp3" },
     { title: "Floating Vibes", artist: "Dreamhop Records", url: "assets/audio/music/lofi_05_floating_vibes.mp3" },
-    { title: "Missing Earth", artist: "hoogway (Kupla)", url: "https://archive.org/download/lofigirl/2-AM-Study-Session/01%20hoogway%20-%20Missing%20Earth%20%28Kupla%20Master%29.mp3" },
-    { title: "Pale Moon", artist: "Dr. Dundiff x Allem Iversom", url: "https://archive.org/download/lofigirl/2-AM-Study-Session/06%20Dr.%20Dundiff%20x%20Allem%20Iversom%20-%20Pale%20Moon%20%28Kupla%20Master2%29%20%281%29.mp3" },
-    { title: "Waves", artist: "Chillhop Essentials", url: "https://stream.chillhop.com/mp3/8914" },
-    { title: "With You", artist: "Lofi Garden", url: "https://stream.chillhop.com/mp3/8941" },
-    { title: "Wondering", artist: "Night Owl Lofi", url: "https://stream.chillhop.com/mp3/8943" },
-    { title: "You", artist: "Cocabona", url: "https://archive.org/download/lofigirl/2-AM-Study-Session/02%20Cocabona%20-%20You%20%28Kupla%20Master%29.mp3" },
-    { title: "Ruby", artist: "Sleepermane x Sebastian Kamae", url: "https://archive.org/download/lofigirl/2-AM-Study-Session/03%20Sleepermane%20x%20Sebastian%20Kamae%20-%20Ruby%20%28Kupla%20Master%29%20%281%29.mp3" },
-    { title: "Ships", artist: "Elior x eaup", url: "https://archive.org/download/lofigirl/2-AM-Study-Session/04%20Elior%20x%20eaup%20-%20Ships%20%28Kupla%20Master%29.mp3" },
-    { title: "VHS", artist: "Spencer Hunt x WYS", url: "https://archive.org/download/lofigirl/2-AM-Study-Session/05%20Spencer%20Hunt%20x%20WYS%20-%20VHS%20%28Kupla%20Master%29.mp3" },
-    { title: "Puddles", artist: "E I S U", url: "https://archive.org/download/lofigirl/2-AM-Study-Session/07%20E%20I%20S%20U%20-%20Puddles%20%28Kupla%20Master%29.mp3" },
-    { title: "Honey & Lemon", artist: "lilac", url: "https://archive.org/download/lofigirl/2-AM-Study-Session/08%20lilac%20-%20Honey%20_%20Lemon%20%28Kupla%20Master%29.mp3" },
-    { title: "Nautilus", artist: "WYS", url: "https://archive.org/download/lofigirl/2-AM-Study-Session/09%20WYS%20-%20Nautilus%20%28Kupla%20Master%29.mp3" },
-    { title: "Compassion", artist: "Steezy Prime x Spencer Hunt", url: "https://archive.org/download/lofigirl/2-AM-Study-Session/10%20Steezy%20Prime%20x%20Spencer%20Hunt%20-%20Compassion%20%28Kupla%20Master%29.mp3" },
-    { title: "It's Going to Be a Good Day", artist: "ocha", url: "https://archive.org/download/lofigirl/2-AM-Study-Session/11%20ocha%20-%20It_s%20Going%20to%20Be%20a%20Good%20Day%20%28Kupla%20Master%29.mp3" },
-    { title: "Midnight Snack", artist: "Purrple Cat", url: "https://archive.org/download/lofigirl/2-AM-Study-Session/12%20purrple%20cat%20-%20Midnight%20Snack%20%28Kupl%20Master%29.mp3" },
-    { title: "Infused", artist: "Yasper x Glimlip", url: "https://archive.org/download/lofigirl/2-AM-Study-Session/13%20Yasper%20x%20Glimlip%20-%20Infused%20%28Kupla%20Master%29.mp3" },
-    { title: "Night Owls", artist: "Casioo x Sleepermane", url: "https://archive.org/download/lofigirl/2-AM-Study-Session/17%20Casioo%20x%20Sleepermane%20-%20Night%20Owls%20%28Kupla%20Master%29.mp3" },
-    { title: "Stars and Chimneys", artist: "Kalaido", url: "https://archive.org/download/lofigirl/2-AM-Study-Session/19%20Kalaido%20-%20Stars%20and%20Chimneys%20%28Kupla%20Master%29.mp3" },
-    { title: "Drowsy", artist: "brillion.", url: "https://archive.org/download/lofigirl/2-AM-Study-Session/24%20brillion.%20-%20Drowsy%20%28Kupla%20Master%29.mp3" }
+    { title: "Morning Glow", artist: "Chillhop Music", url: "assets/audio/music/lofi_06_morning_glow.mp3" },
+    { title: "Tokyo Rain", artist: "Kupla", url: "assets/audio/music/lofi_07_tokyo_rain.mp3" },
+    { title: "Waves", artist: "Chillhop Essentials", url: "assets/audio/music/lofi_08_waves.mp3" },
+    { title: "With You", artist: "Lofi Garden", url: "assets/audio/music/lofi_09_with_you.mp3" },
+    { title: "Wondering", artist: "Night Owl Lofi", url: "assets/audio/music/lofi_10_wondering.mp3" },
+    { title: "Coffee & Sunlight", artist: "Cocabona", url: "assets/audio/music/lofi_11_coffee_sunlight.mp3" },
+    { title: "Ruby Dusk", artist: "Sleepermane", url: "assets/audio/music/lofi_12_ruby_dusk.mp3" },
+    { title: "Library Hours", artist: "Elior x eaup", url: "assets/audio/music/lofi_13_library_hours.mp3" },
+    { title: "VHS Tape", artist: "Spencer Hunt x WYS", url: "assets/audio/music/lofi_14_vhs_tape.mp3" },
+    { title: "Autumn Leaves", artist: "E I S U", url: "assets/audio/music/lofi_15_autumn_leaves.mp3" },
+    { title: "Honey & Lemon", artist: "lilac", url: "assets/audio/music/lofi_16_honey_lemon.mp3" },
+    { title: "Nautilus Focus", artist: "WYS", url: "assets/audio/music/lofi_17_nautilus_focus.mp3" },
+    { title: "Compassion", artist: "Steezy Prime", url: "assets/audio/music/lofi_18_compassion.mp3" },
+    { title: "A Good Day", artist: "ocha", url: "assets/audio/music/lofi_19_a_good_day.mp3" },
+    { title: "Midnight Snack", artist: "Purrple Cat", url: "assets/audio/music/lofi_20_midnight_snack.mp3" },
+    { title: "Infused Chill", artist: "Yasper x Glimlip", url: "assets/audio/music/lofi_21_infused_chill.mp3" },
+    { title: "Quiet Thoughts", artist: "Casioo x Sleepermane", url: "assets/audio/music/lofi_22_quiet_thoughts.mp3" },
+    { title: "Stars and Chimneys", artist: "Kalaido", url: "assets/audio/music/lofi_23_stars_chimneys.mp3" },
+    { title: "Drowsy Night", artist: "brillion.", url: "assets/audio/music/lofi_24_drowsy_night.mp3" }
   ],
   cafe: [
     { title: "Tôzen", artist: "Chillhop Beats", url: "assets/audio/music/lofi_02_tozen.mp3" },
     { title: "Apple Juice", artist: "Chillhop Music", url: "assets/audio/music/lofi_01_apple_juice.mp3" },
     { title: "Swiss", artist: "Cozy Lofi Study", url: "assets/audio/music/lofi_03_swiss.mp3" },
     { title: "Floating Vibes", artist: "Dreamhop Records", url: "assets/audio/music/lofi_05_floating_vibes.mp3" },
-    { title: "Waves", artist: "Chillhop Essentials", url: "https://stream.chillhop.com/mp3/8914" },
-    { title: "Honey & Lemon", artist: "lilac", url: "https://archive.org/download/lofigirl/2-AM-Study-Session/08%20lilac%20-%20Honey%20_%20Lemon%20%28Kupla%20Master%29.mp3" },
-    { title: "It's Going to Be a Good Day", artist: "ocha", url: "https://archive.org/download/lofigirl/2-AM-Study-Session/11%20ocha%20-%20It_s%20Going%20to%20Be%20a%20Good%20Day%20%28Kupla%20Master%29.mp3" },
-    { title: "Infused", artist: "Yasper x Glimlip", url: "https://archive.org/download/lofigirl/2-AM-Study-Session/13%20Yasper%20x%20Glimlip%20-%20Infused%20%28Kupla%20Master%29.mp3" },
-    { title: "You", artist: "Cocabona", url: "https://archive.org/download/lofigirl/2-AM-Study-Session/02%20Cocabona%20-%20You%20%28Kupla%20Master%29.mp3" }
+    { title: "Waves", artist: "Chillhop Essentials", url: "assets/audio/music/lofi_08_waves.mp3" },
+    { title: "Honey & Lemon", artist: "lilac", url: "assets/audio/music/lofi_16_honey_lemon.mp3" },
+    { title: "A Good Day", artist: "ocha", url: "assets/audio/music/lofi_19_a_good_day.mp3" },
+    { title: "Infused Chill", artist: "Yasper x Glimlip", url: "assets/audio/music/lofi_21_infused_chill.mp3" },
+    { title: "Coffee & Sunlight", artist: "Cocabona", url: "assets/audio/music/lofi_11_coffee_sunlight.mp3" }
   ],
   dream: [
     { title: "Endless Sunset", artist: "Lofi Sunset Radio", url: "assets/audio/music/lofi_04_endless_sunset.mp3" },
-    { title: "Missing Earth", artist: "hoogway (Kupla)", url: "https://archive.org/download/lofigirl/2-AM-Study-Session/01%20hoogway%20-%20Missing%20Earth%20%28Kupla%20Master%29.mp3" },
-    { title: "Pale Moon", artist: "Dr. Dundiff x Allem Iversom", url: "https://archive.org/download/lofigirl/2-AM-Study-Session/06%20Dr.%20Dundiff%20x%20Allem%20Iversom%20-%20Pale%20Moon%20%28Kupla%20Master2%29%20%281%29.mp3" },
-    { title: "Wondering", artist: "Night Owl Lofi", url: "https://stream.chillhop.com/mp3/8943" },
-    { title: "Ships", artist: "Elior x eaup", url: "https://archive.org/download/lofigirl/2-AM-Study-Session/04%20Elior%20x%20eaup%20-%20Ships%20%28Kupla%20Master%29.mp3" },
-    { title: "Nautilus", artist: "WYS", url: "https://archive.org/download/lofigirl/2-AM-Study-Session/09%20WYS%20-%20Nautilus%20%28Kupla%20Master%29.mp3" },
-    { title: "Midnight Snack", artist: "Purrple Cat", url: "https://archive.org/download/lofigirl/2-AM-Study-Session/12%20purrple%20cat%20-%20Midnight%20Snack%20%28Kupl%20Master%29.mp3" },
-    { title: "Stars and Chimneys", artist: "Kalaido", url: "https://archive.org/download/lofigirl/2-AM-Study-Session/19%20Kalaido%20-%20Stars%20and%20Chimneys%20%28Kupla%20Master%29.mp3" },
-    { title: "Drowsy", artist: "brillion.", url: "https://archive.org/download/lofigirl/2-AM-Study-Session/24%20brillion.%20-%20Drowsy%20%28Kupla%20Master%29.mp3" }
+    { title: "Morning Glow", artist: "Chillhop Music", url: "assets/audio/music/lofi_06_morning_glow.mp3" },
+    { title: "Tokyo Rain", artist: "Kupla", url: "assets/audio/music/lofi_07_tokyo_rain.mp3" },
+    { title: "Wondering", artist: "Night Owl Lofi", url: "assets/audio/music/lofi_10_wondering.mp3" },
+    { title: "Library Hours", artist: "Elior x eaup", url: "assets/audio/music/lofi_13_library_hours.mp3" },
+    { title: "Nautilus Focus", artist: "WYS", url: "assets/audio/music/lofi_17_nautilus_focus.mp3" },
+    { title: "Midnight Snack", artist: "Purrple Cat", url: "assets/audio/music/lofi_20_midnight_snack.mp3" },
+    { title: "Stars and Chimneys", artist: "Kalaido", url: "assets/audio/music/lofi_23_stars_chimneys.mp3" },
+    { title: "Drowsy Night", artist: "brillion.", url: "assets/audio/music/lofi_24_drowsy_night.mp3" }
   ],
   jazz: [
     { title: "Tôzen", artist: "Chillhop Beats", url: "assets/audio/music/lofi_02_tozen.mp3" },
-    { title: "With You", artist: "Lofi Garden", url: "https://stream.chillhop.com/mp3/8941" },
+    { title: "With You", artist: "Lofi Garden", url: "assets/audio/music/lofi_09_with_you.mp3" },
     { title: "Swiss", artist: "Cozy Lofi Study", url: "assets/audio/music/lofi_03_swiss.mp3" },
-    { title: "Ruby", artist: "Sleepermane x Sebastian Kamae", url: "https://archive.org/download/lofigirl/2-AM-Study-Session/03%20Sleepermane%20x%20Sebastian%20Kamae%20-%20Ruby%20%28Kupla%20Master%29%20%281%29.mp3" },
-    { title: "Infused", artist: "Yasper x Glimlip", url: "https://archive.org/download/lofigirl/2-AM-Study-Session/13%20Yasper%20x%20Glimlip%20-%20Infused%20%28Kupla%20Master%29.mp3" },
-    { title: "Compassion", artist: "Steezy Prime x Spencer Hunt", url: "https://archive.org/download/lofigirl/2-AM-Study-Session/10%20Steezy%20Prime%20x%20Spencer%20Hunt%20-%20Compassion%20%28Kupla%20Master%29.mp3" }
+    { title: "Ruby Dusk", artist: "Sleepermane", url: "assets/audio/music/lofi_12_ruby_dusk.mp3" },
+    { title: "Infused Chill", artist: "Yasper x Glimlip", url: "assets/audio/music/lofi_21_infused_chill.mp3" },
+    { title: "Compassion", artist: "Steezy Prime", url: "assets/audio/music/lofi_18_compassion.mp3" }
   ],
   durga_puja: [
     { title: "Tôzen", artist: "Chillhop Beats", url: "assets/audio/music/lofi_02_tozen.mp3" },
@@ -135,7 +135,7 @@ const ALL_TRACKS = [
     artist: "Chillhop Music",
     category: "lofi",
     tag: "Chillhop",
-    url: "https://stream.chillhop.com/mp3/8947"
+    url: "assets/audio/music/lofi_06_morning_glow.mp3"
   },
   {
     id: "lofi_07",
@@ -145,7 +145,7 @@ const ALL_TRACKS = [
     artist: "Kupla",
     category: "lofi",
     tag: "Rainy Vibes",
-    url: "https://stream.chillhop.com/mp3/8949"
+    url: "assets/audio/music/lofi_07_tokyo_rain.mp3"
   },
   {
     id: "lofi_08",
@@ -155,7 +155,7 @@ const ALL_TRACKS = [
     artist: "Chillhop Essentials",
     category: "lofi",
     tag: "Chillhop",
-    url: "https://stream.chillhop.com/mp3/8914"
+    url: "assets/audio/music/lofi_08_waves.mp3"
   },
   {
     id: "lofi_09",
@@ -165,7 +165,7 @@ const ALL_TRACKS = [
     artist: "Lofi Garden",
     category: "lofi",
     tag: "Chillhop",
-    url: "https://stream.chillhop.com/mp3/8941"
+    url: "assets/audio/music/lofi_09_with_you.mp3"
   },
   {
     id: "lofi_10",
@@ -175,7 +175,7 @@ const ALL_TRACKS = [
     artist: "Night Owl Lofi",
     category: "lofi",
     tag: "Night Lofi",
-    url: "https://stream.chillhop.com/mp3/8943"
+    url: "assets/audio/music/lofi_10_wondering.mp3"
   },
   {
     id: "lofi_11",
@@ -185,7 +185,7 @@ const ALL_TRACKS = [
     artist: "Cocabona",
     category: "lofi",
     tag: "Cozy Study",
-    url: "https://stream.chillhop.com/mp3/8951"
+    url: "assets/audio/music/lofi_11_coffee_sunlight.mp3"
   },
   {
     id: "lofi_12",
@@ -195,7 +195,7 @@ const ALL_TRACKS = [
     artist: "Sleepermane",
     category: "lofi",
     tag: "Late Night",
-    url: "https://stream.chillhop.com/mp3/8953"
+    url: "assets/audio/music/lofi_12_ruby_dusk.mp3"
   },
   {
     id: "lofi_13",
@@ -205,7 +205,7 @@ const ALL_TRACKS = [
     artist: "Elior x eaup",
     category: "lofi",
     tag: "Dreamhop",
-    url: "https://stream.chillhop.com/mp3/8955"
+    url: "assets/audio/music/lofi_13_library_hours.mp3"
   },
   {
     id: "lofi_14",
@@ -215,7 +215,7 @@ const ALL_TRACKS = [
     artist: "Spencer Hunt x WYS",
     category: "lofi",
     tag: "Chillhop",
-    url: "https://stream.chillhop.com/mp3/8959"
+    url: "assets/audio/music/lofi_14_vhs_tape.mp3"
   },
   {
     id: "lofi_15",
@@ -225,7 +225,7 @@ const ALL_TRACKS = [
     artist: "E I S U",
     category: "lofi",
     tag: "Rainy Vibes",
-    url: "https://stream.chillhop.com/mp3/8961"
+    url: "assets/audio/music/lofi_15_autumn_leaves.mp3"
   },
   {
     id: "lofi_16",
@@ -235,7 +235,7 @@ const ALL_TRACKS = [
     artist: "lilac",
     category: "lofi",
     tag: "Cozy Study",
-    url: "https://stream.chillhop.com/mp3/8965"
+    url: "assets/audio/music/lofi_16_honey_lemon.mp3"
   },
   {
     id: "lofi_17",
@@ -245,7 +245,7 @@ const ALL_TRACKS = [
     artist: "WYS",
     category: "lofi",
     tag: "Deep Focus",
-    url: "https://stream.chillhop.com/mp3/8967"
+    url: "assets/audio/music/lofi_17_nautilus_focus.mp3"
   },
   {
     id: "lofi_18",
@@ -255,7 +255,7 @@ const ALL_TRACKS = [
     artist: "Steezy Prime",
     category: "lofi",
     tag: "Chillhop",
-    url: "https://stream.chillhop.com/mp3/8969"
+    url: "assets/audio/music/lofi_18_compassion.mp3"
   },
   {
     id: "lofi_19",
@@ -265,7 +265,7 @@ const ALL_TRACKS = [
     artist: "ocha",
     category: "lofi",
     tag: "Mellow Chill",
-    url: "https://stream.chillhop.com/mp3/8971"
+    url: "assets/audio/music/lofi_19_a_good_day.mp3"
   },
   {
     id: "lofi_20",
@@ -275,7 +275,7 @@ const ALL_TRACKS = [
     artist: "Purrple Cat",
     category: "lofi",
     tag: "Night Lofi",
-    url: "https://stream.chillhop.com/mp3/8973"
+    url: "assets/audio/music/lofi_20_midnight_snack.mp3"
   },
   {
     id: "lofi_21",
@@ -285,7 +285,7 @@ const ALL_TRACKS = [
     artist: "Yasper x Glimlip",
     category: "lofi",
     tag: "Chillhop",
-    url: "https://stream.chillhop.com/mp3/8975"
+    url: "assets/audio/music/lofi_21_infused_chill.mp3"
   },
   {
     id: "lofi_22",
@@ -295,7 +295,7 @@ const ALL_TRACKS = [
     artist: "Casioo x Sleepermane",
     category: "lofi",
     tag: "Night Lofi",
-    url: "https://stream.chillhop.com/mp3/8977"
+    url: "assets/audio/music/lofi_22_quiet_thoughts.mp3"
   },
   {
     id: "lofi_23",
@@ -305,7 +305,7 @@ const ALL_TRACKS = [
     artist: "Kalaido",
     category: "lofi",
     tag: "Deep Focus",
-    url: "https://stream.chillhop.com/mp3/8979"
+    url: "assets/audio/music/lofi_23_stars_chimneys.mp3"
   },
   {
     id: "lofi_24",
@@ -315,7 +315,7 @@ const ALL_TRACKS = [
     artist: "brillion.",
     category: "lofi",
     tag: "Late Night",
-    url: "https://stream.chillhop.com/mp3/8981"
+    url: "assets/audio/music/lofi_24_drowsy_night.mp3"
   }
 ];
 
