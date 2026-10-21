@@ -33,7 +33,7 @@
   <link rel="icon" type="image/svg+xml" href="assets/images/logo.svg?v=lofify1">
 
   <!-- Core Styles -->
-  <link rel="stylesheet" href="style.css?v=lofify_theme_fix_v1">
+  <link rel="stylesheet" href="style.css?v=lofify_room_tabs_v2">
 </head>
 <body>
   <!-- MINIMAL VIBE-CODED AESTHETIC LANDING -->
@@ -711,28 +711,94 @@
       </div>
 
       <div class="room-scroll-body">
-        <!-- Room Invite Card -->
-        <div class="room-invite-card">
-          <div class="room-invite-header">
-            <span class="room-badge-tag"><i class="fa-solid fa-link"></i> INVITE LINK</span>
-            <span class="room-status-indicator"><i class="fa-solid fa-circle"></i> Live Sync</span>
-          </div>
-          <p class="room-invite-desc">Invite your friends to study together in this room. Music, vibes, and focus sessions sync live!</p>
-          <div class="room-link-box">
-            <input type="text" id="roomInviteInput" readonly value="">
-            <button class="room-copy-btn" id="btnCopyRoomLink" title="Copy Invite Link">
-              <i class="fa-solid fa-copy"></i> <span>Copy</span>
-            </button>
-          </div>
-          <div class="room-switch-row">
-            <input type="text" id="roomNameInput" placeholder="Room name (e.g. math-cram)" maxlength="24">
-            <button class="room-switch-btn" id="btnSwitchRoom" title="Switch or Create Room">
-              <i class="fa-solid fa-arrow-right-to-bracket"></i> Switch
-            </button>
+        <!-- Room Mode Switcher (Create Room / Join Room) -->
+        <div class="room-nav-tabs">
+          <button class="room-tab-btn active" id="tabCreateRoom" type="button">
+            <i class="fa-solid fa-wand-magic-sparkles"></i> Create Room
+          </button>
+          <button class="room-tab-btn" id="tabJoinRoom" type="button">
+            <i class="fa-solid fa-right-to-bracket"></i> Join Room
+          </button>
+        </div>
+
+        <!-- VIEW 1: CREATE / ACTIVE ROOM -->
+        <div class="room-view-pane active" id="viewCreateRoom">
+          <div class="room-invite-card">
+            <div class="room-invite-header">
+              <span class="room-badge-tag"><i class="fa-solid fa-door-open"></i> ACTIVE ROOM</span>
+              <span class="room-status-indicator"><i class="fa-solid fa-circle"></i> Live Sync</span>
+            </div>
+            
+            <p class="room-invite-desc">Share your room code or invite link so your friends can listen and study with you in real time.</p>
+
+            <!-- Room Code Item -->
+            <div class="room-share-item">
+              <div class="room-field-label"><i class="fa-solid fa-key"></i> Room Code</div>
+              <div class="room-code-display-box">
+                <span class="room-code-badge" id="roomCodeBadge">cozy-study</span>
+                <button class="room-copy-btn room-code-copy-btn" id="btnCopyRoomCode" title="Copy Room Code">
+                  <i class="fa-solid fa-copy"></i> <span>Copy Code</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Invite Link Item -->
+            <div class="room-share-item">
+              <div class="room-field-label"><i class="fa-solid fa-link"></i> Invite Link</div>
+              <div class="room-link-box">
+                <input type="text" id="roomInviteInput" readonly value="">
+                <button class="room-copy-btn" id="btnCopyRoomLink" title="Copy Invite Link">
+                  <i class="fa-solid fa-copy"></i> <span>Copy Link</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Create Another Room Sub-card -->
+            <div class="room-create-subcard">
+              <div class="room-field-label"><i class="fa-solid fa-sparkles"></i> Create Another Room</div>
+              <div class="room-create-row">
+                <input type="text" id="roomNameInput" placeholder="Room name (e.g. math-cram)" maxlength="24">
+                <button class="room-dice-btn" id="btnRandomRoom" type="button" title="Generate Random Room Name">
+                  <i class="fa-solid fa-dice"></i>
+                </button>
+                <button class="room-create-btn" id="btnSwitchRoom" title="Create or Switch Room">
+                  <i class="fa-solid fa-plus-circle"></i> Create
+                </button>
+              </div>
+            </div>
           </div>
         </div>
 
-        <!-- Participants List -->
+        <!-- VIEW 2: JOIN A ROOM -->
+        <div class="room-view-pane" id="viewJoinRoom">
+          <div class="room-invite-card room-join-card">
+            <div class="room-invite-header">
+              <span class="room-badge-tag"><i class="fa-solid fa-right-to-bracket"></i> JOIN ROOM</span>
+            </div>
+
+            <p class="room-invite-desc">Paste a room link or enter a room code from a friend to join their session directly.</p>
+
+            <div class="room-share-item">
+              <label class="room-field-label" for="roomJoinInput"><i class="fa-solid fa-paste"></i> Room Code or Link</label>
+              <div class="room-join-input-wrap">
+                <input type="text" id="roomJoinInput" placeholder="e.g. math-cram or paste link..." autocomplete="off" spellcheck="false">
+                <button class="room-paste-quick-btn" id="btnPasteClipboard" type="button" title="Paste from clipboard">
+                  <i class="fa-solid fa-clipboard"></i> Paste
+                </button>
+              </div>
+            </div>
+
+            <button class="room-join-primary-btn" id="btnSubmitJoinRoom" type="button">
+              <i class="fa-solid fa-arrow-right-to-bracket"></i> Join Room Now
+            </button>
+
+            <div class="room-join-helper-text">
+              <i class="fa-solid fa-circle-info"></i> No browser tab reload required — you'll jump straight into their synchronized session!
+            </div>
+          </div>
+        </div>
+
+        <!-- Participants List (Always visible) -->
         <div class="room-members-section">
           <div class="members-header">
             <span class="members-title"><i class="fa-solid fa-headphones"></i> Studying Together (<span id="roomListenersCount">1</span>)</span>
@@ -1249,6 +1315,6 @@
   <script src="https://www.youtube.com/iframe_api"></script>
 
   <script src="config.js" defer></script>
-  <script src="app.js?v=lofify_local_music_v1" defer></script>
+  <script src="app.js?v=lofify_room_tabs_v2" defer></script>
 </body>
 </html>
