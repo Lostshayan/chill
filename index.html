@@ -29,11 +29,20 @@
   <!-- Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   
-  <!-- Favicon -->
+  <!-- Favicon & PWA Icons -->
   <link rel="icon" type="image/svg+xml" href="assets/images/logo.svg?v=lofify1">
+  <link rel="apple-touch-icon" href="assets/images/apple-touch-icon.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="assets/images/apple-touch-icon.png">
+
+  <!-- PWA Web App Manifest & Mobile Web Capabilities -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Lofify">
 
   <!-- Core Styles -->
-  <link rel="stylesheet" href="style.css?v=lofify_mobile_v5">
+  <link rel="stylesheet" href="style.css?v=lofify_mobile_v6">
 </head>
 <body>
   <!-- MINIMAL VIBE-CODED AESTHETIC LANDING -->
@@ -712,6 +721,8 @@
         <i class="fa-solid fa-sliders menu-dropdown-icon" id="menuDropdownIcon"></i>
         <select id="mobileMenuSelect" class="mobile-menu-select" aria-label="Select Menu">
           <option value="ambient" selected>🎧 Ambient Soundscapes</option>
+          <option value="themes">🎨 Themes & Scenery</option>
+          <option value="songs">🎵 Song Library & Tracks</option>
           <option value="room">👥 Study Room & Buddies</option>
           <option value="todo">📝 Study Checklist</option>
           <option value="profile">👤 Profile & Stats</option>
@@ -751,6 +762,41 @@
         </div>
         <div class="theme-soundscapes-faders" id="themeSoundscapesFaders">
           <!-- Populated dynamically via JS based on current theme -->
+        </div>
+      </div>
+    </div>
+
+    <!-- PANE: Themes & Scenery -->
+    <div class="middle-pane" id="paneThemes">
+      <div class="middle-themes-panel">
+        <div class="middle-pane-title-row">
+          <span><i class="fa-solid fa-palette"></i> THEME SCENERY</span>
+          <span class="middle-pane-sub">8 Retro Environments</span>
+        </div>
+        <div class="middle-themes-grid" id="middleThemesGrid">
+          <!-- Populated dynamically via JS -->
+        </div>
+      </div>
+    </div>
+
+    <!-- PANE: Song Library & Tracks -->
+    <div class="middle-pane" id="paneSongs">
+      <div class="middle-songs-panel">
+        <div class="middle-pane-title-row">
+          <span><i class="fa-solid fa-music"></i> MUSIC TRACKLIST</span>
+          <span class="middle-pane-sub">Lo-Fi Beats & Streams</span>
+        </div>
+        <!-- Filter tabs -->
+        <div class="middle-music-tabs" id="middleMusicTabs">
+          <button class="music-tab-btn active" data-tab="all">All Lo-Fi</button>
+          <button class="music-tab-btn" data-tab="lofi">Chillhop</button>
+          <button class="music-tab-btn" data-tab="focus">Focus</button>
+          <button class="music-tab-btn youtube-tab" data-tab="youtube" id="middleTabYoutubeMusic">
+            <i class="fa-brands fa-youtube" style="color: #ff4444;"></i> YouTube
+          </button>
+        </div>
+        <div class="middle-music-list" id="middleMusicList">
+          <!-- Populated dynamically via JS -->
         </div>
       </div>
     </div>
@@ -1361,6 +1407,52 @@
   <!-- Live Room Notification Toast -->
   <div class="room-toast" id="roomToast"></div>
 
+  <!-- PWA Mobile Install Prompt Modal -->
+  <div class="pwa-install-modal" id="pwaInstallModal" style="display: none;">
+    <div class="pwa-install-backdrop" id="pwaInstallBackdrop"></div>
+    <div class="pwa-install-card">
+      <button type="button" class="pwa-close-btn" id="pwaCloseBtn" aria-label="Close">&times;</button>
+      <div class="pwa-card-header">
+        <div class="pwa-icon-wrap">
+          <img src="assets/images/icon-192.png" alt="Lofify App Icon" class="pwa-app-icon">
+          <div class="pwa-icon-glow"></div>
+        </div>
+        <div class="pwa-header-info">
+          <h3 class="pwa-app-title">Install Lofify</h3>
+          <p class="pwa-app-subtitle">Lofi Chill & Study Room</p>
+        </div>
+      </div>
+      <p class="pwa-install-desc">Install on your phone for fullscreen immersion, instant launch, and offline ambient audio.</p>
+      <div class="pwa-perks-row">
+        <span class="pwa-perk-tag"><i class="fa-solid fa-bolt"></i> Instant Launch</span>
+        <span class="pwa-perk-tag"><i class="fa-solid fa-mobile-screen"></i> Fullscreen View</span>
+        <span class="pwa-perk-tag"><i class="fa-solid fa-headphones"></i> Offline Audio</span>
+      </div>
+      <!-- Android / Standard PWA Action -->
+      <div id="pwaStandardAction">
+        <button type="button" class="pwa-install-btn" id="pwaInstallBtn">
+          <i class="fa-solid fa-arrow-down-to-bracket"></i> Install App
+        </button>
+      </div>
+      <!-- iOS Safari Action Guidance -->
+      <div id="pwaIosAction" style="display: none;">
+        <div class="pwa-ios-instructions">
+          <div class="pwa-ios-step">
+            <span class="pwa-step-num">1</span>
+            <span>Tap the <strong>Share</strong> icon <i class="fa-solid fa-arrow-up-from-bracket pwa-inline-icon"></i> in Safari bottom bar</span>
+          </div>
+          <div class="pwa-ios-step">
+            <span class="pwa-step-num">2</span>
+            <span>Scroll down and tap <strong>Add to Home Screen</strong> <i class="fa-regular fa-square-plus pwa-inline-icon"></i></span>
+          </div>
+        </div>
+        <button type="button" class="pwa-install-btn" id="pwaIosGotItBtn">
+          <i class="fa-solid fa-check"></i> Got It
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- crashmax-dev/fireworks-js official library -->
   <script src="https://unpkg.com/fireworks-js@2.x/dist/index.umd.js"></script>
   <script>
@@ -1376,6 +1468,6 @@
   <script src="https://www.youtube.com/iframe_api"></script>
 
   <script src="config.js" defer></script>
-  <script src="app.js?v=lofify_mobile_v5" defer></script>
+  <script src="app.js?v=lofify_mobile_v7" defer></script>
 </body>
 </html>
