@@ -8839,6 +8839,148 @@ canvas {
   line-height: 1.35;
 }
 
+/* Inline Search Result in Friends Panel */
+.friends-search-result-wrap {
+  margin-top: 6px;
+  animation: fadeInResult 0.25s ease-out;
+}
+
+@keyframes fadeInResult {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.friends-search-result-box {
+  background: rgba(42, 157, 143, 0.08);
+  border: 1px solid rgba(42, 157, 143, 0.35);
+  border-radius: 10px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.search-result-top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #2A9D8F;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.search-result-top-bar span {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.search-result-dismiss-btn {
+  background: transparent;
+  border: none;
+  color: #8C7B6D;
+  font-size: 1.1rem;
+  cursor: pointer;
+  padding: 0 4px;
+  line-height: 1;
+  border-radius: 4px;
+  transition: color 0.2s ease;
+}
+
+.search-result-dismiss-btn:hover {
+  color: #FFF;
+}
+
+.search-result-card-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.search-result-user-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  min-width: 0;
+  cursor: pointer;
+}
+
+.search-result-user-left:hover .friend-name {
+  color: #D4A373;
+}
+
+.search-result-actions-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.search-btn-view-profile {
+  background: rgba(212, 163, 115, 0.15);
+  border: 1px solid #D4A373;
+  color: #D4A373;
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.search-btn-view-profile:hover {
+  background: #D4A373;
+  color: #181310;
+}
+
+.search-btn-action {
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.search-btn-action.add-friend {
+  background: #2A9D8F;
+  border: 1px solid #2A9D8F;
+  color: #FFF;
+}
+
+.search-btn-action.add-friend:hover {
+  background: #238276;
+}
+
+.search-btn-action.pending-sent {
+  background: rgba(231, 111, 81, 0.15);
+  border: 1px solid rgba(231, 111, 81, 0.5);
+  color: #E76F51;
+}
+
+.search-btn-action.pending-sent:hover {
+  background: rgba(231, 111, 81, 0.25);
+}
+
+.search-btn-action.is-friend {
+  background: rgba(42, 157, 143, 0.15);
+  border: 1px solid rgba(42, 157, 143, 0.5);
+  color: #2A9D8F;
+  cursor: default;
+}
+
 /* Friends Section Groups */
 .friends-section-group {
   display: flex;
@@ -9071,6 +9213,19 @@ canvas {
   position: relative;
   max-width: 360px;
   padding: 24px 20px 20px;
+}
+
+.buddy-modal-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #D4A373;
+  margin-bottom: 12px;
+  padding-right: 28px;
 }
 
 .buddy-modal-close-btn {
