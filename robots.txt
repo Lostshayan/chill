@@ -3,4 +3,4 @@ User-agent: *
 Allow: /
 
 # Host & Sitemap
-Sitemap: https://chill-room.vercel.app/sitemap.xml
+Sitemap: https://lofify-chi.vercel.app/sitemap.xml
