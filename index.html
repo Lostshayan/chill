@@ -1324,14 +1324,15 @@
       <div class="profile-scroll-body friends-scroll-body" id="friendsScrollBody">
         <!-- Add Friend / Search Card -->
         <div class="friends-search-card">
-          <div class="friends-search-label"><i class="fa-solid fa-user-plus"></i> Add Study Friend</div>
+          <div class="friends-search-label"><i class="fa-solid fa-magnifying-glass"></i> Find Study Buddies</div>
           <div class="friends-input-row">
-            <input type="text" id="addFriendInput" class="friends-text-input" placeholder="Search by username (e.g. cozy_scholar)..." autocomplete="off" spellcheck="false">
-            <button type="button" class="friends-action-btn primary" id="addFriendSubmitBtn" title="Send Request">
-              <i class="fa-solid fa-paper-plane"></i>
+            <input type="text" id="addFriendInput" class="friends-text-input" placeholder="Search by username to view profile..." autocomplete="off" spellcheck="false">
+            <button type="button" class="friends-action-btn primary" id="addFriendSubmitBtn" title="Search Profile">
+              <i class="fa-solid fa-magnifying-glass"></i>
             </button>
           </div>
-          <div class="friends-search-hint">💡 Tip: Enter your buddy's unique username or click their name in chat/room.</div>
+          <div class="friends-search-hint">💡 Enter a username to view their profile, stats, and send a request.</div>
+          <div class="friends-search-result-wrap" id="friendsSearchResultWrap" style="display: none;"></div>
         </div>
 
         <!-- In Room Buddies Quick Section -->
@@ -1724,6 +1725,10 @@
       <button type="button" class="buddy-modal-close-btn" id="closeOtherUserProfileModal" title="Close">
         <i class="fa-solid fa-xmark"></i>
       </button>
+
+      <div class="buddy-modal-eyebrow">
+        <i class="fa-solid fa-id-card"></i> Profile Preview
+      </div>
 
       <div class="buddy-profile-header">
         <div class="buddy-avatar-wrap">

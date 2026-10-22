@@ -7219,21 +7219,43 @@ async function syncFriendRequestsFromSupabase(userId = (state.currentUser?.id ||
 function isFriend(userId) {
   if (!userId) return false;
   const list = getFriendsList();
-  return list.some(f => f.id === userId);
+  const uIdStr = String(userId).toLowerCase();
+  const uClean = uIdStr.replace(/^@+/, '').replace(/[^a-z0-9_]/g, '');
+  return list.some(f => {
+    if (f.id && String(f.id).toLowerCase() === uIdStr) return true;
+    if (f.userId && String(f.userId).toLowerCase() === uIdStr) return true;
+    const fName = (f.displayName || f.username || '').toLowerCase().replace(/^@+/, '').replace(/[^a-z0-9_]/g, '');
+    if (fName && (fName === uIdStr || fName === uClean)) return true;
+    return false;
+  });
 }
 
 function hasOutgoingRequest(userId) {
   if (!userId) return false;
   const myId = state.currentUser?.id || getMyUserId();
+  const uIdStr = String(userId).toLowerCase();
+  const uClean = uIdStr.replace(/^@+/, '').replace(/[^a-z0-9_]/g, '');
   const requests = getFriendRequests();
-  return requests.some(r => (r.fromId === myId || r.fromId === getMyUserId()) && r.toId === userId && r.direction === 'outgoing');
+  return requests.some(r => {
+    const isFromMe = (r.fromId === myId || r.fromId === getMyUserId());
+    const isToUser = (r.toId && String(r.toId).toLowerCase() === uIdStr) ||
+                     (r.toName && (r.toName.toLowerCase() === uIdStr || r.toName.toLowerCase() === uClean));
+    return isFromMe && isToUser && r.direction === 'outgoing';
+  });
 }
 
 function hasIncomingRequest(userId) {
   if (!userId) return false;
   const myId = state.currentUser?.id || getMyUserId();
+  const uIdStr = String(userId).toLowerCase();
+  const uClean = uIdStr.replace(/^@+/, '').replace(/[^a-z0-9_]/g, '');
   const requests = getFriendRequests();
-  return requests.some(r => (r.toId === myId || r.toId === getMyUserId()) && r.fromId === userId && r.direction === 'incoming');
+  return requests.some(r => {
+    const isToMe = (r.toId === myId || r.toId === getMyUserId());
+    const isFromUser = (r.fromId && String(r.fromId).toLowerCase() === uIdStr) ||
+                       (r.fromName && (r.fromName.toLowerCase() === uIdStr || r.fromName.toLowerCase() === uClean));
+    return isToMe && isFromUser && r.direction === 'incoming';
+  });
 }
 
 function getIncomingRequests() {
@@ -7409,8 +7431,11 @@ function sendFriendRequest(targetUser) {
   renderFriendsUI();
 
   // If buddy modal is currently open for this user, refresh it
-  if (currentViewingBuddy && currentViewingBuddy.id === targetId) {
+  if (currentViewingBuddy && (currentViewingBuddy.id === targetId || currentViewingBuddy.userId === targetId)) {
     openBuddyProfileModal(currentViewingBuddy);
+  }
+  if (typeof window.__refreshSearchResultCard === 'function') {
+    window.__refreshSearchResultCard();
   }
 }
 
@@ -7482,8 +7507,11 @@ function acceptFriendRequest(requestOrBuddy) {
   renderFriendsUI();
 
   // Refresh active room list and current viewing modal if applicable
-  if (currentViewingBuddy && currentViewingBuddy.id === partnerId) {
+  if (currentViewingBuddy && (currentViewingBuddy.id === partnerId || currentViewingBuddy.userId === partnerId)) {
     openBuddyProfileModal(currentViewingBuddy);
+  }
+  if (typeof window.__refreshSearchResultCard === 'function') {
+    window.__refreshSearchResultCard();
   }
 }
 
@@ -7517,8 +7545,11 @@ function declineFriendRequest(requestIdOrPartnerId) {
   hideIncomingFriendAlert();
   renderFriendsUI();
 
-  if (currentViewingBuddy && (currentViewingBuddy.id === requestIdOrPartnerId)) {
+  if (currentViewingBuddy && (currentViewingBuddy.id === requestIdOrPartnerId || currentViewingBuddy.userId === requestIdOrPartnerId)) {
     openBuddyProfileModal(currentViewingBuddy);
+  }
+  if (typeof window.__refreshSearchResultCard === 'function') {
+    window.__refreshSearchResultCard();
   }
 }
 
@@ -7551,8 +7582,11 @@ function cancelFriendRequest(targetUserId) {
   showRoomToast("Friend request canceled.");
   renderFriendsUI();
 
-  if (currentViewingBuddy && currentViewingBuddy.id === targetUserId) {
+  if (currentViewingBuddy && (currentViewingBuddy.id === targetUserId || currentViewingBuddy.userId === targetUserId)) {
     openBuddyProfileModal(currentViewingBuddy);
+  }
+  if (typeof window.__refreshSearchResultCard === 'function') {
+    window.__refreshSearchResultCard();
   }
 }
 
@@ -7583,8 +7617,11 @@ function removeFriend(friendId) {
   showRoomToast(`Removed ${name} from friends list.`);
   renderFriendsUI();
 
-  if (currentViewingBuddy && currentViewingBuddy.id === friendId) {
+  if (currentViewingBuddy && (currentViewingBuddy.id === friendId || currentViewingBuddy.userId === friendId)) {
     openBuddyProfileModal(currentViewingBuddy);
+  }
+  if (typeof window.__refreshSearchResultCard === 'function') {
+    window.__refreshSearchResultCard();
   }
 }
 
@@ -7820,7 +7857,11 @@ function openBuddyProfileModal(user) {
         </button>
       `;
       const btn = elActions.querySelector('#modalBtnFriendState');
-      if (btn) btn.onclick = () => removeFriend(userId);
+      if (btn) btn.onclick = () => {
+        removeFriend(userId);
+        openBuddyProfileModal(user);
+        if (typeof window.__refreshSearchResultCard === 'function') window.__refreshSearchResultCard();
+      };
     } else if (hasOutgoingRequest(userId)) {
       elActions.innerHTML = `
         <button type="button" class="buddy-btn pending-sent" id="modalBtnCancelSent" title="Click to cancel outgoing request">
@@ -7828,7 +7869,11 @@ function openBuddyProfileModal(user) {
         </button>
       `;
       const btn = elActions.querySelector('#modalBtnCancelSent');
-      if (btn) btn.onclick = () => cancelFriendRequest(userId);
+      if (btn) btn.onclick = () => {
+        cancelFriendRequest(userId);
+        openBuddyProfileModal(user);
+        if (typeof window.__refreshSearchResultCard === 'function') window.__refreshSearchResultCard();
+      };
     } else if (hasIncomingRequest(userId)) {
       elActions.innerHTML = `
         <button type="button" class="buddy-btn add-friend" id="modalBtnAcceptIn" style="background:#2A9D8F; color:#FFF;">
@@ -7839,17 +7884,29 @@ function openBuddyProfileModal(user) {
         </button>
       `;
       const btnAccept = elActions.querySelector('#modalBtnAcceptIn');
-      if (btnAccept) btnAccept.onclick = () => acceptFriendRequest(user);
+      if (btnAccept) btnAccept.onclick = () => {
+        acceptFriendRequest(user);
+        openBuddyProfileModal(user);
+        if (typeof window.__refreshSearchResultCard === 'function') window.__refreshSearchResultCard();
+      };
       const btnDecline = elActions.querySelector('#modalBtnDeclineIn');
-      if (btnDecline) btnDecline.onclick = () => declineFriendRequest(userId);
+      if (btnDecline) btnDecline.onclick = () => {
+        declineFriendRequest(userId);
+        openBuddyProfileModal(user);
+        if (typeof window.__refreshSearchResultCard === 'function') window.__refreshSearchResultCard();
+      };
     } else {
       elActions.innerHTML = `
-        <button type="button" class="buddy-btn add-friend" id="modalBtnAddBuddy">
-          <i class="fa-solid fa-user-plus"></i> Add as Friend
+        <button type="button" class="buddy-btn add-friend" id="modalBtnAddBuddy" style="background:#2A9D8F; color:#FFF; font-weight:700; width:100%;">
+          <i class="fa-solid fa-user-plus"></i> Send Friend Request
         </button>
       `;
       const btn = elActions.querySelector('#modalBtnAddBuddy');
-      if (btn) btn.onclick = () => sendFriendRequest(user);
+      if (btn) btn.onclick = () => {
+        sendFriendRequest(user);
+        openBuddyProfileModal(user);
+        if (typeof window.__refreshSearchResultCard === 'function') window.__refreshSearchResultCard();
+      };
     }
   }
 
@@ -8152,11 +8209,115 @@ function setupFriendsSystem() {
   const addInput = document.getElementById('addFriendInput');
   const addBtn = document.getElementById('addFriendSubmitBtn');
 
+  let currentSearchedBuddy = null;
+
+  function clearSearchResultCard() {
+    currentSearchedBuddy = null;
+    const wrap = document.getElementById('friendsSearchResultWrap');
+    if (wrap) {
+      wrap.innerHTML = '';
+      wrap.style.display = 'none';
+    }
+  }
+
+  function renderSearchResultCard(buddy) {
+    if (!buddy) {
+      clearSearchResultCard();
+      return;
+    }
+    currentSearchedBuddy = buddy;
+    const wrap = document.getElementById('friendsSearchResultWrap');
+    if (!wrap) return;
+
+    const bId = buddy.id || buddy.userId;
+    const bName = buddy.displayName || buddy.username || 'Study Buddy';
+    const isAlreadyFriend = isFriend(bId);
+    const isSent = hasOutgoingRequest(bId);
+    const isIncoming = hasIncomingRequest(bId);
+
+    let actionBtnHtml = '';
+    if (isAlreadyFriend) {
+      actionBtnHtml = `<button type="button" class="search-btn-action is-friend" id="searchActionBtn"><i class="fa-solid fa-user-check"></i> Friends</button>`;
+    } else if (isSent) {
+      actionBtnHtml = `<button type="button" class="search-btn-action pending-sent" id="searchActionBtn" title="Click to cancel outgoing request"><i class="fa-solid fa-clock"></i> Request Sent</button>`;
+    } else if (isIncoming) {
+      actionBtnHtml = `<button type="button" class="search-btn-action add-friend" id="searchActionBtn"><i class="fa-solid fa-check"></i> Accept</button>`;
+    } else {
+      actionBtnHtml = `<button type="button" class="search-btn-action add-friend" id="searchActionBtn"><i class="fa-solid fa-user-plus"></i> Send Request</button>`;
+    }
+
+    wrap.style.display = 'block';
+    wrap.innerHTML = `
+      <div class="friends-search-result-box">
+        <div class="search-result-top-bar">
+          <span><i class="fa-solid fa-circle-check"></i> User Found</span>
+          <button type="button" class="search-result-dismiss-btn" id="dismissSearchResultBtn" title="Clear search">&times;</button>
+        </div>
+        <div class="search-result-card-inner">
+          <div class="search-result-user-left" id="searchResultUserPreview" title="Click to view full profile">
+            <div class="friend-avatar-wrap">
+              ${buddy.avatarUrl ? `<img src="${buddy.avatarUrl}" class="friend-avatar-img" alt="${escapeHtml(bName)}">` : `<span style="font-size:1.1rem;">${buddy.avatar || '🎧'}</span>`}
+            </div>
+            <div class="friend-meta">
+              <div class="friend-name-row">
+                <span class="friend-name">@${escapeHtml(bName)}</span>
+                <span class="friend-level-tag">${escapeHtml(buddy.levelText || 'Lv. 1 Scholar')}</span>
+              </div>
+              <span class="friend-status-text">${escapeHtml(buddy.bio || 'Studying lo-fi beats & staying in the zone 🎧')}</span>
+            </div>
+          </div>
+          <div class="search-result-actions-row">
+            <button type="button" class="search-btn-view-profile" id="searchViewProfileBtn" title="View Full Profile">
+              <i class="fa-solid fa-id-card"></i> View Profile
+            </button>
+            ${actionBtnHtml}
+          </div>
+        </div>
+      </div>
+    `;
+
+    wrap.querySelector('#dismissSearchResultBtn')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      clearSearchResultCard();
+    });
+
+    const openProfile = (e) => {
+      e?.stopPropagation();
+      openBuddyProfileModal(buddy);
+    };
+
+    wrap.querySelector('#searchResultUserPreview')?.addEventListener('click', openProfile);
+    wrap.querySelector('#searchViewProfileBtn')?.addEventListener('click', openProfile);
+
+    const actionBtn = wrap.querySelector('#searchActionBtn');
+    if (actionBtn) {
+      actionBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (isAlreadyFriend) {
+          removeFriend(bId);
+        } else if (isSent) {
+          cancelFriendRequest(bId);
+        } else if (isIncoming) {
+          acceptFriendRequest(buddy);
+        } else {
+          sendFriendRequest(buddy);
+        }
+        renderSearchResultCard(buddy);
+      });
+    }
+  }
+
+  window.__refreshSearchResultCard = () => {
+    if (currentSearchedBuddy) {
+      renderSearchResultCard(currentSearchedBuddy);
+    }
+  };
+
   const handleAddSubmit = async () => {
     if (!addInput) return;
     const rawVal = (addInput.value || '').trim();
     if (!rawVal) {
-      showRoomToast("⚠️ Please enter a username.");
+      showRoomToast("⚠️ Please enter a username to search.");
       return;
     }
 
@@ -8179,27 +8340,25 @@ function setupFriendsSystem() {
     const myCleanName = myRawName.toLowerCase().replace(/^@+/, '').replace(/[^a-z0-9_]/g, '');
 
     if (query === myId.toLowerCase() || (myAuthId && query === myAuthId.toLowerCase()) || query === myCleanName) {
-      showRoomToast("⚠️ You cannot add yourself as a friend.");
-      return;
-    }
-
-    // Check if user is already a friend by name or ID
-    const friends = getFriendsList();
-    if (friends.some(f => {
-      const fName = (f.displayName || f.username || '').toLowerCase().replace(/^@+/, '').replace(/[^a-z0-9_]/g, '');
-      const fFlat = fName.replace(/_/g, '');
-      const qFlat = query.replace(/_/g, '');
-      return fName === query || fFlat === qFlat || (f.id && isSelf(f.id));
-    })) {
-      showRoomToast(`✨ "@${query}" is already in your study friends!`);
+      showRoomToast("⚠️ This is your own username. View your profile in the Profile tab.");
       return;
     }
 
     let matchedBuddy = null;
     const queryFlat = query.replace(/_/g, '');
 
+    // 0. Check in existing friends list
+    const existingFriend = getFriendsList().find(f => {
+      const fName = (f.displayName || f.username || '').toLowerCase().replace(/^@+/, '').replace(/[^a-z0-9_]/g, '');
+      const fFlat = fName.replace(/_/g, '');
+      return fName === query || fFlat === queryFlat || (f.id && String(f.id).toLowerCase() === query);
+    });
+    if (existingFriend) {
+      matchedBuddy = existingFriend;
+    }
+
     // 1. Check in active room presence
-    if (roomChannel && typeof roomChannel.presenceState === 'function') {
+    if (!matchedBuddy && roomChannel && typeof roomChannel.presenceState === 'function') {
       const presences = roomChannel.presenceState();
       for (const id in presences) {
         if (!isSelf(id)) {
@@ -8337,9 +8496,16 @@ function setupFriendsSystem() {
     }
 
     if (matchedBuddy) {
-      sendFriendRequest(matchedBuddy);
+      // 1. Render inline search result card in the Friends panel
+      renderSearchResultCard(matchedBuddy);
+
+      // 2. Open the user profile modal so the user views the profile BEFORE sending a request!
+      openBuddyProfileModal(matchedBuddy);
+
+      showRoomToast(`🔍 Found @${matchedBuddy.displayName}! Viewing profile.`);
       addInput.value = '';
     } else {
+      clearSearchResultCard();
       showRoomToast(`⚠️ No user found with username "@${query}". Please check the spelling.`);
     }
   };
