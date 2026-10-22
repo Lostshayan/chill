@@ -1768,6 +1768,9 @@ window.addEventListener('DOMContentLoaded', () => {
   setupFocusTimer();
   setupProfileAndAnalytics();
   initSupabaseAuth();
+  initGlobalLobbyChannel();
+  syncFriendsFromSupabase();
+  syncFriendRequestsFromSupabase();
   initLandingPage();
   initProfileSetupModal();
   window.blizzardEngine = new BlizzardEngine('blizzard-canvas');
@@ -1895,7 +1898,7 @@ async function saveProfileToSupabase(user = state.currentUser) {
   const client = getSupabase();
   if (!client || !user || !user.id || !profileState) return;
   try {
-    await client.from('profiles').upsert({
+    const { data, error } = await client.from('profiles').upsert({
       id: user.id,
       username: profileState.username || 'Cozy Scholar',
       avatar_url: profileState.avatarUrl || null,
@@ -1905,8 +1908,11 @@ async function saveProfileToSupabase(user = state.currentUser) {
       last_active_date: profileState.lastActiveDate || getTodayDateString(),
       updated_at: new Date().toISOString()
     });
+    if (error) {
+      console.warn("saveProfileToSupabase error:", error.message || error);
+    }
   } catch (err) {
-    console.warn("saveProfileToSupabase error:", err);
+    console.warn("saveProfileToSupabase exception:", err);
   }
 }
 
@@ -2101,6 +2107,10 @@ function handleAuthUser(user) {
     // Sync cloud profile and todos from Supabase
     syncProfileFromSupabase(user);
     syncTodosFromSupabase(user);
+    syncFriendsFromSupabase(user.id);
+    syncFriendRequestsFromSupabase(user.id);
+    initGlobalLobbyChannel();
+    syncGlobalPresence();
   }
 }
 
@@ -2129,6 +2139,16 @@ function openProfileSetupModal(user = state.currentUser, isEditing = false) {
   if (elInput) {
     elInput.value = currentName;
     if (elCharCount) elCharCount.textContent = `${currentName.length}/20`;
+  }
+
+  const elFeedback = document.getElementById('setupUsernameFeedback');
+  const elWrapper = document.getElementById('setupInputWrapper') || elInput?.closest('.setup-input-wrapper');
+  if (elFeedback) {
+    elFeedback.className = 'setup-username-feedback';
+    elFeedback.textContent = '';
+  }
+  if (elWrapper) {
+    elWrapper.classList.remove('is-invalid', 'is-valid');
   }
 
   // Select active avatar in grid
@@ -2165,6 +2185,187 @@ function closeProfileSetupModal() {
   }
 }
 
+// ==========================================================================
+// UNIQUE USERNAME REGISTRY & VALIDATION
+// ==========================================================================
+// UNIQUE USERNAME REGISTRY & CROSS-TAB SYNC
+// ==========================================================================
+const STORAGE_KEY_USERNAMES = 'lofify_usernames_registry_v1';
+
+let crossTabSyncChannel = null;
+try {
+  if (typeof BroadcastChannel !== 'undefined') {
+    crossTabSyncChannel = new BroadcastChannel('lofify_cross_tab_sync');
+    crossTabSyncChannel.onmessage = (event) => {
+      const data = event.data;
+      if (!data) return;
+      if (data.type === 'USER_REGISTERED' && data.username) {
+        const registry = getRegisteredUsernames();
+        registry[data.username.toLowerCase()] = data.userData;
+        try { localStorage.setItem(STORAGE_KEY_USERNAMES, JSON.stringify(registry)); } catch (_) {}
+      } else if (data.type === 'FRIEND_SIGNAL' && data.payload) {
+        const myId = getMyUserId();
+        if (data.payload.toId === myId) {
+          if (typeof handleIncomingFriendBroadcast === 'function') {
+            handleIncomingFriendBroadcast(data.signalType, data.payload);
+          }
+        }
+      }
+    };
+  }
+} catch (e) {
+  console.warn("BroadcastChannel error:", e);
+}
+
+function getRegisteredUsernames() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY_USERNAMES);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (typeof parsed === 'object' && parsed !== null) return parsed;
+    }
+  } catch (err) {
+    console.warn("Could not read usernames registry:", err);
+  }
+  return {};
+}
+
+function registerUsernameLocal(username, userData = {}) {
+  if (!username) return;
+  const cleanName = username.trim().toLowerCase().replace(/[^a-z0-9_]/g, '');
+  if (!cleanName) return;
+  try {
+    const registry = getRegisteredUsernames();
+    const myId = userData.id || getMyUserId();
+    const entry = {
+      id: myId,
+      username: cleanName,
+      avatarUrl: userData.avatarUrl || null,
+      avatarAnimal: userData.avatarAnimal || 'cat',
+      selectedAvatar: userData.selectedAvatar || 'Mochi Cat 🐱',
+      levelText: userData.levelText || 'Lv. 1 Scholar',
+      streakDays: userData.streakDays || 1,
+      totalFocusMinutes: userData.totalFocusMinutes || 0,
+      bio: userData.bio || "Studying lo-fi beats & staying in the zone 🎧",
+      updatedAt: Date.now()
+    };
+    registry[cleanName] = entry;
+    localStorage.setItem(STORAGE_KEY_USERNAMES, JSON.stringify(registry));
+
+    if (crossTabSyncChannel) {
+      crossTabSyncChannel.postMessage({
+        type: 'USER_REGISTERED',
+        username: cleanName,
+        userData: entry
+      });
+    }
+
+    if (typeof globalLobbyChannel !== 'undefined' && globalLobbyChannel && typeof globalLobbyChannel.send === 'function') {
+      try {
+        globalLobbyChannel.send({
+          type: 'broadcast',
+          event: 'user_register',
+          payload: entry
+        });
+      } catch (_) {}
+    }
+  } catch (err) {
+    console.warn("Could not register username locally:", err);
+  }
+}
+
+async function checkUsernameAvailability(rawUsername, myId = getMyUserId()) {
+  const trimmed = (rawUsername || '').trim();
+  if (!trimmed) {
+    return { available: false, reason: 'empty', message: 'Username cannot be empty.' };
+  }
+
+  // Username rules: lowercase letters, numbers, and underscores only (3-20 chars)
+  if (trimmed !== trimmed.toLowerCase()) {
+    return { available: false, reason: 'uppercase', message: 'Only lowercase letters allowed (Username rules).' };
+  }
+  if (trimmed.length < 3) {
+    return { available: false, reason: 'too_short', message: 'Username must be at least 3 characters.' };
+  }
+  if (trimmed.length > 20) {
+    return { available: false, reason: 'too_long', message: 'Username must be at most 20 characters.' };
+  }
+  if (!/^[a-z0-9_]{3,20}$/.test(trimmed)) {
+    return { available: false, reason: 'invalid_format', message: 'Only lowercase letters (a-z), numbers (0-9), and underscore (_) allowed.' };
+  }
+
+  const lower = trimmed.toLowerCase();
+  const myAuthId = state.currentUser?.id || null;
+  const isSelf = (targetId) => {
+    if (!targetId) return false;
+    const tid = String(targetId).toLowerCase();
+    return tid === myId.toLowerCase() || (myAuthId && tid === myAuthId.toLowerCase());
+  };
+
+  // 1. Check local usernames registry
+  const registry = getRegisteredUsernames();
+  if (registry[lower] && registry[lower].id && !isSelf(registry[lower].id)) {
+    return { available: false, reason: 'taken', message: `Username "@${trimmed}" is already taken. Please choose another.` };
+  }
+
+  // 2. Check active room presence
+  if (roomChannel && typeof roomChannel.presenceState === 'function') {
+    const presences = roomChannel.presenceState();
+    for (const id in presences) {
+      if (!isSelf(id)) {
+        const meta = presences[id]?.[0];
+        const u = (meta?.username || meta?.displayName || '').toLowerCase().replace(/^@+/, '');
+        if (u === lower) {
+          return { available: false, reason: 'taken', message: `Username "@${trimmed}" is currently taken by a study buddy.` };
+        }
+      }
+    }
+  }
+
+  // 3. Check global lobby presence
+  if (typeof globalLobbyChannel !== 'undefined' && globalLobbyChannel && typeof globalLobbyChannel.presenceState === 'function') {
+    const presences = globalLobbyChannel.presenceState();
+    for (const id in presences) {
+      if (!isSelf(id)) {
+        const list = presences[id] || [];
+        for (const meta of list) {
+          if (!meta) continue;
+          const metaId = meta.userId || meta.id || id;
+          if (isSelf(metaId)) continue;
+          const u = (meta.username || meta.displayName || '').toLowerCase().replace(/^@+/, '');
+          if (u === lower) {
+            return { available: false, reason: 'taken', message: `Username "@${trimmed}" is currently taken by a study buddy.` };
+          }
+        }
+      }
+    }
+  }
+
+  // 4. Check Supabase profiles table
+  const client = getSupabase();
+  if (client) {
+    try {
+      const { data, error } = await client
+        .from('profiles')
+        .select('id, username')
+        .ilike('username', trimmed);
+      if (error) {
+        console.warn("Supabase username check returned error:", error);
+      }
+      if (!error && Array.isArray(data) && data.length > 0) {
+        const otherUser = data.find(row => !isSelf(row.id));
+        if (otherUser) {
+          return { available: false, reason: 'taken', message: `Username "@${trimmed}" is already taken. Please choose another.` };
+        }
+      }
+    } catch (err) {
+      console.warn("Supabase username check error:", err);
+    }
+  }
+
+  return { available: true, message: `✓ "@${trimmed}" is available!` };
+}
+
 function initProfileSetupModal() {
   const modal = document.getElementById('profileSetupModal');
   if (!modal) return;
@@ -2175,13 +2376,93 @@ function initProfileSetupModal() {
   const elPreviewLabel = document.getElementById('setupSelectedAvatarLabel');
   const elSaveBtn = document.getElementById('btnSaveProfileSetup');
   const elSkipBtn = document.getElementById('btnSkipProfileSetup');
+  const elFeedback = document.getElementById('setupUsernameFeedback');
+  const elWrapper = document.getElementById('setupInputWrapper') || elInput?.closest('.setup-input-wrapper');
 
-  // Input live character counter
+  let usernameCheckDebounce = null;
+
+  async function validateUsernameLive(val) {
+    const myId = state.currentUser?.id || getMyUserId();
+    const currentSavedName = (profileState && profileState.username) || '';
+
+    // If it's already their own current username when editing, it's valid
+    if (val.trim() === currentSavedName.trim() && val.trim().length >= 3) {
+      if (elFeedback) {
+        elFeedback.className = 'setup-username-feedback success';
+        elFeedback.innerHTML = `<i class="fa-solid fa-circle-check"></i> Current username`;
+      }
+      if (elWrapper) {
+        elWrapper.classList.remove('is-invalid');
+        elWrapper.classList.add('is-valid');
+      }
+      return true;
+    }
+
+    if (elFeedback) {
+      elFeedback.className = 'setup-username-feedback checking';
+      elFeedback.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Checking availability...`;
+    }
+
+    const check = await checkUsernameAvailability(val, myId);
+    if (!check.available) {
+      if (elFeedback) {
+        elFeedback.className = 'setup-username-feedback error';
+        elFeedback.innerHTML = `<i class="fa-solid fa-circle-xmark"></i> ${check.message}`;
+      }
+      if (elWrapper) {
+        elWrapper.classList.remove('is-valid');
+        elWrapper.classList.add('is-invalid');
+      }
+      return false;
+    } else {
+      if (elFeedback) {
+        elFeedback.className = 'setup-username-feedback success';
+        elFeedback.innerHTML = `<i class="fa-solid fa-circle-check"></i> ${check.message}`;
+      }
+      if (elWrapper) {
+        elWrapper.classList.remove('is-invalid');
+        elWrapper.classList.add('is-valid');
+      }
+      return true;
+    }
+  }
+
+  // Input live character counter & debounced live uniqueness check
   if (elInput && elCharCount) {
     elInput.addEventListener('input', () => {
-      const len = elInput.value.length;
-      elCharCount.textContent = `${len}/20`;
+      // Username rules: only lowercase letters, numbers, and underscores
+      const orig = elInput.value;
+      const filtered = orig.toLowerCase().replace(/[^a-z0-9_]/g, '');
+      if (orig !== filtered) {
+        elInput.value = filtered;
+      }
+      const val = elInput.value;
+      elCharCount.textContent = `${val.length}/20`;
+
+      if (usernameCheckDebounce) clearTimeout(usernameCheckDebounce);
+      if (!val) {
+        if (elFeedback) {
+          elFeedback.className = 'setup-username-feedback';
+          elFeedback.textContent = '';
+        }
+        if (elWrapper) elWrapper.classList.remove('is-invalid', 'is-valid');
+        return;
+      }
+
+      if (val.length < 3) {
+        if (elFeedback) {
+          elFeedback.className = 'setup-username-feedback';
+          elFeedback.innerHTML = `<span style="color:#A69080"><i class="fa-solid fa-circle-info"></i> Must be 3-20 characters (a-z, 0-9, _ only)</span>`;
+        }
+        if (elWrapper) elWrapper.classList.remove('is-valid', 'is-invalid');
+        return;
+      }
+
+      usernameCheckDebounce = setTimeout(() => {
+        validateUsernameLive(val);
+      }, 250);
     });
+
     elInput.addEventListener('keydown', (e) => {
       if (e.key === 'Enter') {
         e.preventDefault();
@@ -2210,14 +2491,49 @@ function initProfileSetupModal() {
     });
   });
 
-  // Save button
+  // Save button with strict unique username check
   if (elSaveBtn) {
-    elSaveBtn.addEventListener('click', () => {
+    elSaveBtn.addEventListener('click', async () => {
       if (!profileState) loadProfileData();
 
-      const rawName = (elInput?.value || '').trim();
-      const finalName = rawName ? rawName.slice(0, 20) : (profileState.username || "Cozy Scholar");
+      const rawName = (elInput?.value || '').trim().toLowerCase().replace(/[^a-z0-9_]/g, '');
+      if (!rawName || rawName.length < 3) {
+        if (elFeedback) {
+          elFeedback.className = 'setup-username-feedback error';
+          elFeedback.innerHTML = `<i class="fa-solid fa-circle-xmark"></i> Username must be 3-20 characters (a-z, 0-9, _ only).`;
+        }
+        if (elWrapper) elWrapper.classList.add('is-invalid');
+        if (elInput) elInput.focus();
+        showRoomToast("⚠️ Username must be 3-20 characters (a-z, 0-9, _ only).");
+        return;
+      }
 
+      // Check availability before saving
+      const myId = state.currentUser?.id || getMyUserId();
+      const currentSavedName = (profileState && profileState.username) || '';
+      
+      if (rawName !== currentSavedName.toLowerCase()) {
+        if (elFeedback) {
+          elFeedback.className = 'setup-username-feedback checking';
+          elFeedback.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Checking availability...`;
+        }
+        const check = await checkUsernameAvailability(rawName, myId);
+        if (!check.available) {
+          if (elFeedback) {
+            elFeedback.className = 'setup-username-feedback error';
+            elFeedback.innerHTML = `<i class="fa-solid fa-circle-xmark"></i> ${check.message}`;
+          }
+          if (elWrapper) {
+            elWrapper.classList.remove('is-valid');
+            elWrapper.classList.add('is-invalid');
+          }
+          if (elInput) elInput.focus();
+          showRoomToast(check.message);
+          return; // STOP! Cannot save non-unique username
+        }
+      }
+
+      const finalName = rawName.slice(0, 20);
       const activeOpt = document.querySelector('.setup-avatar-opt.active');
       const avatarSrc = activeOpt?.dataset.src || 'assets/images/avatars/cat.svg';
       const avatarAnimal = activeOpt?.dataset.animal || 'cat';
@@ -2236,25 +2552,68 @@ function initProfileSetupModal() {
       }
       localStorage.setItem('lofify_profile_setup_local', 'true');
 
+      // Register unique username locally & in Supabase
+      registerUsernameLocal(finalName, {
+        id: myId,
+        avatarUrl: avatarSrc,
+        avatarAnimal: avatarAnimal,
+        selectedAvatar: avatarName
+      });
+
       saveProfileData();
       renderProfileUI();
       updateRoomUI();
+
+      if (state.currentUser) {
+        saveProfileToSupabase(state.currentUser);
+      } else {
+        const client = getSupabase();
+        if (client) {
+          try {
+            client.from('profiles').upsert({
+              id: myId,
+              username: finalName,
+              avatar_url: avatarSrc,
+              avatar_animal: avatarAnimal,
+              updated_at: new Date().toISOString()
+            }).then(() => {}).catch(() => {});
+          } catch (_) {}
+        }
+      }
+
       if (typeof syncMyPresence === 'function') {
         syncMyPresence();
       }
 
       closeProfileSetupModal();
-      showRoomToast(`✨ Persona saved! Welcome to lofify, <strong>${finalName}</strong>.`);
+      showRoomToast(`✨ Persona saved! Welcome to lofify, <strong>@${finalName}</strong>.`);
     });
   }
 
-  // Skip button
+  // Skip button: guarantees unique default handle
   if (elSkipBtn) {
-    elSkipBtn.addEventListener('click', () => {
+    elSkipBtn.addEventListener('click', async () => {
+      if (!profileState) loadProfileData();
+      const myId = state.currentUser?.id || getMyUserId();
+
+      if (!profileState.username || profileState.username === 'Chill Scholar' || profileState.username === 'Cozy Scholar') {
+        let uniqueName = `scholar_${Math.floor(1000 + Math.random() * 9000)}`;
+        for (let i = 0; i < 5; i++) {
+          const chk = await checkUsernameAvailability(uniqueName, myId);
+          if (chk.available) break;
+          uniqueName = `scholar_${Math.floor(1000 + Math.random() * 9000)}`;
+        }
+        state.username = uniqueName;
+        profileState.username = uniqueName;
+        registerUsernameLocal(uniqueName, { id: myId });
+      }
+
       if (state.currentUser?.id) {
         localStorage.setItem(`lofify_profile_setup_${state.currentUser.id}`, 'true');
       }
       localStorage.setItem('lofify_profile_setup_local', 'true');
+      saveProfileData();
+      renderProfileUI();
       closeProfileSetupModal();
       if (typeof syncMyPresence === 'function') {
         syncMyPresence();
@@ -2544,18 +2903,150 @@ async function syncMyPresence() {
   const isHost = (state.roomHostId === myId);
 
   try {
+    const levelInfo = (typeof getLevelInfo === 'function' && profileState) ? getLevelInfo(profileState.totalFocusMinutes || 0) : null;
+    const cleanUser = displayName.toLowerCase().replace(/^@+/, '').replace(/[^a-z0-9_]/g, '');
     await roomChannel.track({
       userId: myId,
+      username: cleanUser,
       displayName: displayName,
       avatar: avatar,
       avatarUrl: avatarUrl,
+      levelText: levelInfo ? levelInfo.badgeText : 'Lv. 1 Scholar',
+      streakDays: (profileState && profileState.streakDays) || 1,
+      totalFocusMinutes: (profileState && profileState.totalFocusMinutes) || 0,
+      completedSessions: (profileState && profileState.completedSessions) || 0,
+      bio: (profileState && profileState.bio) || "Studying lo-fi beats & staying in the zone 🎧",
       isGoogle: !!(profileState && profileState.googleUser),
       isHost: isHost,
       hostId: state.roomHostId,
       joinedAt: state.roomJoinedAt || Date.now()
     });
+    if (typeof syncGlobalPresence === 'function') {
+      syncGlobalPresence();
+    }
   } catch (err) {
     console.warn("Error tracking Supabase presence:", err);
+  }
+}
+
+// Global Lobby Channel for Cross-Room & Solo Friend Realtime Discovery
+let globalLobbyChannel = null;
+
+function cacheLobbyPresences() {
+  if (!globalLobbyChannel || typeof globalLobbyChannel.presenceState !== 'function') return;
+  try {
+    const presences = globalLobbyChannel.presenceState();
+    const registry = getRegisteredUsernames();
+    let updated = false;
+    for (const key in presences) {
+      const list = presences[key];
+      if (Array.isArray(list)) {
+        list.forEach(item => {
+          if (!item) return;
+          const uName = (item.username || item.displayName || '').toLowerCase().replace(/[^a-z0-9_]/g, '');
+          if (uName && uName.length >= 3) {
+            registry[uName] = {
+              id: item.userId || key,
+              username: uName,
+              displayName: item.displayName || item.username || uName,
+              avatar: item.avatar || '🎧',
+              avatarUrl: item.avatarUrl || 'assets/images/avatars/cat.svg',
+              levelText: item.levelText || 'Lv. 1 Scholar',
+              streakDays: item.streakDays || 1,
+              totalFocusMinutes: item.totalFocusMinutes || 0,
+              bio: item.bio || 'Studying lo-fi beats & staying in the zone 🎧',
+              updatedAt: Date.now()
+            };
+            updated = true;
+          }
+        });
+      }
+    }
+    if (updated) {
+      try { localStorage.setItem(STORAGE_KEY_USERNAMES, JSON.stringify(registry)); } catch (_) {}
+    }
+  } catch (e) {
+    console.warn("Could not cache lobby presences:", e);
+  }
+}
+
+function initGlobalLobbyChannel() {
+  const client = getSupabase();
+  if (!client || globalLobbyChannel) return;
+  const myId = state.currentUser?.id || getMyUserId();
+  try {
+    globalLobbyChannel = client.channel('global:lofify_lobby', {
+      config: {
+        presence: { key: myId },
+        broadcast: { self: false }
+      }
+    });
+
+    globalLobbyChannel
+      .on('broadcast', { event: 'friend_request' }, ({ payload }) => {
+        if (payload && typeof handleIncomingFriendBroadcast === 'function') {
+          handleIncomingFriendBroadcast('request', payload);
+        }
+      })
+      .on('broadcast', { event: 'friend_accept' }, ({ payload }) => {
+        if (payload && typeof handleIncomingFriendBroadcast === 'function') {
+          handleIncomingFriendBroadcast('accept', payload);
+        }
+      })
+      .on('broadcast', { event: 'friend_decline' }, ({ payload }) => {
+        if (payload && typeof handleIncomingFriendBroadcast === 'function') {
+          handleIncomingFriendBroadcast('decline', payload);
+        }
+      })
+      .on('broadcast', { event: 'friend_cancel' }, ({ payload }) => {
+        if (payload && typeof handleIncomingFriendBroadcast === 'function') {
+          handleIncomingFriendBroadcast('cancel', payload);
+        }
+      })
+      .on('broadcast', { event: 'user_register' }, ({ payload }) => {
+        if (payload && payload.username) {
+          const registry = getRegisteredUsernames();
+          registry[payload.username.toLowerCase()] = payload;
+          try { localStorage.setItem(STORAGE_KEY_USERNAMES, JSON.stringify(registry)); } catch (_) {}
+        }
+      })
+      .on('presence', { event: 'sync' }, () => {
+        cacheLobbyPresences();
+      })
+      .on('presence', { event: 'join' }, () => {
+        cacheLobbyPresences();
+      });
+
+    globalLobbyChannel.subscribe(async (status) => {
+      if (status === 'SUBSCRIBED') {
+        syncGlobalPresence();
+        cacheLobbyPresences();
+      }
+    });
+  } catch (err) {
+    console.warn("Global lobby channel init error:", err);
+  }
+}
+
+async function syncGlobalPresence() {
+  if (!globalLobbyChannel) return;
+  const myId = state.currentUser?.id || getMyUserId();
+  const rawName = (profileState?.username || state.username || 'chill_scholar');
+  const cleanUser = rawName.toLowerCase().replace(/[^a-z0-9_]/g, '');
+  try {
+    await globalLobbyChannel.track({
+      userId: myId,
+      username: cleanUser,
+      displayName: cleanUser,
+      avatar: (profileState && profileState.selectedAvatar) || "🎧",
+      avatarUrl: (profileState && profileState.avatarUrl) || "assets/images/avatars/cat.svg",
+      levelText: (typeof getLevelInfo === 'function' && profileState) ? getLevelInfo(profileState.totalMinutes || 0).badgeText : 'Lv. 1 Scholar',
+      streakDays: (profileState && profileState.streakDays) || 1,
+      totalFocusMinutes: (profileState && profileState.totalMinutes) || 0,
+      bio: (profileState && profileState.bio) || "Studying lo-fi beats & staying in the zone 🎧"
+    });
+  } catch (err) {
+    console.warn("Error tracking global lobby presence:", err);
   }
 }
 
@@ -2579,6 +3070,7 @@ function handleTodoBroadcast(payload) {
 }
 
 async function initSupabaseRoom(forcedRoomId = null, asHost = false) {
+  initGlobalLobbyChannel();
   const client = getSupabase();
   if (!client) {
     console.warn("Supabase client unavailable, using simulation room");
@@ -2658,6 +3150,11 @@ async function initSupabaseRoom(forcedRoomId = null, asHost = false) {
             displayName: userMeta.displayName || 'Studying Bud',
             avatar: userMeta.avatar || '🎧',
             avatarUrl: userMeta.avatarUrl || null,
+            levelText: userMeta.levelText || 'Lv. 1 Scholar',
+            streakDays: userMeta.streakDays || 1,
+            totalFocusMinutes: userMeta.totalFocusMinutes || 0,
+            completedSessions: userMeta.completedSessions || 0,
+            bio: userMeta.bio || 'Studying lo-fi beats & staying in the zone 🎧',
             isMe: id === myId,
             isHost: isUserHost,
             joinedAt: userMeta.joinedAt || 0
@@ -2750,6 +3247,30 @@ async function initSupabaseRoom(forcedRoomId = null, asHost = false) {
   roomChannel.on('broadcast', { event: 'timer_action' }, ({ payload }) => {
     if (payload) {
       handleTimerRoomSync(payload);
+    }
+  });
+
+  roomChannel.on('broadcast', { event: 'friend_request' }, ({ payload }) => {
+    if (payload && typeof handleIncomingFriendBroadcast === 'function') {
+      handleIncomingFriendBroadcast('request', payload);
+    }
+  });
+
+  roomChannel.on('broadcast', { event: 'friend_accept' }, ({ payload }) => {
+    if (payload && typeof handleIncomingFriendBroadcast === 'function') {
+      handleIncomingFriendBroadcast('accept', payload);
+    }
+  });
+
+  roomChannel.on('broadcast', { event: 'friend_decline' }, ({ payload }) => {
+    if (payload && typeof handleIncomingFriendBroadcast === 'function') {
+      handleIncomingFriendBroadcast('decline', payload);
+    }
+  });
+
+  roomChannel.on('broadcast', { event: 'friend_cancel' }, ({ payload }) => {
+    if (payload && typeof handleIncomingFriendBroadcast === 'function') {
+      handleIncomingFriendBroadcast('cancel', payload);
     }
   });
 
@@ -3840,7 +4361,8 @@ function setMiddleMenuPane(paneKey) {
     songs: 'fa-music',
     room: 'fa-users',
     todo: 'fa-list-check',
-    profile: 'fa-chart-pie'
+    profile: 'fa-user',
+    friends: 'fa-user-group'
   };
   if (iconEl && iconMap[paneKey]) {
     iconEl.className = `fa-solid ${iconMap[paneKey]} menu-dropdown-icon`;
@@ -3856,41 +4378,50 @@ function setMiddleMenuPane(paneKey) {
     songs: 'paneSongs',
     room: 'paneRoom',
     todo: 'paneTodo',
-    profile: 'paneProfile'
+    profile: 'paneProfile',
+    friends: 'paneFriends'
   };
 
   const targetPaneId = paneMap[paneKey] || 'paneAmbient';
   const targetPane = document.getElementById(targetPaneId);
   if (targetPane) targetPane.classList.add('active');
 
-  // Trigger dynamic render for themes, songs, and room panes
+  // Trigger dynamic render for themes, songs, room, and friends panes
   if (paneKey === 'themes') {
     renderMiddleThemes();
   } else if (paneKey === 'songs') {
     if (typeof renderMusicList === 'function') renderMusicList();
   } else if (paneKey === 'room') {
     if (typeof updateRoomUI === 'function') updateRoomUI();
+  } else if (paneKey === 'friends') {
+    if (typeof renderFriendsUI === 'function') renderFriendsUI();
   }
 
   // Sync .open state on panels for desktop and animations
   const roomPanel = document.getElementById('panelRoom');
   const profilePanel = document.getElementById('panelProfile');
+  const friendsPanel = document.getElementById('panelFriends');
   const todoPanel = document.getElementById('panelTodo');
 
   if (roomPanel) roomPanel.classList.toggle('open', paneKey === 'room');
   if (profilePanel) profilePanel.classList.toggle('open', paneKey === 'profile');
+  if (friendsPanel) friendsPanel.classList.toggle('open', paneKey === 'friends');
   if (todoPanel) todoPanel.classList.toggle('open', paneKey === 'todo');
 
-  // Sync active states on bottom bezel buttons
+  // Sync active states on bottom bezel and screen buttons
   const btnRoom = document.getElementById('toggleRoomBtn');
   const btnTodo = document.getElementById('toggleTodoBtn');
   const btnProfile = document.getElementById('toggleProfileBtn');
+  const btnFriends = document.getElementById('toggleFriendsBtn');
+  const btnScreenFriends = document.getElementById('screenFriendsBtn');
   const btnThemes = document.getElementById('tvChannelBtn');
   const displaySongs = document.getElementById('tvScreenDisplay');
 
   if (btnRoom) btnRoom.classList.toggle('active', paneKey === 'room');
   if (btnTodo) btnTodo.classList.toggle('active', paneKey === 'todo');
   if (btnProfile) btnProfile.classList.toggle('active', paneKey === 'profile');
+  if (btnFriends) btnFriends.classList.toggle('active', paneKey === 'friends');
+  if (btnScreenFriends) btnScreenFriends.classList.toggle('active', paneKey === 'friends');
   if (btnThemes) btnThemes.classList.toggle('active', paneKey === 'themes');
   if (displaySongs) displaySongs.classList.toggle('active', paneKey === 'songs');
 }
@@ -4343,17 +4874,41 @@ function renderSingleChatMessage(msg, isMe = false) {
     const senderName = isMe ? 'You' : escapeHtml(msg.displayName || 'Studying Bud');
 
     row.innerHTML = `
-      <div class="chat-msg-avatar" title="${senderName}">
+      <div class="chat-msg-avatar" title="${senderName} (Click to view profile)">
         ${avatarHtml}
       </div>
       <div class="chat-msg-content">
         <div class="chat-msg-meta">
-          <span class="chat-msg-sender">${senderName}</span>
+          <span class="chat-msg-sender" style="${!isMe ? 'cursor:pointer; text-decoration:underline dotted rgba(212,163,115,0.4);' : ''}">${senderName}</span>
           <span class="chat-msg-time">${timeStr}</span>
         </div>
         <div class="chat-msg-bubble">${escapeHtml(msg.text)}</div>
       </div>
     `;
+
+    if (!isMe) {
+      const openBuddyProfile = (e) => {
+        e.stopPropagation();
+        if (typeof openBuddyProfileModal === 'function') {
+          openBuddyProfileModal({
+            id: msg.senderId || msg.userId || ('user-' + (msg.displayName || 'buddy').toLowerCase().replace(/[^a-z0-9]/g, '')),
+            displayName: msg.displayName || 'Studying Bud',
+            avatar: msg.avatar,
+            avatarUrl: msg.avatarUrl
+          });
+        }
+      };
+
+      const av = row.querySelector('.chat-msg-avatar');
+      if (av) {
+        av.style.cursor = 'pointer';
+        av.addEventListener('click', openBuddyProfile);
+      }
+      const senderEl = row.querySelector('.chat-msg-sender');
+      if (senderEl) {
+        senderEl.addEventListener('click', openBuddyProfile);
+      }
+    }
 
     elContainer.appendChild(row);
   }
@@ -5017,8 +5572,10 @@ function updateListenersUI(listeners) {
     } else {
       listeners.forEach(user => {
         const isUserHost = !!(user.isHost || (state.roomHostId && user.id === state.roomHostId));
+        const isUserFriend = (typeof isFriend === 'function') ? isFriend(user.id) : false;
         const card = document.createElement('div');
         card.className = `room-member-card ${user.isMe ? 'is-me' : ''} ${isUserHost ? 'is-host' : ''}`;
+        card.title = user.isMe ? 'Your Profile' : `Click to view ${user.displayName}'s profile & add friend`;
 
         let avatarHtml = '';
         if (user.avatarUrl) {
@@ -5036,11 +5593,20 @@ function updateListenersUI(listeners) {
             <div class="member-name">
               <span>${user.displayName}</span>
               ${isUserHost ? '<span class="host-badge"><i class="fa-solid fa-crown"></i> Host</span>' : ''}
+              ${isUserFriend ? '<span class="friend-pill-tag" title="Study Friend" style="background:rgba(231,111,81,0.18); border:1px solid #E76F51; color:#E76F51; font-size:0.65rem; padding:1px 6px; border-radius:10px; margin-left:4px;"><i class="fa-solid fa-heart"></i> Friend</span>' : ''}
               ${user.isMe ? '<span class="you-badge">(You)</span>' : ''}
             </div>
-            <div class="member-status-sub">${isUserHost ? 'Room Host' : 'Studying with you'}</div>
+            <div class="member-status-sub">${isUserHost ? 'Room Host' : 'Studying with you'} • <span style="color:#D4A373;">View Profile</span></div>
           </div>
         `;
+
+        card.addEventListener('click', (e) => {
+          e.stopPropagation();
+          if (typeof openBuddyProfileModal === 'function') {
+            openBuddyProfileModal(user);
+          }
+        });
+
         elRoomMembersList.appendChild(card);
       });
     }
@@ -5933,6 +6499,27 @@ function loadProfileData() {
     console.error("Failed to load profile data:", e);
     profileState = getDefaultProfileData();
   }
+
+  if (profileState) {
+    if (!profileState.username || profileState.username === 'Chill Scholar' || profileState.username === 'Cozy Scholar') {
+      profileState.username = 'chill_scholar';
+    }
+    const myId = getMyUserId();
+    const cleanUser = profileState.username.toLowerCase().replace(/[^a-z0-9_]/g, '');
+    if (cleanUser && typeof registerUsernameLocal === 'function') {
+      registerUsernameLocal(cleanUser, {
+        id: myId,
+        username: cleanUser,
+        avatarUrl: profileState.avatarUrl || null,
+        avatarAnimal: profileState.avatarAnimal || 'cat',
+        selectedAvatar: profileState.selectedAvatar || 'Mochi Cat 🐱',
+        streakDays: profileState.streakDays || 1,
+        totalFocusMinutes: profileState.totalMinutes || 0,
+        bio: profileState.bio || "Studying lo-fi beats & staying in the zone 🎧"
+      });
+    }
+  }
+
   return profileState;
 }
 
@@ -5940,6 +6527,22 @@ function saveProfileData() {
   try {
     if (!profileState) return;
     localStorage.setItem(STORAGE_KEY_PROFILE, JSON.stringify(profileState));
+    if (profileState.username && typeof registerUsernameLocal === 'function') {
+      const myId = getMyUserId();
+      const cleanUser = profileState.username.toLowerCase().replace(/[^a-z0-9_]/g, '');
+      if (cleanUser) {
+        registerUsernameLocal(cleanUser, {
+          id: myId,
+          username: cleanUser,
+          avatarUrl: profileState.avatarUrl || null,
+          avatarAnimal: profileState.avatarAnimal || 'cat',
+          selectedAvatar: profileState.selectedAvatar || 'Mochi Cat 🐱',
+          streakDays: profileState.streakDays || 1,
+          totalFocusMinutes: profileState.totalMinutes || 0,
+          bio: profileState.bio || "Studying lo-fi beats & staying in the zone 🎧"
+        });
+      }
+    }
     if (state.currentUser && state.currentUser.id) {
       saveProfileToSupabase(state.currentUser);
     }
@@ -6263,6 +6866,1565 @@ function setupProfileAndAnalytics() {
       }
     }
   });
+
+  // Delete Account completely
+  setupDeleteAccountSystem();
+
+  // Initialize Study Friends & Profiles
+  setupFriendsSystem();
+}
+
+// ==========================================================================
+// DANGER ZONE: ACCOUNT DELETION SYSTEM
+// ==========================================================================
+function setupDeleteAccountSystem() {
+  const deleteBtn = document.getElementById('deleteAccountBtn');
+  const modal = document.getElementById('deleteAccountPromptModal');
+  const cancelBtn = document.getElementById('cancelDeleteAccountBtn');
+  const confirmBtn = document.getElementById('confirmDeleteAccountBtn');
+
+  if (deleteBtn && modal) {
+    deleteBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      modal.classList.add('active');
+    });
+  }
+
+  if (cancelBtn && modal) {
+    cancelBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      modal.classList.remove('active');
+    });
+  }
+
+  if (modal) {
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        modal.classList.remove('active');
+      }
+    });
+  }
+
+  if (confirmBtn) {
+    confirmBtn.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      confirmBtn.disabled = true;
+      confirmBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Deleting...';
+      try {
+        await deleteAccountCompletely();
+      } finally {
+        if (modal) modal.classList.remove('active');
+        confirmBtn.disabled = false;
+        confirmBtn.innerHTML = '<i class="fa-solid fa-trash-can"></i> Yes, Delete';
+      }
+    });
+  }
+}
+
+async function deleteAccountCompletely() {
+  const myId = state.currentUser?.id || getMyUserId();
+  const rawName = state.username || profileState?.username || '';
+  const myCleanName = rawName.toLowerCase().replace(/[^a-z0-9_]/g, '');
+
+  // 1. Delete from Supabase Database
+  const client = getSupabase();
+  if (client && myId) {
+    try {
+      // Delete user profile
+      await client.from('profiles').delete().eq('id', myId);
+      if (myCleanName) {
+        await client.from('profiles').delete().ilike('username', myCleanName);
+      }
+      // Delete friendships
+      await client.from('friendships').delete().or(`user_id.eq.${myId},friend_id.eq.${myId}`);
+      // Delete friend requests
+      await client.from('friend_requests').delete().or(`sender_id.eq.${myId},receiver_id.eq.${myId}`);
+      // Delete todos
+      await client.from('user_todos').delete().eq('user_id', myId);
+    } catch (err) {
+      console.warn("Error deleting account from Supabase:", err);
+    }
+  }
+
+  // 2. Untrack from Realtime presence & broadcast registry removal
+  try {
+    if (globalLobbyChannel) {
+      await globalLobbyChannel.untrack().catch(() => {});
+    }
+    if (roomChannel) {
+      await roomChannel.untrack().catch(() => {});
+    }
+  } catch (_) {}
+
+  // 3. Remove from local & cross-tab registry
+  try {
+    const registry = getRegisteredUsernames();
+    if (myCleanName && registry[myCleanName]) {
+      delete registry[myCleanName];
+      localStorage.setItem(STORAGE_KEY_USERNAMES, JSON.stringify(registry));
+    }
+    if (crossTabSyncChannel) {
+      crossTabSyncChannel.postMessage({
+        type: 'USER_DELETED',
+        userId: myId,
+        username: myCleanName
+      });
+    }
+  } catch (_) {}
+
+  // 4. If logged into Supabase Auth, sign out
+  if (client && client.auth) {
+    try {
+      await client.auth.signOut();
+    } catch (_) {}
+  }
+
+  // 5. Clear all local storage & session state
+  try {
+    localStorage.removeItem(STORAGE_KEY_PROFILE);
+    localStorage.removeItem(STORAGE_KEY_FRIENDS);
+    localStorage.removeItem(STORAGE_KEY_FRIEND_REQUESTS);
+    localStorage.removeItem('lofify_profile_setup_local');
+    localStorage.removeItem('lofify_todos_v1');
+    if (state.currentUser?.id) {
+      localStorage.removeItem(`lofify_profile_setup_${state.currentUser.id}`);
+    }
+    sessionStorage.removeItem('lofify_tab_user_id_v2');
+  } catch (_) {}
+
+  // 6. Reset memory state to a clean slate
+  state.currentUser = null;
+  state.localUserId = null;
+  state.username = "Studying Bud";
+  profileState = {
+    username: "Studying Bud",
+    avatarUrl: null,
+    avatarAnimal: "cat",
+    selectedAvatar: "Mochi Cat 🐱",
+    totalMinutes: 0,
+    streakDays: 1,
+    lastActiveDate: getTodayDateString(),
+    roomHours: {},
+    history: {},
+    hasCustomProfile: false,
+    googleUser: null
+  };
+  saveProfileData();
+
+  // 7. Refresh all UI views
+  updateAuthUI(null);
+  renderProfileUI();
+  renderFriendsUI();
+  updateRoomUI();
+  if (typeof renderTodoList === 'function') renderTodoList();
+
+  // Switch middle panel back to themes / home
+  setMiddleMenuPane('themes');
+
+  showRoomToast("🗑️ Account and all associated data have been completely deleted.");
+}
+
+// ==========================================================================
+// STUDY FRIENDS & BUDDY PROFILES SYSTEM
+// ==========================================================================
+const STORAGE_KEY_FRIENDS = 'lofify_friends_list_v1';
+const STORAGE_KEY_FRIEND_REQUESTS = 'lofify_friend_requests_v1';
+
+function getFriendsList() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY_FRIENDS);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) return parsed;
+    }
+  } catch (err) {
+    console.warn("Could not read friends list:", err);
+  }
+  return [];
+}
+
+function saveFriendsList(list) {
+  try {
+    localStorage.setItem(STORAGE_KEY_FRIENDS, JSON.stringify(list));
+  } catch (err) {
+    console.warn("Could not save friends list:", err);
+  }
+}
+
+function getFriendRequests() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY_FRIEND_REQUESTS);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) return parsed;
+    }
+  } catch (err) {
+    console.warn("Could not read friend requests:", err);
+  }
+  return [];
+}
+
+function saveFriendRequests(requests) {
+  try {
+    localStorage.setItem(STORAGE_KEY_FRIEND_REQUESTS, JSON.stringify(requests));
+  } catch (err) {
+    console.warn("Could not save friend requests:", err);
+  }
+}
+
+// --- SUPABASE CLOUD SYNC FOR FRIENDSHIPS & REQUESTS ---
+async function syncFriendsFromSupabase(userId = (state.currentUser?.id || getMyUserId())) {
+  const client = getSupabase();
+  if (!client || !userId) return;
+  try {
+    const { data: friendshipRows, error: fError } = await client
+      .from('friendships')
+      .select('friend_id, created_at')
+      .eq('user_id', userId);
+
+    if (fError) {
+      console.warn("syncFriendsFromSupabase error:", fError.message || fError);
+      return;
+    }
+
+    if (!Array.isArray(friendshipRows) || friendshipRows.length === 0) {
+      return;
+    }
+
+    const friendIds = friendshipRows.map(r => r.friend_id);
+    const { data: profileRows } = await client
+      .from('profiles')
+      .select('*')
+      .in('id', friendIds);
+
+    const profileMap = {};
+    if (Array.isArray(profileRows)) {
+      profileRows.forEach(p => { profileMap[p.id] = p; });
+    }
+
+    const currentFriends = getFriendsList();
+    const mergedFriends = [];
+
+    friendshipRows.forEach(row => {
+      const p = profileMap[row.friend_id];
+      const local = currentFriends.find(f => f.id === row.friend_id);
+
+      const displayName = p?.username || local?.displayName || 'Study Buddy';
+      const avatar = local?.avatar || '🎧';
+      const avatarUrl = p?.avatar_url || local?.avatarUrl || 'assets/images/avatars/cat.svg';
+      const levelText = (typeof getLevelInfo === 'function') ? getLevelInfo(p?.total_focus_minutes || local?.totalFocusMinutes || 0).badgeText : 'Lv. 1 Scholar';
+      const streakDays = p?.streak_days || local?.streakDays || 1;
+      const totalFocusMinutes = p?.total_focus_minutes || local?.totalFocusMinutes || 0;
+      const bio = local?.bio || 'Studying lo-fi beats & staying in the zone 🎧';
+
+      mergedFriends.push({
+        id: row.friend_id,
+        displayName: displayName,
+        avatar: avatar,
+        avatarUrl: avatarUrl,
+        levelText: levelText,
+        streakDays: streakDays,
+        totalFocusMinutes: totalFocusMinutes,
+        completedSessions: local?.completedSessions || 0,
+        bio: bio,
+        addedAt: row.created_at ? new Date(row.created_at).getTime() : Date.now()
+      });
+    });
+
+    saveFriendsList(mergedFriends);
+    renderFriendsUI();
+  } catch (err) {
+    console.warn("syncFriendsFromSupabase exception:", err);
+  }
+}
+
+async function syncFriendRequestsFromSupabase(userId = (state.currentUser?.id || getMyUserId())) {
+  const client = getSupabase();
+  if (!client || !userId) return;
+  try {
+    const { data, error } = await client
+      .from('friend_requests')
+      .select('*')
+      .eq('status', 'pending')
+      .or(`receiver_id.eq.${userId},sender_id.eq.${userId}`);
+
+    if (error) {
+      console.warn("syncFriendRequestsFromSupabase error:", error.message || error);
+      return;
+    }
+
+    if (!Array.isArray(data)) return;
+
+    const otherIds = [...new Set(data.map(r => r.sender_id === userId ? r.receiver_id : r.sender_id))];
+    let profileMap = {};
+    if (otherIds.length > 0) {
+      const { data: pData } = await client.from('profiles').select('*').in('id', otherIds);
+      if (Array.isArray(pData)) {
+        pData.forEach(p => { profileMap[p.id] = p; });
+      }
+    }
+
+    const currentRequests = getFriendRequests();
+    const syncedList = [];
+
+    data.forEach(row => {
+      const isIncoming = row.receiver_id === userId;
+      const partnerId = isIncoming ? row.sender_id : row.receiver_id;
+      const partnerProfile = profileMap[partnerId];
+      const localReq = currentRequests.find(r => r.fromId === row.sender_id && r.toId === row.receiver_id);
+
+      const pName = partnerProfile?.username || (isIncoming ? row.sender_username : row.receiver_username) || localReq?.fromName || 'Study Buddy';
+      const pAvatar = localReq?.fromAvatar || '🎧';
+      const pAvatarUrl = partnerProfile?.avatar_url || localReq?.fromAvatarUrl || 'assets/images/avatars/cat.svg';
+      const pLevel = (typeof getLevelInfo === 'function') ? getLevelInfo(partnerProfile?.total_focus_minutes || 0).badgeText : 'Lv. 1 Scholar';
+
+      syncedList.push({
+        id: row.id,
+        fromId: row.sender_id,
+        fromName: isIncoming ? pName : (state.username || 'chill_scholar'),
+        fromAvatar: isIncoming ? pAvatar : ((profileState && profileState.selectedAvatar) || '🎧'),
+        fromAvatarUrl: isIncoming ? pAvatarUrl : ((profileState && profileState.avatarUrl) || ''),
+        fromLevelText: isIncoming ? pLevel : 'Lv. 1 Scholar',
+        fromStreakDays: partnerProfile?.streak_days || 1,
+        fromTotalFocusMinutes: partnerProfile?.total_focus_minutes || 0,
+        fromBio: "Studying lo-fi beats & staying in the zone 🎧",
+        toId: row.receiver_id,
+        toName: isIncoming ? (state.username || 'chill_scholar') : pName,
+        toAvatar: isIncoming ? ((profileState && profileState.selectedAvatar) || '🎧') : pAvatar,
+        toAvatarUrl: isIncoming ? ((profileState && profileState.avatarUrl) || '') : pAvatarUrl,
+        toLevelText: isIncoming ? 'Lv. 1 Scholar' : pLevel,
+        toStreakDays: 1,
+        toTotalFocusMinutes: 0,
+        toBio: "Studying lo-fi beats & staying in the zone 🎧",
+        direction: isIncoming ? 'incoming' : 'outgoing',
+        timestamp: row.created_at ? new Date(row.created_at).getTime() : Date.now()
+      });
+    });
+
+    saveFriendRequests(syncedList);
+    renderFriendsUI();
+
+    const incoming = syncedList.filter(r => r.direction === 'incoming');
+    if (incoming.length > 0) {
+      const latest = incoming[incoming.length - 1];
+      if (Date.now() - (latest.timestamp || 0) < 60000) {
+        showIncomingFriendAlert(latest);
+      }
+    }
+  } catch (err) {
+    console.warn("syncFriendRequestsFromSupabase exception:", err);
+  }
+}
+
+function isFriend(userId) {
+  if (!userId) return false;
+  const list = getFriendsList();
+  return list.some(f => f.id === userId);
+}
+
+function hasOutgoingRequest(userId) {
+  if (!userId) return false;
+  const myId = state.currentUser?.id || getMyUserId();
+  const requests = getFriendRequests();
+  return requests.some(r => (r.fromId === myId || r.fromId === getMyUserId()) && r.toId === userId && r.direction === 'outgoing');
+}
+
+function hasIncomingRequest(userId) {
+  if (!userId) return false;
+  const myId = state.currentUser?.id || getMyUserId();
+  const requests = getFriendRequests();
+  return requests.some(r => (r.toId === myId || r.toId === getMyUserId()) && r.fromId === userId && r.direction === 'incoming');
+}
+
+function getIncomingRequests() {
+  const myId = state.currentUser?.id || getMyUserId();
+  const requests = getFriendRequests();
+  return requests.filter(r => (r.toId === myId || r.toId === getMyUserId()) && r.direction === 'incoming');
+}
+
+function getOutgoingRequests() {
+  const myId = state.currentUser?.id || getMyUserId();
+  const requests = getFriendRequests();
+  return requests.filter(r => (r.fromId === myId || r.fromId === getMyUserId()) && r.direction === 'outgoing');
+}
+
+// Lo-Fi Web Audio Chime Synthesis
+function playFriendChime(type = 'incoming') {
+  try {
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    if (!AudioCtx) return;
+    if (!window._friendChimeCtx) {
+      window._friendChimeCtx = new AudioCtx();
+    }
+    const ctx = window._friendChimeCtx;
+    if (ctx.state === 'suspended') {
+      ctx.resume().catch(() => {});
+    }
+
+    const now = ctx.currentTime;
+    if (type === 'incoming') {
+      // 2-tone melodic gentle chime: C5 (523Hz) -> G5 (784Hz)
+      const freqs = [523.25, 783.99];
+      freqs.forEach((freq, idx) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, now + idx * 0.15);
+
+        gain.gain.setValueAtTime(0, now + idx * 0.15);
+        gain.gain.linearRampToValueAtTime(0.18, now + idx * 0.15 + 0.03);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.15 + 0.45);
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now + idx * 0.15);
+        osc.stop(now + idx * 0.15 + 0.5);
+      });
+    } else {
+      // 3-tone celebratory warm arpeggio: C5 (523Hz) -> E5 (659Hz) -> G5 (784Hz)
+      const freqs = [523.25, 659.25, 783.99];
+      freqs.forEach((freq, idx) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(freq, now + idx * 0.12);
+
+        gain.gain.setValueAtTime(0, now + idx * 0.12);
+        gain.gain.linearRampToValueAtTime(0.16, now + idx * 0.12 + 0.03);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.12 + 0.4);
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now + idx * 0.12);
+        osc.stop(now + idx * 0.12 + 0.45);
+      });
+    }
+  } catch (err) {
+    console.warn("Could not play friend chime:", err);
+  }
+}
+
+// Helper to broadcast friend signaling across active room, global lobby, and cross-tab channel
+function broadcastFriendSignal(event, payload) {
+  if (roomChannel && typeof roomChannel.send === 'function') {
+    try {
+      roomChannel.send({ type: 'broadcast', event: event, payload: payload });
+    } catch (_) {}
+  }
+  if (typeof globalLobbyChannel !== 'undefined' && globalLobbyChannel && typeof globalLobbyChannel.send === 'function') {
+    try {
+      globalLobbyChannel.send({ type: 'broadcast', event: event, payload: payload });
+    } catch (_) {}
+  }
+  if (crossTabSyncChannel) {
+    try {
+      crossTabSyncChannel.postMessage({
+        type: 'FRIEND_SIGNAL',
+        signalType: event.replace('friend_', ''),
+        payload: payload
+      });
+    } catch (_) {}
+  }
+}
+
+// Send Friend Request
+function sendFriendRequest(targetUser) {
+  if (!targetUser) return;
+  const myId = state.currentUser?.id || getMyUserId();
+  const targetId = targetUser.id || targetUser.userId;
+
+  if (!targetId || targetId === myId || targetUser.isMe) {
+    showRoomToast("⚠️ You cannot add yourself as a friend.");
+    return;
+  }
+
+  if (isFriend(targetId)) {
+    showRoomToast(`✨ ${targetUser.displayName || 'User'} is already in your study friends!`);
+    return;
+  }
+
+  if (hasOutgoingRequest(targetId)) {
+    showRoomToast(`⏳ Friend request already sent to ${targetUser.displayName || 'them'}.`);
+    return;
+  }
+
+  // If they already sent us a request, automatically accept it!
+  if (hasIncomingRequest(targetId)) {
+    acceptFriendRequest(targetUser);
+    return;
+  }
+
+  const rawName = state.username || (profileState && profileState.username) || "chill_scholar";
+  const myName = rawName.toLowerCase().replace(/[^a-z0-9_]/g, '');
+  const myAvatar = (profileState && profileState.selectedAvatar) || "🎧";
+  const myAvatarUrl = (profileState && profileState.avatarUrl) || "";
+  const myLevelInfo = (typeof getLevelInfo === 'function' && profileState) ? getLevelInfo(profileState.totalFocusMinutes || 0) : null;
+
+  const req = {
+    id: 'freq-' + Date.now() + '-' + Math.random().toString(36).substring(2, 6),
+    fromId: myId,
+    fromName: myName,
+    fromAvatar: myAvatar,
+    fromAvatarUrl: myAvatarUrl,
+    fromLevelText: myLevelInfo ? myLevelInfo.badgeText : 'Lv. 1 Scholar',
+    fromStreakDays: (profileState && profileState.streakDays) || 1,
+    fromTotalFocusMinutes: (profileState && profileState.totalFocusMinutes) || 0,
+    fromBio: (profileState && profileState.bio) || "Studying lo-fi beats & staying in the zone 🎧",
+    toId: targetId,
+    toName: targetUser.displayName || targetUser.name || 'study_buddy',
+    toAvatar: targetUser.avatar || '🎧',
+    toAvatarUrl: targetUser.avatarUrl || '',
+    toLevelText: targetUser.levelText || 'Lv. 1 Scholar',
+    toStreakDays: targetUser.streakDays || 1,
+    toTotalFocusMinutes: targetUser.totalFocusMinutes || 0,
+    toBio: targetUser.bio || "Studying lo-fi beats & staying in the zone 🎧",
+    direction: 'outgoing',
+    timestamp: Date.now()
+  };
+
+  const requests = getFriendRequests();
+  requests.push(req);
+  saveFriendRequests(requests);
+
+  // Broadcast over room, global lobby, and cross-tab
+  broadcastFriendSignal('friend_request', req);
+
+  // Persist to Supabase cloud friend_requests table
+  const client = getSupabase();
+  if (client) {
+    client.from('friend_requests').upsert({
+      sender_id: myId,
+      sender_username: myName,
+      receiver_id: targetId,
+      receiver_username: req.toName,
+      status: 'pending',
+      updated_at: new Date().toISOString()
+    }, { onConflict: 'sender_id,receiver_id' }).then(({ error }) => {
+      if (error) console.warn("Supabase friend_request upsert error:", error.message || error);
+    }).catch(err => console.warn("Supabase friend_request exception:", err));
+  }
+
+  showRoomToast(`✉️ Friend request sent to @${req.toName}!`);
+  playFriendChime('incoming');
+  renderFriendsUI();
+
+  // If buddy modal is currently open for this user, refresh it
+  if (currentViewingBuddy && currentViewingBuddy.id === targetId) {
+    openBuddyProfileModal(currentViewingBuddy);
+  }
+}
+
+// Accept Friend Request
+function acceptFriendRequest(requestOrBuddy) {
+  if (!requestOrBuddy) return;
+  const myId = state.currentUser?.id || getMyUserId();
+  const partnerId = requestOrBuddy.id || requestOrBuddy.fromId || requestOrBuddy.userId;
+  if (!partnerId || partnerId === myId) return;
+
+  const rawName = state.username || (profileState && profileState.username) || "chill_scholar";
+  const myName = rawName.toLowerCase().replace(/[^a-z0-9_]/g, '');
+  const myAvatar = (profileState && profileState.selectedAvatar) || "🎧";
+  const myAvatarUrl = (profileState && profileState.avatarUrl) || "";
+
+  // 1. Remove from local friend requests
+  const requests = getFriendRequests().filter(r => 
+    !( (r.fromId === partnerId && r.toId === myId) || (r.fromId === myId && r.toId === partnerId) )
+  );
+  saveFriendRequests(requests);
+
+  // 2. Add to friends list if not already present
+  const friends = getFriendsList();
+  if (!friends.some(f => f.id === partnerId)) {
+    friends.push({
+      id: partnerId,
+      displayName: requestOrBuddy.displayName || requestOrBuddy.fromName || 'Study Buddy',
+      avatar: requestOrBuddy.avatar || requestOrBuddy.fromAvatar || '🎧',
+      avatarUrl: requestOrBuddy.avatarUrl || requestOrBuddy.fromAvatarUrl || '',
+      levelText: requestOrBuddy.levelText || requestOrBuddy.fromLevelText || 'Lv. 1 Scholar',
+      streakDays: requestOrBuddy.streakDays || requestOrBuddy.fromStreakDays || 1,
+      totalFocusMinutes: requestOrBuddy.totalFocusMinutes || requestOrBuddy.fromTotalFocusMinutes || 0,
+      completedSessions: requestOrBuddy.completedSessions || 0,
+      bio: requestOrBuddy.bio || requestOrBuddy.fromBio || 'Studying lo-fi beats & staying in the zone 🎧',
+      addedAt: Date.now()
+    });
+    saveFriendsList(friends);
+  }
+
+  // 3. Broadcast accept to partner
+  broadcastFriendSignal('friend_accept', {
+    fromId: myId,
+    fromName: myName,
+    fromAvatar: myAvatar,
+    fromAvatarUrl: myAvatarUrl,
+    toId: partnerId,
+    timestamp: Date.now()
+  });
+
+  // 4. Persist to Supabase: update friend_requests and insert bidirectional friendships
+  const client = getSupabase();
+  if (client) {
+    client.from('friend_requests')
+      .update({ status: 'accepted', updated_at: new Date().toISOString() })
+      .or(`and(sender_id.eq.${partnerId},receiver_id.eq.${myId}),and(sender_id.eq.${myId},receiver_id.eq.${partnerId})`)
+      .then(() => {}).catch(() => {});
+
+    client.from('friendships').upsert([
+      { user_id: myId, friend_id: partnerId },
+      { user_id: partnerId, friend_id: myId }
+    ], { onConflict: 'user_id,friend_id' }).then(({ error }) => {
+      if (error) console.warn("Supabase friendships upsert error:", error.message || error);
+    }).catch(err => console.warn("Supabase friendships exception:", err));
+  }
+
+  showRoomToast(`🎉 You and @${requestOrBuddy.displayName || requestOrBuddy.fromName || 'your buddy'} are now study friends!`);
+  playFriendChime('accept');
+  hideIncomingFriendAlert();
+  renderFriendsUI();
+
+  // Refresh active room list and current viewing modal if applicable
+  if (currentViewingBuddy && currentViewingBuddy.id === partnerId) {
+    openBuddyProfileModal(currentViewingBuddy);
+  }
+}
+
+// Decline Friend Request
+function declineFriendRequest(requestIdOrPartnerId) {
+  if (!requestIdOrPartnerId) return;
+  const myId = state.currentUser?.id || getMyUserId();
+
+  const requests = getFriendRequests().filter(r => 
+    r.id !== requestIdOrPartnerId && r.fromId !== requestIdOrPartnerId
+  );
+  saveFriendRequests(requests);
+
+  // Broadcast decline to partner
+  broadcastFriendSignal('friend_decline', {
+    fromId: myId,
+    toId: requestIdOrPartnerId,
+    timestamp: Date.now()
+  });
+
+  // Persist decline to Supabase
+  const client = getSupabase();
+  if (client) {
+    client.from('friend_requests')
+      .update({ status: 'declined', updated_at: new Date().toISOString() })
+      .or(`and(sender_id.eq.${requestIdOrPartnerId},receiver_id.eq.${myId}),and(sender_id.eq.${myId},receiver_id.eq.${requestIdOrPartnerId})`)
+      .then(() => {}).catch(() => {});
+  }
+
+  showRoomToast("Friend request declined.");
+  hideIncomingFriendAlert();
+  renderFriendsUI();
+
+  if (currentViewingBuddy && (currentViewingBuddy.id === requestIdOrPartnerId)) {
+    openBuddyProfileModal(currentViewingBuddy);
+  }
+}
+
+// Cancel Outgoing Friend Request
+function cancelFriendRequest(targetUserId) {
+  if (!targetUserId) return;
+  const myId = state.currentUser?.id || getMyUserId();
+
+  const requests = getFriendRequests().filter(r => 
+    !(r.fromId === myId && r.toId === targetUserId)
+  );
+  saveFriendRequests(requests);
+
+  broadcastFriendSignal('friend_cancel', {
+    fromId: myId,
+    toId: targetUserId,
+    timestamp: Date.now()
+  });
+
+  // Delete from Supabase
+  const client = getSupabase();
+  if (client) {
+    client.from('friend_requests')
+      .delete()
+      .eq('sender_id', myId)
+      .eq('receiver_id', targetUserId)
+      .then(() => {}).catch(() => {});
+  }
+
+  showRoomToast("Friend request canceled.");
+  renderFriendsUI();
+
+  if (currentViewingBuddy && currentViewingBuddy.id === targetUserId) {
+    openBuddyProfileModal(currentViewingBuddy);
+  }
+}
+
+// Remove Friend
+function removeFriend(friendId) {
+  if (!friendId) return;
+  const friends = getFriendsList();
+  const target = friends.find(f => f.id === friendId);
+  const name = target ? target.displayName : 'this user';
+
+  if (!confirm(`Remove ${name} from your study friends?`)) {
+    return;
+  }
+
+  const updated = friends.filter(f => f.id !== friendId);
+  saveFriendsList(updated);
+
+  // Delete bidirectional friendship from Supabase
+  const client = getSupabase();
+  if (client) {
+    const myId = state.currentUser?.id || getMyUserId();
+    client.from('friendships')
+      .delete()
+      .or(`and(user_id.eq.${myId},friend_id.eq.${friendId}),and(user_id.eq.${friendId},friend_id.eq.${myId})`)
+      .then(() => {}).catch(() => {});
+  }
+
+  showRoomToast(`Removed ${name} from friends list.`);
+  renderFriendsUI();
+
+  if (currentViewingBuddy && currentViewingBuddy.id === friendId) {
+    openBuddyProfileModal(currentViewingBuddy);
+  }
+}
+
+// Handle Inbound Broadcast Events from roomChannel & globalLobbyChannel
+function handleIncomingFriendBroadcast(type, payload) {
+  if (!payload) return;
+  const myLocalId = getMyUserId();
+  const myAuthId = state.currentUser?.id;
+  const isForMe = (targetId) => targetId && (targetId === myLocalId || (myAuthId && targetId === myAuthId));
+
+  if (type === 'request') {
+    if (!isForMe(payload.toId)) return;
+    if (isFriend(payload.fromId)) return;
+
+    // Add to requests list as incoming if not already there
+    const requests = getFriendRequests();
+    const existing = requests.find(r => r.fromId === payload.fromId && (r.toId === myLocalId || r.toId === myAuthId));
+    if (!existing) {
+      requests.push({
+        id: payload.id || ('freq-' + Date.now()),
+        fromId: payload.fromId,
+        fromName: payload.fromName,
+        fromAvatar: payload.fromAvatar || '🎧',
+        fromAvatarUrl: payload.fromAvatarUrl || '',
+        fromLevelText: payload.fromLevelText || 'Lv. 1 Scholar',
+        fromStreakDays: payload.fromStreakDays || 1,
+        fromTotalFocusMinutes: payload.fromTotalFocusMinutes || 0,
+        fromBio: payload.fromBio || 'Studying lo-fi beats & staying in the zone 🎧',
+        toId: payload.toId,
+        direction: 'incoming',
+        timestamp: payload.timestamp || Date.now()
+      });
+      saveFriendRequests(requests);
+    }
+
+    playFriendChime('incoming');
+    showIncomingFriendAlert(payload);
+    renderFriendsUI();
+
+    if (currentViewingBuddy && currentViewingBuddy.id === payload.fromId) {
+      openBuddyProfileModal(currentViewingBuddy);
+    }
+
+    syncFriendRequestsFromSupabase();
+  } else if (type === 'accept') {
+    if (!isForMe(payload.toId)) return;
+
+    // Remove outgoing request
+    const requests = getFriendRequests().filter(r => 
+      !( (r.fromId === myLocalId || r.fromId === myAuthId) && r.toId === payload.fromId )
+    );
+    saveFriendRequests(requests);
+
+    // Add friend
+    const friends = getFriendsList();
+    if (!friends.some(f => f.id === payload.fromId)) {
+      friends.push({
+        id: payload.fromId,
+        displayName: payload.fromName || 'Study Buddy',
+        avatar: payload.fromAvatar || '🎧',
+        avatarUrl: payload.fromAvatarUrl || '',
+        levelText: payload.levelText || 'Lv. 1 Scholar',
+        streakDays: payload.streakDays || 1,
+        totalFocusMinutes: payload.totalFocusMinutes || 0,
+        bio: payload.bio || 'Studying lo-fi beats & staying in the zone 🎧',
+        addedAt: Date.now()
+      });
+      saveFriendsList(friends);
+    }
+
+    playFriendChime('accept');
+    showRoomToast(`🎉 ${payload.fromName || 'Study Buddy'} accepted your friend request!`);
+    renderFriendsUI();
+
+    if (currentViewingBuddy && currentViewingBuddy.id === payload.fromId) {
+      openBuddyProfileModal(currentViewingBuddy);
+    }
+
+    syncFriendsFromSupabase();
+    syncFriendRequestsFromSupabase();
+  } else if (type === 'decline') {
+    if (!isForMe(payload.toId)) return;
+    const requests = getFriendRequests().filter(r => 
+      !( (r.fromId === myLocalId || r.fromId === myAuthId) && r.toId === payload.fromId )
+    );
+    saveFriendRequests(requests);
+    renderFriendsUI();
+
+    if (currentViewingBuddy && currentViewingBuddy.id === payload.fromId) {
+      openBuddyProfileModal(currentViewingBuddy);
+    }
+
+    syncFriendRequestsFromSupabase();
+  } else if (type === 'cancel') {
+    if (!isForMe(payload.toId)) return;
+    const requests = getFriendRequests().filter(r => 
+      !(r.fromId === payload.fromId && (r.toId === myLocalId || r.toId === myAuthId))
+    );
+    saveFriendRequests(requests);
+    hideIncomingFriendAlert();
+    renderFriendsUI();
+
+    if (currentViewingBuddy && currentViewingBuddy.id === payload.fromId) {
+      openBuddyProfileModal(currentViewingBuddy);
+    }
+
+    syncFriendRequestsFromSupabase();
+  }
+}
+
+// Floating Incoming Friend Alert Banner
+let activeIncomingAlertTimeout = null;
+
+function showIncomingFriendAlert(request) {
+  const elAlert = document.getElementById('incomingFriendAlert');
+  if (!elAlert) return;
+
+  const elAvatar = document.getElementById('incomingAlertAvatar');
+  const elName = document.getElementById('incomingAlertName');
+  const elTime = document.getElementById('incomingAlertTime');
+  const btnAccept = document.getElementById('btnAlertAcceptFriend');
+  const btnDecline = document.getElementById('btnAlertDeclineFriend');
+  const btnDismiss = document.getElementById('btnAlertDismissFriend');
+
+  if (elAvatar) {
+    if (request.fromAvatarUrl) {
+      elAvatar.innerHTML = `<img src="${request.fromAvatarUrl}" referrerpolicy="no-referrer" alt="${escapeHtml(request.fromName || 'Buddy')}">`;
+    } else {
+      elAvatar.textContent = request.fromAvatar || '🎧';
+    }
+  }
+
+  if (elName) elName.textContent = request.fromName || 'Study Buddy';
+  if (elTime) elTime.textContent = 'Just now';
+
+  if (btnAccept) {
+    btnAccept.onclick = () => {
+      acceptFriendRequest(request);
+      hideIncomingFriendAlert();
+    };
+  }
+
+  if (btnDecline) {
+    btnDecline.onclick = () => {
+      declineFriendRequest(request.id || request.fromId);
+      hideIncomingFriendAlert();
+    };
+  }
+
+  if (btnDismiss) {
+    btnDismiss.onclick = () => {
+      hideIncomingFriendAlert();
+    };
+  }
+
+  elAlert.style.display = 'block';
+
+  if (activeIncomingAlertTimeout) clearTimeout(activeIncomingAlertTimeout);
+  activeIncomingAlertTimeout = setTimeout(() => {
+    hideIncomingFriendAlert();
+  }, 14000);
+}
+
+function hideIncomingFriendAlert() {
+  const elAlert = document.getElementById('incomingFriendAlert');
+  if (elAlert) elAlert.style.display = 'none';
+  if (activeIncomingAlertTimeout) {
+    clearTimeout(activeIncomingAlertTimeout);
+    activeIncomingAlertTimeout = null;
+  }
+}
+
+// Buddy Profile Modal
+let currentViewingBuddy = null;
+
+function openBuddyProfileModal(user) {
+  if (!user) return;
+  currentViewingBuddy = user;
+
+  const modal = document.getElementById('otherUserProfileModal');
+  if (!modal) return;
+
+  const myId = getMyUserId();
+  const userId = user.id || user.userId;
+  const isMe = (userId === myId) || !!user.isMe;
+
+  const elAvatar = document.getElementById('otherUserAvatar');
+  const elName = document.getElementById('otherUserName');
+  const elLevel = document.getElementById('otherUserLevel');
+  const elStreak = document.getElementById('otherUserStreak');
+  const elStatusText = document.getElementById('otherUserStatusText');
+  const elFocusTime = document.getElementById('otherUserFocusTime');
+  const elSessions = document.getElementById('otherUserSessions');
+  const elRoomStatus = document.getElementById('otherUserRoomStatus');
+  const elOnlineDot = document.getElementById('otherUserOnlineDot');
+  const elActions = document.getElementById('otherUserActionsFooter');
+
+  if (elAvatar) {
+    if (user.avatarUrl) {
+      elAvatar.innerHTML = `<img src="${user.avatarUrl}" referrerpolicy="no-referrer" alt="${escapeHtml(user.displayName || 'Buddy')}">`;
+    } else {
+      elAvatar.textContent = user.avatar || '🎧';
+    }
+  }
+
+  if (elName) elName.textContent = user.displayName || 'Study Buddy';
+  if (elLevel) elLevel.textContent = user.levelText || 'Lv. 1 Scholar';
+  const streak = user.streakDays || 1;
+  if (elStreak) elStreak.textContent = `🔥 ${streak} Day${streak === 1 ? '' : 's'}`;
+  if (elStatusText) elStatusText.textContent = user.bio || "Studying lo-fi beats & staying in the zone 🎧";
+
+  const totalMins = user.totalFocusMinutes || 0;
+  if (elFocusTime) elFocusTime.textContent = formatMinutes(totalMins);
+  if (elSessions) elSessions.textContent = user.completedSessions || Math.max(1, Math.floor(totalMins / 25));
+  if (elRoomStatus) elRoomStatus.textContent = isMe ? 'You' : 'In Room';
+  if (elOnlineDot) {
+    elOnlineDot.className = 'buddy-online-indicator';
+  }
+
+  // Populate dynamic action buttons based on friend status
+  if (elActions) {
+    elActions.innerHTML = '';
+    if (isMe) {
+      elActions.innerHTML = `
+        <div class="buddy-btn pending-sent" style="cursor:default; width:100%;">
+          <i class="fa-solid fa-user"></i> This is your own profile
+        </div>
+      `;
+    } else if (isFriend(userId)) {
+      elActions.innerHTML = `
+        <button type="button" class="buddy-btn is-friend" id="modalBtnFriendState" title="Click to remove friend">
+          <i class="fa-solid fa-user-check"></i> Study Friends (Remove)
+        </button>
+      `;
+      const btn = elActions.querySelector('#modalBtnFriendState');
+      if (btn) btn.onclick = () => removeFriend(userId);
+    } else if (hasOutgoingRequest(userId)) {
+      elActions.innerHTML = `
+        <button type="button" class="buddy-btn pending-sent" id="modalBtnCancelSent" title="Click to cancel outgoing request">
+          <i class="fa-solid fa-clock"></i> Request Sent (Cancel)
+        </button>
+      `;
+      const btn = elActions.querySelector('#modalBtnCancelSent');
+      if (btn) btn.onclick = () => cancelFriendRequest(userId);
+    } else if (hasIncomingRequest(userId)) {
+      elActions.innerHTML = `
+        <button type="button" class="buddy-btn add-friend" id="modalBtnAcceptIn" style="background:#2A9D8F; color:#FFF;">
+          <i class="fa-solid fa-check"></i> Accept Request
+        </button>
+        <button type="button" class="buddy-btn pending-sent" id="modalBtnDeclineIn">
+          <i class="fa-solid fa-xmark"></i> Decline
+        </button>
+      `;
+      const btnAccept = elActions.querySelector('#modalBtnAcceptIn');
+      if (btnAccept) btnAccept.onclick = () => acceptFriendRequest(user);
+      const btnDecline = elActions.querySelector('#modalBtnDeclineIn');
+      if (btnDecline) btnDecline.onclick = () => declineFriendRequest(userId);
+    } else {
+      elActions.innerHTML = `
+        <button type="button" class="buddy-btn add-friend" id="modalBtnAddBuddy">
+          <i class="fa-solid fa-user-plus"></i> Add as Friend
+        </button>
+      `;
+      const btn = elActions.querySelector('#modalBtnAddBuddy');
+      if (btn) btn.onclick = () => sendFriendRequest(user);
+    }
+  }
+
+  modal.classList.add('active');
+}
+
+function closeBuddyProfileModal() {
+  const modal = document.getElementById('otherUserProfileModal');
+  if (modal) modal.classList.remove('active');
+  currentViewingBuddy = null;
+}
+
+// Render Friends UI (tab view, pending requests, friends list, suggested buddies)
+function renderFriendsUI() {
+  const incomingReqs = getIncomingRequests();
+  const outgoingReqs = getOutgoingRequests();
+  const friends = getFriendsList();
+  const myId = getMyUserId();
+
+  // 1. Badge count on Friends tab & buttons
+  const badge = document.getElementById('friendRequestsCountBadge');
+  const screenFriendsBadge = document.getElementById('screenFriendsBadge');
+  const bezelFriendsDot = document.getElementById('bezelFriendsDot');
+
+  if (incomingReqs.length > 0) {
+    if (badge) {
+      badge.textContent = incomingReqs.length;
+      badge.style.display = 'inline-block';
+    }
+    if (screenFriendsBadge) {
+      screenFriendsBadge.textContent = incomingReqs.length;
+      screenFriendsBadge.classList.remove('hidden');
+    }
+    if (bezelFriendsDot) {
+      bezelFriendsDot.classList.remove('hidden');
+    }
+  } else {
+    if (badge) badge.style.display = 'none';
+    if (screenFriendsBadge) screenFriendsBadge.classList.add('hidden');
+    if (bezelFriendsDot) bezelFriendsDot.classList.add('hidden');
+  }
+
+  // 2. Pending Requests Section
+  const elPendingSection = document.getElementById('pendingRequestsSection');
+  const elPendingCount = document.getElementById('pendingRequestsCount');
+  const elPendingList = document.getElementById('pendingRequestsList');
+
+  const totalPending = incomingReqs.length + outgoingReqs.length;
+  if (elPendingSection && elPendingList) {
+    if (totalPending > 0) {
+      elPendingSection.style.display = 'flex';
+      if (elPendingCount) elPendingCount.textContent = totalPending;
+      elPendingList.innerHTML = '';
+
+      // Render incoming requests first
+      incomingReqs.forEach(req => {
+        const item = document.createElement('div');
+        item.className = 'pending-request-card';
+
+        let avHtml = '';
+        if (req.fromAvatarUrl) {
+          avHtml = `<img src="${req.fromAvatarUrl}" referrerpolicy="no-referrer" class="friend-avatar-img" alt="${escapeHtml(req.fromName)}">`;
+        } else {
+          avHtml = `<span>${req.fromAvatar || '🎧'}</span>`;
+        }
+
+        item.innerHTML = `
+          <div class="friend-item-left">
+            <div class="friend-avatar-wrap">
+              ${avHtml}
+              <span class="friend-online-dot"></span>
+            </div>
+            <div class="friend-meta">
+              <div class="friend-name-row">
+                <span class="friend-name">${escapeHtml(req.fromName)}</span>
+                <span class="friend-level-tag">Incoming</span>
+              </div>
+              <div class="friend-status-text">Wants to be your study friend</div>
+            </div>
+          </div>
+          <div class="friend-actions-group">
+            <button type="button" class="friend-icon-btn accept" title="Accept Request" style="background:#2A9D8F; color:#FFF; border-color:#2A9D8F;">
+              <i class="fa-solid fa-check"></i>
+            </button>
+            <button type="button" class="friend-icon-btn danger" title="Decline Request">
+              <i class="fa-solid fa-xmark"></i>
+            </button>
+          </div>
+        `;
+
+        item.querySelector('.friend-item-left')?.addEventListener('click', () => {
+          openBuddyProfileModal({
+            id: req.fromId,
+            displayName: req.fromName,
+            avatar: req.fromAvatar,
+            avatarUrl: req.fromAvatarUrl,
+            levelText: req.fromLevelText,
+            streakDays: req.fromStreakDays,
+            totalFocusMinutes: req.fromTotalFocusMinutes,
+            bio: req.fromBio
+          });
+        });
+
+        item.querySelector('.accept')?.addEventListener('click', (e) => {
+          e.stopPropagation();
+          acceptFriendRequest(req);
+        });
+
+        item.querySelector('.danger')?.addEventListener('click', (e) => {
+          e.stopPropagation();
+          declineFriendRequest(req.id || req.fromId);
+        });
+
+        elPendingList.appendChild(item);
+      });
+
+      // Render outgoing requests
+      outgoingReqs.forEach(req => {
+        const item = document.createElement('div');
+        item.className = 'pending-request-card';
+
+        let avHtml = '';
+        if (req.toAvatarUrl) {
+          avHtml = `<img src="${req.toAvatarUrl}" referrerpolicy="no-referrer" class="friend-avatar-img" alt="${escapeHtml(req.toName)}">`;
+        } else {
+          avHtml = `<span>${req.toAvatar || '🎧'}</span>`;
+        }
+
+        item.innerHTML = `
+          <div class="friend-item-left">
+            <div class="friend-avatar-wrap">
+              ${avHtml}
+            </div>
+            <div class="friend-meta">
+              <div class="friend-name-row">
+                <span class="friend-name">${escapeHtml(req.toName)}</span>
+                <span class="friend-level-tag" style="background:rgba(255,255,255,0.08); color:#A69080;">Outgoing</span>
+              </div>
+              <div class="friend-status-text">Waiting for approval...</div>
+            </div>
+          </div>
+          <div class="friend-actions-group">
+            <button type="button" class="friend-icon-btn danger" title="Cancel Request">
+              <i class="fa-solid fa-xmark"></i>
+            </button>
+          </div>
+        `;
+
+        item.querySelector('.friend-item-left')?.addEventListener('click', () => {
+          openBuddyProfileModal({
+            id: req.toId,
+            displayName: req.toName,
+            avatar: req.toAvatar,
+            avatarUrl: req.toAvatarUrl,
+            levelText: req.toLevelText,
+            streakDays: req.toStreakDays,
+            totalFocusMinutes: req.toTotalFocusMinutes,
+            bio: req.toBio
+          });
+        });
+
+        item.querySelector('.danger')?.addEventListener('click', (e) => {
+          e.stopPropagation();
+          cancelFriendRequest(req.toId);
+        });
+
+        elPendingList.appendChild(item);
+      });
+    } else {
+      elPendingSection.style.display = 'none';
+    }
+  }
+
+  // 3. Accepted Friends List
+  const elFriendsCount = document.getElementById('myFriendsCount');
+  const elFriendsList = document.getElementById('myFriendsList');
+
+  if (elFriendsCount) elFriendsCount.textContent = friends.length;
+  if (elFriendsList) {
+    elFriendsList.innerHTML = '';
+    if (friends.length === 0) {
+      elFriendsList.innerHTML = `
+        <div class="friends-empty-state">
+          <i class="fa-solid fa-user-group friends-empty-icon"></i>
+          <div class="friends-empty-title">No Study Friends Yet</div>
+          <div class="friends-empty-desc">Study together in active rooms or enter a buddy's username above to add them!</div>
+        </div>
+      `;
+    } else {
+      friends.forEach(friend => {
+        const item = document.createElement('div');
+        item.className = 'friend-item-card';
+
+        let avHtml = '';
+        if (friend.avatarUrl) {
+          avHtml = `<img src="${friend.avatarUrl}" referrerpolicy="no-referrer" class="friend-avatar-img" alt="${escapeHtml(friend.displayName)}">`;
+        } else {
+          avHtml = `<span>${friend.avatar || '🎧'}</span>`;
+        }
+
+        item.innerHTML = `
+          <div class="friend-item-left">
+            <div class="friend-avatar-wrap">
+              ${avHtml}
+              <span class="friend-online-dot"></span>
+            </div>
+            <div class="friend-meta">
+              <div class="friend-name-row">
+                <span class="friend-name">${escapeHtml(friend.displayName)}</span>
+                <span class="friend-level-tag">${friend.levelText || 'Lv. 1 Scholar'}</span>
+              </div>
+              <div class="friend-status-text">${formatMinutes(friend.totalFocusMinutes || 0)} study time • 🔥 ${friend.streakDays || 1}d</div>
+            </div>
+          </div>
+          <div class="friend-actions-group">
+            <button type="button" class="friend-icon-btn view-btn" title="View Profile">
+              <i class="fa-solid fa-user"></i>
+            </button>
+            <button type="button" class="friend-icon-btn danger remove-btn" title="Remove Friend">
+              <i class="fa-solid fa-user-minus"></i>
+            </button>
+          </div>
+        `;
+
+        const viewProfile = () => openBuddyProfileModal(friend);
+        item.querySelector('.friend-item-left')?.addEventListener('click', viewProfile);
+        item.querySelector('.view-btn')?.addEventListener('click', (e) => {
+          e.stopPropagation();
+          viewProfile();
+        });
+        item.querySelector('.remove-btn')?.addEventListener('click', (e) => {
+          e.stopPropagation();
+          removeFriend(friend.id);
+        });
+
+        elFriendsList.appendChild(item);
+      });
+    }
+  }
+
+  // 4. Quick Room Buddies Suggestions
+  const elRoomSection = document.getElementById('roomBuddiesSection');
+  const elRoomQuickList = document.getElementById('roomBuddiesQuickList');
+  if (elRoomSection && elRoomQuickList) {
+    let activeBuddies = [];
+    if (roomChannel && typeof roomChannel.presenceState === 'function') {
+      const presences = roomChannel.presenceState();
+      for (const id in presences) {
+        if (id !== myId && !isFriend(id)) {
+          const userMeta = presences[id]?.[0];
+          if (userMeta) {
+            activeBuddies.push({
+              id: id,
+              displayName: userMeta.displayName || 'Studying Bud',
+              avatar: userMeta.avatar || '🎧',
+              avatarUrl: userMeta.avatarUrl || null,
+              levelText: userMeta.levelText || 'Lv. 1 Scholar',
+              streakDays: userMeta.streakDays || 1,
+              totalFocusMinutes: userMeta.totalFocusMinutes || 0,
+              bio: userMeta.bio
+            });
+          }
+        }
+      }
+    }
+
+    if (activeBuddies.length > 0) {
+      elRoomSection.style.display = 'flex';
+      elRoomQuickList.innerHTML = '';
+      activeBuddies.forEach(buddy => {
+        const chip = document.createElement('div');
+        chip.className = 'room-buddy-chip';
+        chip.title = `Click to view profile & add ${buddy.displayName}`;
+        chip.innerHTML = `
+          <span>${buddy.avatarUrl ? `<img src="${buddy.avatarUrl}" style="width:16px;height:16px;border-radius:50%;vertical-align:middle;">` : buddy.avatar}</span>
+          <span>${escapeHtml(buddy.displayName)}</span>
+          <i class="fa-solid fa-plus" style="font-size:0.7rem; color:#D4A373;"></i>
+        `;
+        chip.addEventListener('click', () => openBuddyProfileModal(buddy));
+        elRoomQuickList.appendChild(chip);
+      });
+    } else {
+      elRoomSection.style.display = 'none';
+    }
+  }
+}
+
+// Wire and setup all friend listeners and handlers
+function setupFriendsSystem() {
+  // Close Friends Panel button
+  const closePanelFriends = document.getElementById('closePanelFriends');
+  if (closePanelFriends) {
+    closePanelFriends.addEventListener('click', (e) => {
+      e.stopPropagation();
+      setMiddleMenuPane('themes');
+    });
+  }
+
+  // Add Friend Input Bar (Exact Username Search)
+  const addInput = document.getElementById('addFriendInput');
+  const addBtn = document.getElementById('addFriendSubmitBtn');
+
+  const handleAddSubmit = async () => {
+    if (!addInput) return;
+    const rawVal = (addInput.value || '').trim();
+    if (!rawVal) {
+      showRoomToast("⚠️ Please enter a username.");
+      return;
+    }
+
+    // Normalize: strip leading @, remove any non-allowed characters, lowercase
+    const query = rawVal.toLowerCase().replace(/^@+/, '').replace(/[^a-z0-9_]/g, '');
+    if (!query) {
+      showRoomToast("⚠️ Please enter a valid username (a-z, 0-9, _ only).");
+      return;
+    }
+
+    const myId = getMyUserId();
+    const myAuthId = state.currentUser?.id || null;
+    const isSelf = (targetId) => {
+      if (!targetId) return false;
+      const tid = String(targetId).toLowerCase();
+      return tid === myId.toLowerCase() || (myAuthId && tid === myAuthId.toLowerCase());
+    };
+
+    const myRawName = (state.username || profileState?.username || 'chill_scholar');
+    const myCleanName = myRawName.toLowerCase().replace(/^@+/, '').replace(/[^a-z0-9_]/g, '');
+
+    if (query === myId.toLowerCase() || (myAuthId && query === myAuthId.toLowerCase()) || query === myCleanName) {
+      showRoomToast("⚠️ You cannot add yourself as a friend.");
+      return;
+    }
+
+    // Check if user is already a friend by name or ID
+    const friends = getFriendsList();
+    if (friends.some(f => {
+      const fName = (f.displayName || f.username || '').toLowerCase().replace(/^@+/, '').replace(/[^a-z0-9_]/g, '');
+      const fFlat = fName.replace(/_/g, '');
+      const qFlat = query.replace(/_/g, '');
+      return fName === query || fFlat === qFlat || (f.id && isSelf(f.id));
+    })) {
+      showRoomToast(`✨ "@${query}" is already in your study friends!`);
+      return;
+    }
+
+    let matchedBuddy = null;
+    const queryFlat = query.replace(/_/g, '');
+
+    // 1. Check in active room presence
+    if (roomChannel && typeof roomChannel.presenceState === 'function') {
+      const presences = roomChannel.presenceState();
+      for (const id in presences) {
+        if (!isSelf(id)) {
+          const list = presences[id] || [];
+          for (const meta of list) {
+            if (!meta) continue;
+            const metaId = meta.userId || meta.id || id;
+            if (isSelf(metaId)) continue;
+            const metaUser = (meta.username || meta.displayName || '').toLowerCase().replace(/^@+/, '').replace(/[^a-z0-9_]/g, '');
+            const metaFlat = metaUser.replace(/_/g, '');
+            if (metaId.toLowerCase() === query || metaUser === query || metaFlat === queryFlat) {
+              matchedBuddy = {
+                id: metaId,
+                displayName: meta.username || meta.displayName || query,
+                avatar: meta.avatar || '🎧',
+                avatarUrl: meta.avatarUrl || null,
+                levelText: meta.levelText || 'Lv. 1 Scholar',
+                streakDays: meta.streakDays || 1,
+                totalFocusMinutes: meta.totalFocusMinutes || 0,
+                bio: meta.bio || 'Studying lo-fi beats & staying in the zone 🎧'
+              };
+              break;
+            }
+          }
+        }
+        if (matchedBuddy) break;
+      }
+    }
+
+    // 2. Check in global lobby channel presence (all active users across the entire site)
+    if (!matchedBuddy && typeof globalLobbyChannel !== 'undefined' && globalLobbyChannel && typeof globalLobbyChannel.presenceState === 'function') {
+      const presences = globalLobbyChannel.presenceState();
+      for (const id in presences) {
+        if (!isSelf(id)) {
+          const list = presences[id] || [];
+          for (const meta of list) {
+            if (!meta) continue;
+            const metaId = meta.userId || meta.id || id;
+            if (isSelf(metaId)) continue;
+            const metaUser = (meta.username || meta.displayName || '').toLowerCase().replace(/^@+/, '').replace(/[^a-z0-9_]/g, '');
+            const metaFlat = metaUser.replace(/_/g, '');
+            if (metaId.toLowerCase() === query || metaUser === query || metaFlat === queryFlat) {
+              matchedBuddy = {
+                id: metaId,
+                displayName: meta.username || meta.displayName || query,
+                avatar: meta.avatar || '🎧',
+                avatarUrl: meta.avatarUrl || null,
+                levelText: meta.levelText || 'Lv. 1 Scholar',
+                streakDays: meta.streakDays || 1,
+                totalFocusMinutes: meta.totalFocusMinutes || 0,
+                bio: meta.bio || 'Studying lo-fi beats & staying in the zone 🎧'
+              };
+              break;
+            }
+          }
+        }
+        if (matchedBuddy) break;
+      }
+    }
+
+    // 3. Check in Supabase profiles database (flexible matching with wildcards)
+    if (!matchedBuddy) {
+      const client = getSupabase();
+      if (client) {
+        try {
+          const { data, error } = await client
+            .from('profiles')
+            .select('*')
+            .or(`username.ilike.${query},username.ilike.%${query}%`);
+          if (error) {
+            console.warn("Supabase friend search error:", error.message || error);
+          }
+          if (!error && Array.isArray(data) && data.length > 0) {
+            const foundRow = data.find(r => {
+              if (isSelf(r.id)) return false;
+              const rName = (r.username || '').toLowerCase();
+              const rNameClean = rName.replace(/^@+/, '').replace(/[^a-z0-9_]/g, '');
+              const rNameFlat = rNameClean.replace(/_/g, '');
+              return rNameClean === query || rNameFlat === queryFlat || rName === query || (r.id && String(r.id).toLowerCase() === query);
+            });
+            if (foundRow) {
+              matchedBuddy = {
+                id: foundRow.id,
+                displayName: foundRow.username || query,
+                avatar: '🎧',
+                avatarUrl: foundRow.avatar_url || 'assets/images/avatars/cat.svg',
+                levelText: (typeof getLevelInfo === 'function') ? getLevelInfo(foundRow.total_focus_minutes || 0).badgeText : 'Lv. 1 Scholar',
+                streakDays: foundRow.streak_days || 1,
+                totalFocusMinutes: foundRow.total_focus_minutes || 0,
+                bio: 'Studying lo-fi beats & staying in the zone 🎧'
+              };
+            }
+          }
+        } catch (err) {
+          console.warn("Supabase friend search exception:", err);
+        }
+      }
+    }
+
+    // 4. Check in local registered usernames registry (cross-tab & local accounts)
+    if (!matchedBuddy) {
+      const registry = getRegisteredUsernames();
+      // Look for exact key match
+      let regUser = registry[query];
+      if (regUser && isSelf(regUser.id)) {
+        regUser = null;
+      }
+      if (!regUser) {
+        // Look through all entries
+        for (const k in registry) {
+          const entry = registry[k];
+          if (entry && !isSelf(entry.id)) {
+            const uName = (entry.username || k).toLowerCase().replace(/^@+/, '').replace(/[^a-z0-9_]/g, '');
+            const uFlat = uName.replace(/_/g, '');
+            if (uName === query || uFlat === queryFlat || (entry.id && String(entry.id).toLowerCase() === query)) {
+              regUser = entry;
+              break;
+            }
+          }
+        }
+      }
+
+      if (regUser && !isSelf(regUser.id)) {
+        matchedBuddy = {
+          id: regUser.id,
+          displayName: regUser.username || query,
+          avatar: regUser.selectedAvatar || '🎧',
+          avatarUrl: regUser.avatarUrl || 'assets/images/avatars/cat.svg',
+          levelText: regUser.levelText || 'Lv. 1 Scholar',
+          streakDays: regUser.streakDays || 1,
+          totalFocusMinutes: regUser.totalFocusMinutes || 0,
+          bio: regUser.bio || 'Studying lo-fi beats & staying in the zone 🎧'
+        };
+      }
+    }
+
+    if (matchedBuddy) {
+      sendFriendRequest(matchedBuddy);
+      addInput.value = '';
+    } else {
+      showRoomToast(`⚠️ No user found with username "@${query}". Please check the spelling.`);
+    }
+  };
+
+  if (addBtn) addBtn.addEventListener('click', handleAddSubmit);
+  if (addInput) {
+    addInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        handleAddSubmit();
+      }
+    });
+  }
+
+  // Open / Toggle Study Friends panel from screen button and bezel button
+  function toggleStudyFriendsPanel() {
+    const isFriendsActive = (document.getElementById('mobileMenuSelect')?.value === 'friends') ||
+                            (document.getElementById('panelFriends')?.classList.contains('open'));
+
+    if (isFriendsActive) {
+      setMiddleMenuPane('themes');
+    } else {
+      setMiddleMenuPane('friends');
+      renderFriendsUI();
+    }
+  }
+
+  const btnScreenFriends = document.getElementById('screenFriendsBtn');
+  if (btnScreenFriends) {
+    btnScreenFriends.addEventListener('click', (e) => {
+      e.stopPropagation();
+      toggleStudyFriendsPanel();
+    });
+  }
+
+  const btnToggleFriends = document.getElementById('toggleFriendsBtn');
+  if (btnToggleFriends) {
+    btnToggleFriends.addEventListener('click', (e) => {
+      e.stopPropagation();
+      toggleStudyFriendsPanel();
+    });
+  }
+
+  // Close friends panel when clicking outside on desktop
+  document.addEventListener('click', (e) => {
+    const elFriends = document.getElementById('panelFriends');
+    if (window.innerWidth > 768 && elFriends && elFriends.classList.contains('open')) {
+      if (!elFriends.contains(e.target) &&
+          e.target !== btnScreenFriends && !btnScreenFriends?.contains(e.target) &&
+          e.target !== btnToggleFriends && !btnToggleFriends?.contains(e.target)) {
+        setMiddleMenuPane('ambient');
+      }
+    }
+  });
+
+  // Close modal button & backdrop click
+  const closeBtn = document.getElementById('closeOtherUserProfileModal');
+  const modal = document.getElementById('otherUserProfileModal');
+  if (closeBtn) {
+    closeBtn.addEventListener('click', closeBuddyProfileModal);
+  }
+  if (modal) {
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        closeBuddyProfileModal();
+      }
+    });
+  }
+
+  // Cross-tab synchronization via storage event
+  window.addEventListener('storage', (e) => {
+    if (e.key === STORAGE_KEY_FRIEND_REQUESTS || e.key === STORAGE_KEY_FRIENDS) {
+      renderFriendsUI();
+      // Check if a new incoming request arrived for this tab
+      const incoming = getIncomingRequests();
+      const latest = incoming[incoming.length - 1];
+      if (latest && Date.now() - (latest.timestamp || 0) < 4000) {
+        showIncomingFriendAlert(latest);
+        playFriendChime('incoming');
+      }
+    }
+  });
+
+  // Initial render of friends UI
+  renderFriendsUI();
 }
 
 // Cursor Parallax Engine
@@ -6322,7 +8484,9 @@ function getThemeDisplayName(themeId) {
 function applyThemeWeather(themeId, isActive, isRemote = false) {
   if (themeId === 'scene2') {
     state.isBlizzardActive = isActive;
-    state.hotspots.blizzard = isActive;
+    if (!isActive) {
+      state.hotspots.blizzard = false;
+    }
     const fogBg = document.getElementById('bg-mountains');
     if (fogBg) fogBg.classList.toggle('blizzard-fog', isActive);
     if (window.blizzardEngine) {
@@ -6331,13 +8495,15 @@ function applyThemeWeather(themeId, isActive, isRemote = false) {
     }
     const elBlizzard = document.getElementById('hotspotWinterBlizzard');
     if (elBlizzard) {
-      elBlizzard.classList.toggle('active', isActive);
+      elBlizzard.classList.toggle('active', !!state.hotspots.blizzard);
       const tt = elBlizzard.querySelector('.hotspot-tooltip');
-      if (tt) tt.textContent = isActive ? 'Blizzard: Active' : 'Blizzard: Quiet';
+      if (tt) tt.textContent = state.hotspots.blizzard ? 'Blizzard: Sound On' : (isActive ? 'Blizzard: Active (Muted)' : 'Blizzard: Quiet');
     }
   } else if (themeId === 'scene_library') {
     state.isLibraryRainActive = isActive;
-    state.hotspots.libraryRain = isActive;
+    if (!isActive) {
+      state.hotspots.libraryRain = false;
+    }
     const bgLib = document.getElementById('bg-library');
     if (bgLib) bgLib.classList.toggle('rain-active', isActive);
     if (window.libraryRainEngine) {
@@ -6346,13 +8512,15 @@ function applyThemeWeather(themeId, isActive, isRemote = false) {
     }
     const elLibRain = document.getElementById('hotspotLibraryRain');
     if (elLibRain) {
-      elLibRain.classList.toggle('active', isActive);
+      elLibRain.classList.toggle('active', !!state.hotspots.libraryRain);
       const tt = elLibRain.querySelector('.hotspot-tooltip');
-      if (tt) tt.textContent = isActive ? 'Rain: Active' : 'Rain: Off';
+      if (tt) tt.textContent = state.hotspots.libraryRain ? 'Rain: Sound On' : (isActive ? 'Rain: Active (Muted)' : 'Rain: Off');
     }
   } else if (themeId === 'scene_forest') {
     state.isForestRainActive = isActive;
-    state.hotspots.forestRain = isActive;
+    if (!isActive) {
+      state.hotspots.forestRain = false;
+    }
     const bgForest = document.getElementById('bg-forest');
     if (bgForest) bgForest.classList.toggle('rainy', isActive);
     if (window.forestRainEngine) {
@@ -6365,13 +8533,15 @@ function applyThemeWeather(themeId, isActive, isRemote = false) {
     }
     const elForestRain = document.getElementById('hotspotForestRain');
     if (elForestRain) {
-      elForestRain.classList.toggle('active', isActive);
+      elForestRain.classList.toggle('active', !!state.hotspots.forestRain);
       const tt = elForestRain.querySelector('.hotspot-tooltip');
-      if (tt) tt.textContent = isActive ? 'Rain: Active' : 'Rain: Sunny';
+      if (tt) tt.textContent = state.hotspots.forestRain ? 'Rain: Sound On' : (isActive ? 'Rain: Active (Muted)' : 'Rain: Sunny');
     }
   } else if (themeId === 'scene_forest_cabin') {
     state.isForestCabinRainActive = isActive;
-    state.hotspots.forestCabinRain = isActive;
+    if (!isActive) {
+      state.hotspots.forestCabinRain = false;
+    }
     const bgForestCabin = document.getElementById('bg-forest-cabin');
     if (bgForestCabin) bgForestCabin.classList.toggle('rainy', isActive);
     if (window.forestCabinRainEngine) {
@@ -6384,9 +8554,9 @@ function applyThemeWeather(themeId, isActive, isRemote = false) {
     }
     const elForestCabinRain = document.getElementById('hotspotForestCabinRain');
     if (elForestCabinRain) {
-      elForestCabinRain.classList.toggle('active', isActive);
+      elForestCabinRain.classList.toggle('active', !!state.hotspots.forestCabinRain);
       const tt = elForestCabinRain.querySelector('.hotspot-tooltip');
-      if (tt) tt.textContent = isActive ? 'Rain: Pouring' : 'Rain: Clear';
+      if (tt) tt.textContent = state.hotspots.forestCabinRain ? 'Rain: Sound On' : (isActive ? 'Rain: Active (Muted)' : 'Rain: Clear');
     }
   } else if (themeId === 'scene_durga_puja') {
     state.isDurgaPujaRainActive = isActive;
@@ -6408,7 +8578,9 @@ function applyThemeWeather(themeId, isActive, isRemote = false) {
     }
   } else if (themeId === 'scene_darjeeling') {
     state.isDarjeelingRainActive = isActive;
-    state.hotspots.darjeelingRain = isActive;
+    if (!isActive) {
+      state.hotspots.darjeelingRain = false;
+    }
     const sceneDj = document.getElementById('scene-darjeeling-container');
     if (sceneDj) sceneDj.classList.toggle('rainy', isActive);
     if (window.darjeelingRainEngine) {
@@ -6421,13 +8593,15 @@ function applyThemeWeather(themeId, isActive, isRemote = false) {
     }
     const elDjRain = document.getElementById('hotspotDarjeelingRain');
     if (elDjRain) {
-      elDjRain.classList.toggle('active', isActive);
+      elDjRain.classList.toggle('active', !!state.hotspots.darjeelingRain);
       const tt = elDjRain.querySelector('.hotspot-tooltip');
-      if (tt) tt.textContent = isActive ? 'Monsoon Rain: Active' : 'Monsoon Rain: Off';
+      if (tt) tt.textContent = state.hotspots.darjeelingRain ? 'Rain: Sound On' : (isActive ? 'Rain: Active (Muted)' : 'Monsoon Rain: Off');
     }
   } else if (themeId === 'scene_sahara') {
     state.isSaharaSandstormActive = isActive;
-    state.hotspots.saharaWind = isActive;
+    if (!isActive) {
+      state.hotspots.saharaWind = false;
+    }
     const bgSunset = document.getElementById('bg-sahara-sunset');
     const bgNight = document.getElementById('bg-sahara-night');
     if (bgSunset) bgSunset.classList.toggle('sandstorm-fog', isActive);
@@ -6442,9 +8616,9 @@ function applyThemeWeather(themeId, isActive, isRemote = false) {
     }
     const elWind = document.getElementById('hotspotSaharaWind');
     if (elWind) {
-      elWind.classList.toggle('active', isActive);
+      elWind.classList.toggle('active', !!state.hotspots.saharaWind);
       const tt = elWind.querySelector('.hotspot-tooltip');
-      if (tt) tt.textContent = isActive ? 'Sandstorm: Howling' : 'Desert Wind: Calm';
+      if (tt) tt.textContent = state.hotspots.saharaWind ? 'Desert Wind: Sound On' : (isActive ? 'Sandstorm: Active (Muted)' : 'Desert Wind: Calm');
     }
   }
 
