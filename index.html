@@ -42,7 +42,7 @@
   <meta name="apple-mobile-web-app-title" content="Lofify">
 
   <!-- Core Styles -->
-  <link rel="stylesheet" href="style.css?v=lofify_mobile_v6">
+  <link rel="stylesheet" href="style.css?v=lofify_themes_default_v1">
 </head>
 <body>
   <!-- MINIMAL VIBE-CODED AESTHETIC LANDING -->
@@ -461,11 +461,19 @@
     <!-- CRT Screen Overlay with scanlines and reflection -->
     <div class="crt-screen-overlay"></div>
 
-    <!-- Room / Study Together Widget (Inside CRT Screen, Top Left Corner) -->
-    <div class="screen-room-widget" id="screenRoomWidget" title="Click to view Study Room & Invite Friends">
-      <span class="room-status-dot online"></span>
-      <span class="room-label" id="roomPillLabel">Room: cozy-study</span>
-      <span class="room-users-count" id="roomPillCount"><i class="fa-solid fa-user-group"></i> 1</span>
+    <!-- Room & Chat Widgets (Inside CRT Screen, Top Left Corner) -->
+    <div class="screen-room-cluster" id="screenRoomCluster">
+      <div class="screen-room-widget" id="screenRoomWidget" title="Click to view Study Room & Invite Friends">
+        <span class="room-status-dot online"></span>
+        <span class="room-label" id="roomPillLabel">Room: cozy-study</span>
+        <span class="room-users-count" id="roomPillCount"><i class="fa-solid fa-user-group"></i> 1</span>
+        <span class="room-pill-unread hidden" id="roomPillUnread">0</span>
+      </div>
+      <button class="screen-chat-btn" id="screenChatBtn" type="button" title="Open Study Room Chat">
+        <i class="fa-solid fa-comments"></i>
+        <span>Chat</span>
+        <span class="screen-chat-badge hidden" id="screenChatUnreadBadge">0</span>
+      </button>
     </div>
 
     <!-- Focus & Rest Timer Widget (Inside CRT Screen, Top Center) -->
@@ -718,10 +726,10 @@
     <!-- Dropdown Menu Header -->
     <div class="middle-stage-header">
       <div class="menu-dropdown-wrap">
-        <i class="fa-solid fa-sliders menu-dropdown-icon" id="menuDropdownIcon"></i>
+        <i class="fa-solid fa-palette menu-dropdown-icon" id="menuDropdownIcon"></i>
         <select id="mobileMenuSelect" class="mobile-menu-select" aria-label="Select Menu">
-          <option value="ambient" selected>🎧 Ambient Soundscapes</option>
-          <option value="themes">🎨 Themes & Scenery</option>
+          <option value="themes" selected>🎨 Themes & Scenery</option>
+          <option value="ambient">🎧 Ambient Soundscapes</option>
           <option value="songs">🎵 Song Library & Tracks</option>
           <option value="room">👥 Study Room & Buddies</option>
           <option value="todo">📝 Study Checklist</option>
@@ -729,13 +737,13 @@
         </select>
         <i class="fa-solid fa-chevron-down dropdown-arrow"></i>
       </div>
-      <button type="button" class="middle-stage-close-btn" id="middleStageCloseBtn" title="Reset to Soundscapes">
+      <button type="button" class="middle-stage-close-btn" id="middleStageCloseBtn" title="Reset to Themes">
         <i class="fa-solid fa-xmark"></i>
       </button>
     </div>
 
     <!-- PANE 1: Ambient Soundscapes (Theme-Based) & Now Playing -->
-    <div class="middle-pane active" id="paneAmbient">
+    <div class="middle-pane" id="paneAmbient">
       <!-- Mobile Now Playing Card -->
       <div class="mobile-now-playing-box">
         <div class="mobile-np-header">
@@ -767,7 +775,7 @@
     </div>
 
     <!-- PANE: Themes & Scenery -->
-    <div class="middle-pane" id="paneThemes">
+    <div class="middle-pane active" id="paneThemes">
       <div class="middle-themes-panel">
         <div class="middle-pane-title-row">
           <span><i class="fa-solid fa-palette"></i> THEME SCENERY</span>
@@ -819,6 +827,10 @@
           </button>
           <button class="room-tab-btn" id="tabJoinRoom" type="button">
             <i class="fa-solid fa-right-to-bracket"></i> Join Room
+          </button>
+          <button class="room-tab-btn" id="tabChatRoom" type="button">
+            <i class="fa-solid fa-comments"></i> Chat
+            <span class="chat-unread-badge hidden" id="chatUnreadBadge">0</span>
           </button>
         </div>
 
@@ -899,8 +911,58 @@
           </div>
         </div>
 
-        <!-- Participants List (Always visible) -->
-        <div class="room-members-section">
+        <!-- VIEW 3: LIVE ROOM CHAT -->
+        <div class="room-view-pane" id="viewChatRoom">
+          <div class="chat-room-container">
+            <!-- Chat Header Bar -->
+            <div class="chat-room-header">
+              <div class="chat-room-title">
+                <span class="chat-room-badge"><i class="fa-solid fa-comments"></i> CHAT</span>
+                <span class="chat-room-name" id="chatRoomName">#cozy-study</span>
+              </div>
+              <div class="chat-room-meta">
+                <span class="chat-online-dot"><i class="fa-solid fa-circle"></i></span>
+                <span id="chatOnlineStatusText">1 Online</span>
+              </div>
+            </div>
+
+            <!-- Messages Stream -->
+            <div class="chat-messages-container" id="roomChatMessages">
+              <div class="chat-empty-state" id="chatEmptyState">
+                <div class="chat-empty-icon"><i class="fa-solid fa-mug-hot"></i></div>
+                <div class="chat-empty-title">Welcome to the study chat!</div>
+                <div class="chat-empty-subtitle">Say hi to your study buddies, share what you're working on, or send a quick reaction below.</div>
+              </div>
+            </div>
+
+            <!-- Quick Study Reactions / Chips -->
+            <div class="chat-quick-chips" id="chatQuickChips">
+              <button type="button" class="chat-chip" data-text="☕ Taking a coffee break!">☕ Coffee break</button>
+              <button type="button" class="chat-chip" data-text="🎧 Back to deep focus!">🎧 Deep focus</button>
+              <button type="button" class="chat-chip" data-text="🔥 Let's lock in and finish this!">🔥 Let's lock in!</button>
+              <button type="button" class="chat-chip" data-text="✨ Great job everyone!">✨ Great job</button>
+            </div>
+
+            <!-- Chat Input Form -->
+            <form class="chat-input-row" id="roomChatForm" autocomplete="off">
+              <input 
+                type="text" 
+                id="roomChatInput" 
+                class="chat-input-field" 
+                placeholder="Message study buddies..." 
+                maxlength="280"
+                autocomplete="off"
+                spellcheck="false"
+              />
+              <button type="submit" id="btnSendChat" class="chat-send-btn" title="Send message">
+                <i class="fa-solid fa-paper-plane"></i>
+              </button>
+            </form>
+          </div>
+        </div>
+
+        <!-- Participants List (Always visible in Create / Join tabs) -->
+        <div class="room-members-section" id="roomMembersSection">
           <div class="members-header">
             <span class="members-title"><i class="fa-solid fa-headphones"></i> Studying Together (<span id="roomListenersCount">1</span>)</span>
           </div>
@@ -1281,6 +1343,10 @@
         <button class="tv-small-btn" id="toggleRoomBtn" title="Study Room & Invite Link">
           <i class="fa-solid fa-users"></i>
         </button>
+        <button class="tv-small-btn" id="toggleChatBtn" title="Study Room Chat">
+          <i class="fa-solid fa-comments"></i>
+          <span class="bezel-chat-dot hidden" id="bezelChatDot"></span>
+        </button>
         <button class="tv-small-btn" id="toggleTimerBtn" title="Toggle Timer">
           <i class="fa-solid fa-stopwatch"></i>
         </button>
@@ -1468,6 +1534,6 @@
   <script src="https://www.youtube.com/iframe_api"></script>
 
   <script src="config.js" defer></script>
-  <script src="app.js?v=lofify_mobile_v7" defer></script>
+  <script src="app.js?v=lofify_themes_default_v1" defer></script>
 </body>
 </html>
