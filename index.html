@@ -42,7 +42,7 @@
   <meta name="apple-mobile-web-app-title" content="Lofify">
 
   <!-- Core Styles -->
-  <link rel="stylesheet" href="style.css?v=lofify_themes_default_v1">
+  <link rel="stylesheet" href="style.css?v=lofify_timer_draggable_v3">
 </head>
 <body>
   <!-- MINIMAL VIBE-CODED AESTHETIC LANDING -->
@@ -480,6 +480,9 @@
     <div class="screen-timer-widget" id="screenTimerWidget">
       <!-- Main Timer Pill Display -->
       <div class="timer-pill" id="timerPill">
+        <div class="timer-drag-handle" id="timerDragHandle" title="Click and drag to move timer anywhere on screen">
+          <i class="fa-solid fa-grip-vertical"></i>
+        </div>
         <div class="timer-phase-badge rest" id="timerPhaseBadge" style="display: none;">
           <span class="timer-phase-dot"></span>
           <span id="timerPhaseText"></span>
@@ -820,13 +823,13 @@
       </div>
 
       <div class="room-scroll-body">
-        <!-- Room Mode Switcher (Create Room / Join Room) -->
+        <!-- Room Mode Switcher (Active Room / Create/Join Room / Chat) -->
         <div class="room-nav-tabs">
-          <button class="room-tab-btn active" id="tabCreateRoom" type="button">
-            <i class="fa-solid fa-wand-magic-sparkles"></i> Create Room
+          <button class="room-tab-btn active" id="tabActiveRoom" type="button">
+            <i class="fa-solid fa-users"></i> Active Room
           </button>
-          <button class="room-tab-btn" id="tabJoinRoom" type="button">
-            <i class="fa-solid fa-right-to-bracket"></i> Join Room
+          <button class="room-tab-btn" id="tabCreateJoinRoom" type="button">
+            <i class="fa-solid fa-plus-circle"></i> Create / Join Room
           </button>
           <button class="room-tab-btn" id="tabChatRoom" type="button">
             <i class="fa-solid fa-comments"></i> Chat
@@ -834,9 +837,20 @@
           </button>
         </div>
 
-        <!-- VIEW 1: CREATE / ACTIVE ROOM -->
-        <div class="room-view-pane active" id="viewCreateRoom">
-          <div class="room-invite-card">
+        <!-- VIEW 1: ACTIVE ROOM -->
+        <div class="room-view-pane active" id="viewActiveRoom">
+          <!-- Shown when NOT in a room (Solo Mode) -->
+          <div class="room-solo-box" id="roomSoloBox">
+            <div class="room-solo-icon"><i class="fa-solid fa-user"></i></div>
+            <div class="room-solo-title">Studying Solo</div>
+            <p class="room-solo-desc">You are currently in your own personal focus session. Create a new room or join your buddies to study and chat together!</p>
+            <button class="room-join-primary-btn" id="btnGoToCreateJoin" type="button">
+              <i class="fa-solid fa-plus-circle"></i> Create or Join a Room
+            </button>
+          </div>
+
+          <!-- Shown when in an active room -->
+          <div class="room-invite-card" id="roomActiveBox" style="display: none;">
             <div class="room-invite-header">
               <span class="room-badge-tag"><i class="fa-solid fa-door-open"></i> ACTIVE ROOM</span>
               <span class="room-status-indicator"><i class="fa-solid fa-circle"></i> Live Sync</span>
@@ -866,30 +880,55 @@
               </div>
             </div>
 
-            <!-- Create Another Room Sub-card -->
-            <div class="room-create-subcard">
-              <div class="room-field-label"><i class="fa-solid fa-sparkles"></i> Create Another Room</div>
-              <div class="room-create-row">
-                <input type="text" id="roomNameInput" placeholder="Room name (e.g. math-cram)" maxlength="24">
-                <button class="room-dice-btn" id="btnRandomRoom" type="button" title="Generate Random Room Name">
-                  <i class="fa-solid fa-dice"></i>
-                </button>
-                <button class="room-create-btn" id="btnSwitchRoom" title="Create or Switch Room">
-                  <i class="fa-solid fa-plus-circle"></i> Create
-                </button>
+            <!-- Leave / Exit Room Button -->
+            <button class="room-leave-btn" id="btnLeaveRoom" type="button" title="Exit room and return to solo study">
+              <i class="fa-solid fa-arrow-right-from-bracket"></i> Exit Current Room
+            </button>
+
+            <!-- Studying Together People List (Inside Active Room) -->
+            <div class="room-members-section" id="roomMembersSection">
+              <div class="members-header">
+                <span class="members-title"><i class="fa-solid fa-headphones"></i> Studying Together (<span id="roomListenersCount">1</span>)</span>
+              </div>
+              <div class="room-members-list" id="roomMembersList">
+                <!-- Dynamically populated -->
               </div>
             </div>
           </div>
         </div>
 
-        <!-- VIEW 2: JOIN A ROOM -->
-        <div class="room-view-pane" id="viewJoinRoom">
+        <!-- VIEW 2: CREATE / JOIN ROOM -->
+        <div class="room-view-pane" id="viewCreateJoinRoom">
+          <!-- Card A: Create a Room -->
+          <div class="room-invite-card">
+            <div class="room-invite-header">
+              <span class="room-badge-tag"><i class="fa-solid fa-wand-magic-sparkles"></i> CREATE A ROOM</span>
+            </div>
+            <p class="room-invite-desc">Create a new synchronized study room as the host and invite your friends to join.</p>
+            <div class="room-share-item">
+              <div class="room-field-label"><i class="fa-solid fa-tag"></i> Room Name</div>
+              <div class="room-create-row">
+                <input type="text" id="roomNameInput" placeholder="Room name (e.g. math-cram)" maxlength="24">
+                <button class="room-dice-btn" id="btnRandomRoom" type="button" title="Generate Random Room Name">
+                  <i class="fa-solid fa-dice"></i>
+                </button>
+                <button class="room-copy-input-btn" id="btnCopyCreateRoomName" type="button" title="Copy Room Name to Clipboard">
+                  <i class="fa-solid fa-clipboard"></i>
+                </button>
+              </div>
+            </div>
+            <button class="room-join-primary-btn" id="btnSwitchRoom" type="button">
+              <i class="fa-solid fa-plus-circle"></i> Create Room as Host
+            </button>
+          </div>
+
+          <!-- Card B: Join a Room -->
           <div class="room-invite-card room-join-card">
             <div class="room-invite-header">
-              <span class="room-badge-tag"><i class="fa-solid fa-right-to-bracket"></i> JOIN ROOM</span>
+              <span class="room-badge-tag"><i class="fa-solid fa-right-to-bracket"></i> JOIN A ROOM</span>
             </div>
 
-            <p class="room-invite-desc">Paste a room link or enter a room code from a friend to join their session directly.</p>
+            <p class="room-invite-desc">Paste a room link or enter a room code from a friend. The host will receive a request to let you in.</p>
 
             <div class="room-share-item">
               <label class="room-field-label" for="roomJoinInput"><i class="fa-solid fa-paste"></i> Room Code or Link</label>
@@ -902,11 +941,11 @@
             </div>
 
             <button class="room-join-primary-btn" id="btnSubmitJoinRoom" type="button">
-              <i class="fa-solid fa-arrow-right-to-bracket"></i> Join Room Now
+              <i class="fa-solid fa-arrow-right-to-bracket"></i> Request to Join Room
             </button>
 
             <div class="room-join-helper-text">
-              <i class="fa-solid fa-circle-info"></i> No browser tab reload required — you'll jump straight into their synchronized session!
+              <i class="fa-solid fa-circle-info"></i> The room host will approve your join request in real time.
             </div>
           </div>
         </div>
@@ -918,7 +957,7 @@
             <div class="chat-room-header">
               <div class="chat-room-title">
                 <span class="chat-room-badge"><i class="fa-solid fa-comments"></i> CHAT</span>
-                <span class="chat-room-name" id="chatRoomName">#cozy-study</span>
+                <span class="chat-room-name" id="chatRoomName">#solo-notes</span>
               </div>
               <div class="chat-room-meta">
                 <span class="chat-online-dot"><i class="fa-solid fa-circle"></i></span>
@@ -958,16 +997,6 @@
                 <i class="fa-solid fa-paper-plane"></i>
               </button>
             </form>
-          </div>
-        </div>
-
-        <!-- Participants List (Always visible in Create / Join tabs) -->
-        <div class="room-members-section" id="roomMembersSection">
-          <div class="members-header">
-            <span class="members-title"><i class="fa-solid fa-headphones"></i> Studying Together (<span id="roomListenersCount">1</span>)</span>
-          </div>
-          <div class="room-members-list" id="roomMembersList">
-            <!-- Dynamically populated -->
           </div>
         </div>
       </div>
@@ -1519,6 +1548,48 @@
     </div>
   </div>
 
+  <!-- KNOCK MODALS: Waiting For Host & Host Approval -->
+  <!-- 1. Requester Waiting Modal -->
+  <div class="knock-modal-backdrop" id="knockWaitingModal">
+    <div class="knock-modal-card">
+      <div class="knock-pulse-door"><i class="fa-solid fa-door-closed"></i></div>
+      <div class="knock-title" id="knockWaitingTitle">Knocking on Door...</div>
+      <p class="knock-desc" id="knockWaitingDesc">Waiting for the host of <strong id="knockWaitingRoomName"></strong> to approve your request.</p>
+      <div id="knockFallbackActions" class="hidden" style="width:100%; display:none; flex-direction:column; gap:8px;">
+        <p class="knock-desc" style="color:#E76F51; font-size:0.8rem; margin:0;">No host is active in this room right now.</p>
+        <button type="button" class="knock-btn knock-btn-accept" id="btnKnockEnterAsHost">
+          <i class="fa-solid fa-crown"></i> Enter as Host
+        </button>
+      </div>
+      <button type="button" class="knock-btn knock-btn-cancel" id="btnCancelKnock">
+        Cancel Request
+      </button>
+    </div>
+  </div>
+
+  <!-- 2. Host Approval Modal -->
+  <div class="knock-modal-backdrop" id="hostKnockApprovalModal">
+    <div class="knock-modal-card">
+      <div class="knock-pulse-door" style="border-color:#2A9D8F; color:#2A9D8F;"><i class="fa-solid fa-bell"></i></div>
+      <div class="knock-title">Join Request</div>
+      <div style="display:flex; align-items:center; gap:10px; background:rgba(255,255,255,0.05); padding:8px 14px; border-radius:10px; width:100%;">
+        <span id="knockRequesterAvatar" style="font-size:1.6rem;">🎧</span>
+        <div style="text-align:left; flex:1; overflow:hidden;">
+          <div id="knockRequesterName" style="font-weight:700; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Study Buddy</div>
+          <div style="font-size:0.75rem; color:#A69080;">wants to join your study room</div>
+        </div>
+      </div>
+      <div class="knock-btn-row">
+        <button type="button" class="knock-btn knock-btn-deny" id="btnDenyKnock">
+          <i class="fa-solid fa-xmark"></i> Deny
+        </button>
+        <button type="button" class="knock-btn knock-btn-accept" id="btnAcceptKnock">
+          <i class="fa-solid fa-check"></i> Accept
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- crashmax-dev/fireworks-js official library -->
   <script src="https://unpkg.com/fireworks-js@2.x/dist/index.umd.js"></script>
   <script>
@@ -1534,6 +1605,6 @@
   <script src="https://www.youtube.com/iframe_api"></script>
 
   <script src="config.js" defer></script>
-  <script src="app.js?v=lofify_themes_default_v1" defer></script>
+  <script src="app.js?v=lofify_timer_draggable_v7" defer></script>
 </body>
 </html>
