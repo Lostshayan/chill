@@ -42,7 +42,7 @@
   <meta name="apple-mobile-web-app-title" content="Lofify">
 
   <!-- Core Styles -->
-  <link rel="stylesheet" href="style.css?v=lofify_timer_draggable_v3">
+  <link rel="stylesheet" href="style.css?v=lofify_friends_unique_v2">
 </head>
 <body>
   <!-- MINIMAL VIBE-CODED AESTHETIC LANDING -->
@@ -474,6 +474,11 @@
         <span>Chat</span>
         <span class="screen-chat-badge hidden" id="screenChatUnreadBadge">0</span>
       </button>
+      <button class="screen-chat-btn screen-friends-btn" id="screenFriendsBtn" type="button" title="Open Study Friends">
+        <i class="fa-solid fa-user-group"></i>
+        <span>Friends</span>
+        <span class="screen-chat-badge hidden" id="screenFriendsBadge">0</span>
+      </button>
     </div>
 
     <!-- Focus & Rest Timer Widget (Inside CRT Screen, Top Center) -->
@@ -735,6 +740,7 @@
           <option value="ambient">🎧 Ambient Soundscapes</option>
           <option value="songs">🎵 Song Library & Tracks</option>
           <option value="room">👥 Study Room & Buddies</option>
+          <option value="friends">🤝 Study Friends</option>
           <option value="todo">📝 Study Checklist</option>
           <option value="profile">👤 Profile & Stats</option>
         </select>
@@ -1239,9 +1245,69 @@
             <i class="fa-solid fa-right-from-bracket"></i> Log Out
           </button>
         </div>
+
+        <!-- Danger Zone: Delete Account -->
+        <div class="danger-zone-section">
+          <button type="button" class="danger-delete-btn" id="deleteAccountBtn" title="Delete account completely">
+            <i class="fa-solid fa-trash-can"></i> Delete Account
+          </button>
+        </div>
       </div>
     </div>
     </div> <!-- closes paneProfile -->
+
+    <!-- PANE 5: Study Friends -->
+    <div class="middle-pane" id="paneFriends">
+    <!-- On-Screen TV Study Friends Panel (Inside CRT Screen) -->
+    <div class="screen-profile-panel screen-friends-panel" id="panelFriends">
+      <div class="panel-header">
+        <h2><i class="fa-solid fa-user-group"></i> Study Friends</h2>
+        <button class="ctrl-btn" id="closePanelFriends" title="Close"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <div class="profile-scroll-body friends-scroll-body" id="friendsScrollBody">
+        <!-- Add Friend / Search Card -->
+        <div class="friends-search-card">
+          <div class="friends-search-label"><i class="fa-solid fa-user-plus"></i> Add Study Friend</div>
+          <div class="friends-input-row">
+            <input type="text" id="addFriendInput" class="friends-text-input" placeholder="Search by username (e.g. cozy_scholar)..." autocomplete="off" spellcheck="false">
+            <button type="button" class="friends-action-btn primary" id="addFriendSubmitBtn" title="Send Request">
+              <i class="fa-solid fa-paper-plane"></i>
+            </button>
+          </div>
+          <div class="friends-search-hint">💡 Tip: Enter your buddy's unique username or click their name in chat/room.</div>
+        </div>
+
+        <!-- In Room Buddies Quick Section -->
+        <div class="friends-section-group" id="roomBuddiesSection" style="display: none;">
+          <div class="friends-section-header">
+            <span><i class="fa-solid fa-users-viewfinder"></i> In Your Room</span>
+          </div>
+          <div class="friends-quick-add-list" id="roomBuddiesQuickList"></div>
+        </div>
+
+        <!-- Pending Friend Requests (Incoming & Outgoing) -->
+        <div class="friends-section-group" id="pendingRequestsSection" style="display: none;">
+          <div class="friends-section-header">
+            <span><i class="fa-solid fa-clock-rotate-left"></i> Pending Requests</span>
+            <span class="friends-section-counter" id="pendingRequestsCount">0</span>
+          </div>
+          <div class="friends-pending-list" id="pendingRequestsList"></div>
+        </div>
+
+        <!-- Accepted Friends List -->
+        <div class="friends-section-group">
+          <div class="friends-section-header">
+            <span><i class="fa-solid fa-user-check"></i> Study Friends</span>
+            <span class="friends-section-counter" id="myFriendsCount">0</span>
+          </div>
+          <div class="friends-list-container" id="myFriendsList">
+            <!-- Rendered via JS -->
+          </div>
+        </div>
+      </div>
+    </div>
+    </div> <!-- closes paneFriends -->
 
     <!-- PANE 3: Study Checklist -->
     <div class="middle-pane" id="paneTodo">
@@ -1376,6 +1442,10 @@
           <i class="fa-solid fa-comments"></i>
           <span class="bezel-chat-dot hidden" id="bezelChatDot"></span>
         </button>
+        <button class="tv-small-btn" id="toggleFriendsBtn" title="Study Friends">
+          <i class="fa-solid fa-user-group"></i>
+          <span class="bezel-chat-dot hidden" id="bezelFriendsDot"></span>
+        </button>
         <button class="tv-small-btn" id="toggleTimerBtn" title="Toggle Timer">
           <i class="fa-solid fa-stopwatch"></i>
         </button>
@@ -1480,11 +1550,13 @@
       <!-- Username Input -->
       <div class="setup-input-section">
         <label for="setupUsernameInput" class="setup-section-label">YOUR CALLSIGN / USERNAME</label>
-        <div class="setup-input-wrapper">
+        <div class="setup-input-wrapper" id="setupInputWrapper">
           <i class="fa-solid fa-at"></i>
-          <input type="text" id="setupUsernameInput" maxlength="20" placeholder="e.g. cozy-scholar" autocomplete="off" spellcheck="false">
+          <input type="text" id="setupUsernameInput" maxlength="20" placeholder="e.g. cozy_scholar" autocomplete="off" spellcheck="false">
           <span class="setup-char-count" id="setupCharCount">0/20</span>
         </div>
+        <div class="setup-rules-hint"><i class="fa-solid fa-circle-info"></i> Username rules: lowercase letters, numbers, and underscores only (3-20 chars)</div>
+        <div class="setup-username-feedback" id="setupUsernameFeedback"></div>
       </div>
 
       <!-- Actions -->
@@ -1590,6 +1662,107 @@
     </div>
   </div>
 
+  <!-- OTHER USER PROFILE MODAL -->
+  <div class="knock-modal-backdrop" id="otherUserProfileModal">
+    <div class="knock-modal-card buddy-profile-modal-card">
+      <button type="button" class="buddy-modal-close-btn" id="closeOtherUserProfileModal" title="Close">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+
+      <div class="buddy-profile-header">
+        <div class="buddy-avatar-wrap">
+          <div class="buddy-avatar-large" id="otherUserAvatar">🎧</div>
+          <span class="buddy-online-indicator" id="otherUserOnlineDot" title="Online"></span>
+        </div>
+        <div class="buddy-name-wrap">
+          <div class="buddy-username" id="otherUserName">Study Buddy</div>
+          <div class="buddy-badges-row">
+            <span class="profile-badge level-badge" id="otherUserLevel">Lv. 1 Scholar</span>
+            <span class="profile-badge streak-badge" id="otherUserStreak">🔥 1 Day</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="buddy-status-box" id="otherUserStatusBox">
+        <i class="fa-solid fa-quote-left"></i>
+        <span id="otherUserStatusText">Studying lo-fi beats & staying in the zone 🎧</span>
+      </div>
+
+      <div class="buddy-stats-grid">
+        <div class="buddy-stat-card">
+          <span class="buddy-stat-num" id="otherUserFocusTime">0m</span>
+          <span class="buddy-stat-lbl">Focus Time</span>
+        </div>
+        <div class="buddy-stat-card">
+          <span class="buddy-stat-num" id="otherUserSessions">0</span>
+          <span class="buddy-stat-lbl">Sessions</span>
+        </div>
+        <div class="buddy-stat-card">
+          <span class="buddy-stat-num" id="otherUserRoomStatus">Active</span>
+          <span class="buddy-stat-lbl">Status</span>
+        </div>
+      </div>
+
+      <div class="buddy-actions-footer" id="otherUserActionsFooter">
+        <!-- Action buttons (Add Friend / Request Sent / Friends / Accept) injected via JS -->
+      </div>
+    </div>
+  </div>
+
+  <!-- DELETE ACCOUNT CONFIRMATION PROMPT MODAL -->
+  <div class="knock-modal-backdrop" id="deleteAccountPromptModal">
+    <div class="knock-modal-card delete-account-modal-card">
+      <div class="delete-modal-warning-icon">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+      </div>
+      <h3 class="delete-modal-title">Delete Account Completely?</h3>
+      <div class="delete-modal-badge">
+        <span>⚠️ This action can't be undone</span>
+      </div>
+      <p class="delete-modal-desc">
+        Your custom username, avatar, focus analytics, streak data, study checklist, and study friends will be permanently wiped from the database and this device.
+      </p>
+      <div class="delete-modal-actions">
+        <button type="button" class="delete-modal-btn cancel" id="cancelDeleteAccountBtn">
+          Cancel
+        </button>
+        <button type="button" class="delete-modal-btn confirm" id="confirmDeleteAccountBtn">
+          <i class="fa-solid fa-trash-can"></i> Yes, Delete
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- FLOATING INCOMING FRIEND REQUEST NOTIFICATION ALERT -->
+  <div class="incoming-friend-alert-wrapper" id="incomingFriendAlert" style="display: none;">
+    <div class="incoming-friend-alert-card">
+      <div class="incoming-alert-avatar-wrap">
+        <div class="incoming-alert-avatar" id="incomingAlertAvatar">🎧</div>
+        <span class="incoming-alert-ping"></span>
+      </div>
+      <div class="incoming-alert-content">
+        <div class="incoming-alert-header">
+          <span class="incoming-alert-tag"><i class="fa-solid fa-user-plus"></i> Friend Request</span>
+          <span class="incoming-alert-time" id="incomingAlertTime">Just now</span>
+        </div>
+        <div class="incoming-alert-msg">
+          <strong id="incomingAlertName">Study Buddy</strong> wants to be your study friend!
+        </div>
+        <div class="incoming-alert-actions">
+          <button type="button" class="alert-btn alert-accept-btn" id="btnAlertAcceptFriend">
+            <i class="fa-solid fa-check"></i> Accept
+          </button>
+          <button type="button" class="alert-btn alert-decline-btn" id="btnAlertDeclineFriend">
+            <i class="fa-solid fa-xmark"></i> Decline
+          </button>
+        </div>
+      </div>
+      <button type="button" class="incoming-alert-dismiss" id="btnAlertDismissFriend" title="Dismiss">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+  </div>
+
   <!-- crashmax-dev/fireworks-js official library -->
   <script src="https://unpkg.com/fireworks-js@2.x/dist/index.umd.js"></script>
   <script>
@@ -1605,6 +1778,6 @@
   <script src="https://www.youtube.com/iframe_api"></script>
 
   <script src="config.js" defer></script>
-  <script src="app.js?v=lofify_timer_draggable_v7" defer></script>
+  <script src="app.js?v=lofify_friends_sep_v3" defer></script>
 </body>
 </html>
