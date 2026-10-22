@@ -1979,6 +1979,9 @@ function initLandingPage() {
       if (elLandingPage) {
         elLandingPage.classList.add('hidden');
       }
+      if (window.innerWidth <= 768) {
+        setMiddleMenuPane('themes');
+      }
     });
   }
 }
@@ -2492,6 +2495,9 @@ async function initSupabaseRoom(forcedRoomId = null) {
         const p = newPresences[0];
         if (p && p.displayName && p.displayName !== state.username) {
           showRoomToast(`👋 <strong>${p.displayName}</strong> joined the study room!`);
+          if (typeof addChatSystemMessage === 'function') {
+            addChatSystemMessage(`${p.displayName} joined the study room 👋`);
+          }
         }
       }
     })
@@ -2500,6 +2506,9 @@ async function initSupabaseRoom(forcedRoomId = null) {
         const p = leftPresences[0];
         if (p && p.displayName && p.displayName !== state.username) {
           showRoomToast(`👋 <strong>${p.displayName}</strong> left the room.`);
+          if (typeof addChatSystemMessage === 'function') {
+            addChatSystemMessage(`${p.displayName} left the room`);
+          }
         }
       }
     });
@@ -2508,6 +2517,12 @@ async function initSupabaseRoom(forcedRoomId = null) {
   roomChannel.on('broadcast', { event: 'room_state' }, ({ payload }) => {
     if (payload) {
       handleRoomSyncUpdate(payload);
+    }
+  });
+
+  roomChannel.on('broadcast', { event: 'chat_message' }, ({ payload }) => {
+    if (payload && typeof handleIncomingChatMessage === 'function') {
+      handleIncomingChatMessage(payload);
     }
   });
 
@@ -2670,6 +2685,9 @@ async function switchStudyRoom(newRoomId) {
 
   await initSupabaseRoom(cleanId);
   updateRoomUI();
+  if (typeof initRoomChat === 'function') {
+    initRoomChat(cleanId);
+  }
   showRoomToast(`🚪 Switched to room: <strong>${cleanId}</strong>`);
 }
 
@@ -2682,6 +2700,9 @@ async function startSession() {
     initMockRoom();
   } else {
     initMockRoom();
+  }
+  if (typeof initRoomChat === 'function') {
+    initRoomChat(state.roomId || 'cozy-study');
   }
 }
 
@@ -3580,17 +3601,323 @@ function updateMobileMenuStageState() {
   }
 }
 
+// --- STUDY ROOM CHAT SYSTEM ---
+let unreadChatCount = 0;
+let activeRoomTab = 'create';
+
+function getSenderInfo() {
+  const isGoogle = !!(profileState && profileState.googleUser);
+  const displayName = state.username || (profileState && profileState.username) || "Chill Scholar";
+  const avatarUrl = (profileState && profileState.avatarUrl) || null;
+  const avatar = (profileState && profileState.selectedAvatar) || "🐱";
+  if (!state.localSessionId) {
+    state.localSessionId = 'usr_' + Math.random().toString(36).substring(2, 9);
+  }
+  const userId = (state.currentUser && state.currentUser.id) || state.localSessionId;
+  return {
+    userId,
+    displayName,
+    avatarUrl,
+    avatar,
+    isGoogle
+  };
+}
+
+function formatChatTime(timestamp) {
+  try {
+    const d = new Date(timestamp || Date.now());
+    let hours = d.getHours();
+    const minutes = d.getMinutes();
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    hours = hours % 12;
+    hours = hours ? hours : 12;
+    const minStr = minutes < 10 ? '0' + minutes : minutes;
+    return `${hours}:${minStr} ${ampm}`;
+  } catch (_) {
+    return '';
+  }
+}
+
+function playChatNotificationSound() {
+  try {
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    if (!AudioCtx) return;
+    const ctx = new AudioCtx();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(587.33, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.1);
+    gain.gain.setValueAtTime(0.06, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.12);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime + 0.12);
+  } catch (_) {}
+}
+
+function updateUnreadBadgeUI() {
+  const elChatUnreadBadge = document.getElementById('chatUnreadBadge');
+  const elRoomPillUnread = document.getElementById('roomPillUnread');
+  const elScreenChatUnreadBadge = document.getElementById('screenChatUnreadBadge');
+  const elBezelChatDot = document.getElementById('bezelChatDot');
+
+  if (elChatUnreadBadge) {
+    if (unreadChatCount > 0) {
+      elChatUnreadBadge.textContent = unreadChatCount > 99 ? '99+' : unreadChatCount;
+      elChatUnreadBadge.classList.remove('hidden');
+    } else {
+      elChatUnreadBadge.classList.add('hidden');
+    }
+  }
+
+  if (elScreenChatUnreadBadge) {
+    if (unreadChatCount > 0) {
+      elScreenChatUnreadBadge.textContent = unreadChatCount > 99 ? '99+' : unreadChatCount;
+      elScreenChatUnreadBadge.classList.remove('hidden');
+    } else {
+      elScreenChatUnreadBadge.classList.add('hidden');
+    }
+  }
+
+  if (elRoomPillUnread) {
+    if (unreadChatCount > 0) {
+      elRoomPillUnread.textContent = unreadChatCount > 99 ? '99+' : unreadChatCount;
+      elRoomPillUnread.classList.remove('hidden');
+    } else {
+      elRoomPillUnread.classList.add('hidden');
+    }
+  }
+
+  if (elBezelChatDot) {
+    if (unreadChatCount > 0) {
+      elBezelChatDot.classList.remove('hidden');
+    } else {
+      elBezelChatDot.classList.add('hidden');
+    }
+  }
+}
+
+function clearUnreadChat() {
+  unreadChatCount = 0;
+  updateUnreadBadgeUI();
+}
+
+function renderSingleChatMessage(msg, isMe = false) {
+  const elContainer = document.getElementById('roomChatMessages');
+  if (!elContainer) return;
+
+  const emptyState = document.getElementById('chatEmptyState');
+  if (emptyState) {
+    emptyState.style.display = 'none';
+  }
+
+  if (msg.isSystem) {
+    const sysDiv = document.createElement('div');
+    sysDiv.className = 'chat-system-msg';
+    sysDiv.innerHTML = `<i class="fa-solid fa-circle-info"></i> <span>${escapeHtml(msg.text)}</span>`;
+    elContainer.appendChild(sysDiv);
+  } else {
+    const row = document.createElement('div');
+    row.className = `chat-msg-row ${isMe ? 'is-me' : 'is-peer'}`;
+
+    let avatarHtml = '';
+    if (msg.avatarUrl) {
+      avatarHtml = `<img src="${msg.avatarUrl}" referrerpolicy="no-referrer" alt="${escapeHtml(msg.displayName || 'Buddy')}">`;
+    } else {
+      avatarHtml = `<span>${escapeHtml(msg.avatar || '🎧')}</span>`;
+    }
+
+    const timeStr = formatChatTime(msg.timestamp);
+    const senderName = isMe ? 'You' : escapeHtml(msg.displayName || 'Studying Bud');
+
+    row.innerHTML = `
+      <div class="chat-msg-avatar" title="${senderName}">
+        ${avatarHtml}
+      </div>
+      <div class="chat-msg-content">
+        <div class="chat-msg-meta">
+          <span class="chat-msg-sender">${senderName}</span>
+          <span class="chat-msg-time">${timeStr}</span>
+        </div>
+        <div class="chat-msg-bubble">${escapeHtml(msg.text)}</div>
+      </div>
+    `;
+
+    elContainer.appendChild(row);
+  }
+
+  elContainer.scrollTop = elContainer.scrollHeight;
+}
+
+function addChatMessage(msg, isMe = false) {
+  if (!state.chatMessages) state.chatMessages = [];
+  state.chatMessages.push(msg);
+  if (state.chatMessages.length > 80) {
+    state.chatMessages.shift();
+  }
+  try {
+    sessionStorage.setItem('lofify_chat_' + (state.roomId || 'cozy-study'), JSON.stringify(state.chatMessages));
+  } catch (_) {}
+  renderSingleChatMessage(msg, isMe);
+}
+
+function addChatSystemMessage(text) {
+  const sysMsg = {
+    id: 'sys-' + Date.now() + '-' + Math.random().toString(36).substring(2, 6),
+    isSystem: true,
+    text: text,
+    timestamp: Date.now()
+  };
+  addChatMessage(sysMsg, false);
+}
+
+function triggerMockChatReply(userMessage) {
+  const peer = (mockPeers && mockPeers.length > 0)
+    ? mockPeers[Math.floor(Math.random() * mockPeers.length)]
+    : { name: "LofiPanda 🐼", avatar: "🐼" };
+
+  const replies = [
+    "Great work! Let's stay in the zone. ☕",
+    "Locked in with you! Loving these chill lo-fi beats. 🎧",
+    "Taking quick notes, let's keep the focus going! 📚",
+    "Cheering for you! Almost done with this pomodoro timer. ⏱️",
+    "Stay hydrated and let's crush today's study goals! ✨",
+    "Nice one! Taking a deep breath and continuing. 🌿"
+  ];
+  const replyText = replies[Math.floor(Math.random() * replies.length)];
+  const delay = 1200 + Math.floor(Math.random() * 1400);
+
+  setTimeout(() => {
+    const peerMsg = {
+      id: 'mock-' + Date.now() + '-' + Math.random().toString(36).substring(2, 7),
+      roomId: state.roomId || 'cozy-study',
+      userId: 'peer-' + peer.name,
+      displayName: peer.name,
+      avatar: peer.avatar,
+      avatarUrl: null,
+      text: replyText,
+      timestamp: Date.now()
+    };
+    handleIncomingChatMessage(peerMsg);
+  }, delay);
+}
+
+function sendRoomChatMessage(text) {
+  if (!text || !text.trim()) return;
+  const trimmed = text.trim();
+  const sender = getSenderInfo();
+  const msg = {
+    id: 'msg-' + Date.now() + '-' + Math.random().toString(36).substring(2, 7),
+    roomId: state.roomId || 'cozy-study',
+    userId: sender.userId,
+    displayName: sender.displayName,
+    avatar: sender.avatar,
+    avatarUrl: sender.avatarUrl,
+    text: trimmed,
+    timestamp: Date.now()
+  };
+
+  addChatMessage(msg, true);
+
+  if (roomChannel) {
+    roomChannel.send({
+      type: 'broadcast',
+      event: 'chat_message',
+      payload: msg
+    });
+  } else {
+    triggerMockChatReply(trimmed);
+  }
+}
+
+function handleIncomingChatMessage(payload) {
+  if (!payload || !payload.text) return;
+  const sender = getSenderInfo();
+  if (payload.userId === sender.userId && state.chatMessages && state.chatMessages.some(m => m.id === payload.id)) {
+    return;
+  }
+
+  const isMe = payload.userId === sender.userId;
+  addChatMessage(payload, isMe);
+
+  const elPanelRoom = document.getElementById('panelRoom');
+  const isPanelOpen = elPanelRoom?.classList.contains('open') || 
+                      document.getElementById('paneRoom')?.classList.contains('active');
+  const isChatTabActive = activeRoomTab === 'chat' && isPanelOpen;
+
+  if (!isChatTabActive) {
+    unreadChatCount++;
+    updateUnreadBadgeUI();
+    playChatNotificationSound();
+    const cleanSender = escapeHtml(payload.displayName || 'Study Buddy');
+    const cleanMsg = escapeHtml(payload.text.substring(0, 45)) + (payload.text.length > 45 ? '...' : '');
+    showRoomToast(`💬 <strong>${cleanSender}:</strong> ${cleanMsg}`);
+  }
+}
+
+function initRoomChat(roomId) {
+  const currentRoom = roomId || state.roomId || 'cozy-study';
+  const elChatRoomName = document.getElementById('chatRoomName');
+  if (elChatRoomName) elChatRoomName.textContent = `#${currentRoom}`;
+
+  const elContainer = document.getElementById('roomChatMessages');
+  if (elContainer) {
+    elContainer.innerHTML = `
+      <div class="chat-empty-state" id="chatEmptyState">
+        <div class="chat-empty-icon"><i class="fa-solid fa-mug-hot"></i></div>
+        <div class="chat-empty-title">Welcome to #${escapeHtml(currentRoom)}!</div>
+        <div class="chat-empty-subtitle">Say hi to your study buddies, share what you're working on, or send a quick reaction below.</div>
+      </div>
+    `;
+  }
+
+  try {
+    const saved = sessionStorage.getItem('lofify_chat_' + currentRoom);
+    if (saved) {
+      state.chatMessages = JSON.parse(saved);
+      if (Array.isArray(state.chatMessages) && state.chatMessages.length > 0) {
+        const sender = getSenderInfo();
+        state.chatMessages.forEach(m => {
+          const isMe = m.userId === sender.userId;
+          renderSingleChatMessage(m, isMe);
+        });
+      }
+    } else {
+      state.chatMessages = [];
+    }
+  } catch (e) {
+    state.chatMessages = [];
+  }
+
+  clearUnreadChat();
+}
+
+window.sendRoomChatMessage = sendRoomChatMessage;
+window.initRoomChat = initRoomChat;
+
 function setupRoomPanelControls() {
   const elScreenRoomWidget = document.getElementById('screenRoomWidget');
+  const elScreenChatBtn = document.getElementById('screenChatBtn');
   const elToggleRoomBtn = document.getElementById('toggleRoomBtn');
+  const elToggleChatBtn = document.getElementById('toggleChatBtn');
   const elPanelRoom = document.getElementById('panelRoom');
   const elClosePanelRoom = document.getElementById('closePanelRoom');
 
   // Tabs
   const elTabCreateRoom = document.getElementById('tabCreateRoom');
   const elTabJoinRoom = document.getElementById('tabJoinRoom');
+  const elTabChatRoom = document.getElementById('tabChatRoom');
   const elViewCreateRoom = document.getElementById('viewCreateRoom');
   const elViewJoinRoom = document.getElementById('viewJoinRoom');
+  const elViewChatRoom = document.getElementById('viewChatRoom');
+  const elRoomMembersSection = document.getElementById('roomMembersSection');
+
+  // Chat controls
+  const elRoomChatForm = document.getElementById('roomChatForm');
+  const elRoomChatInput = document.getElementById('roomChatInput');
+  const elChatQuickChips = document.getElementById('chatQuickChips');
 
   // Create / Active Room controls
   const elBtnCopyRoomCode = document.getElementById('btnCopyRoomCode');
@@ -3608,10 +3935,13 @@ function setupRoomPanelControls() {
   function openRoomPanel() {
     setMiddleMenuPane('room');
     updateRoomUI();
+    if (activeRoomTab === 'chat') {
+      clearUnreadChat();
+    }
   }
 
   function closeRoomPanel() {
-    setMiddleMenuPane('ambient');
+    setMiddleMenuPane('themes');
   }
 
   function toggleRoomPanel() {
@@ -3628,17 +3958,36 @@ function setupRoomPanelControls() {
   window.toggleRoomPanel = toggleRoomPanel;
 
   function activateTab(tab) {
-    if (tab === 'join') {
+    activeRoomTab = tab;
+    if (tab === 'chat') {
+      if (elTabChatRoom) elTabChatRoom.classList.add('active');
+      if (elTabCreateRoom) elTabCreateRoom.classList.remove('active');
+      if (elTabJoinRoom) elTabJoinRoom.classList.remove('active');
+      if (elViewChatRoom) elViewChatRoom.classList.add('active');
+      if (elViewCreateRoom) elViewCreateRoom.classList.remove('active');
+      if (elViewJoinRoom) elViewJoinRoom.classList.remove('active');
+      if (elRoomMembersSection) elRoomMembersSection.style.display = 'none';
+      clearUnreadChat();
+      const elMsgBox = document.getElementById('roomChatMessages');
+      if (elMsgBox) elMsgBox.scrollTop = elMsgBox.scrollHeight;
+      if (elRoomChatInput) setTimeout(() => elRoomChatInput.focus(), 100);
+    } else if (tab === 'join') {
       if (elTabJoinRoom) elTabJoinRoom.classList.add('active');
       if (elTabCreateRoom) elTabCreateRoom.classList.remove('active');
+      if (elTabChatRoom) elTabChatRoom.classList.remove('active');
       if (elViewJoinRoom) elViewJoinRoom.classList.add('active');
       if (elViewCreateRoom) elViewCreateRoom.classList.remove('active');
+      if (elViewChatRoom) elViewChatRoom.classList.remove('active');
+      if (elRoomMembersSection) elRoomMembersSection.style.display = '';
       if (elRoomJoinInput) setTimeout(() => elRoomJoinInput.focus(), 80);
     } else {
       if (elTabCreateRoom) elTabCreateRoom.classList.add('active');
       if (elTabJoinRoom) elTabJoinRoom.classList.remove('active');
+      if (elTabChatRoom) elTabChatRoom.classList.remove('active');
       if (elViewCreateRoom) elViewCreateRoom.classList.add('active');
       if (elViewJoinRoom) elViewJoinRoom.classList.remove('active');
+      if (elViewChatRoom) elViewChatRoom.classList.remove('active');
+      if (elRoomMembersSection) elRoomMembersSection.style.display = '';
     }
   }
 
@@ -3656,6 +4005,39 @@ function setupRoomPanelControls() {
     });
   }
 
+  if (elTabChatRoom) {
+    elTabChatRoom.addEventListener('click', (e) => {
+      e.stopPropagation();
+      activateTab('chat');
+    });
+  }
+
+  // Chat message submission
+  if (elRoomChatForm && elRoomChatInput) {
+    elRoomChatForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const text = elRoomChatInput.value;
+      if (text && text.trim()) {
+        sendRoomChatMessage(text);
+        elRoomChatInput.value = '';
+      }
+      elRoomChatInput.focus();
+    });
+  }
+
+  // Quick reaction chips
+  if (elChatQuickChips) {
+    elChatQuickChips.querySelectorAll('.chat-chip').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const text = btn.getAttribute('data-text');
+        if (text) {
+          sendRoomChatMessage(text);
+        }
+      });
+    });
+  }
+
   if (elScreenRoomWidget) {
     elScreenRoomWidget.addEventListener('click', (e) => {
       e.stopPropagation();
@@ -3663,10 +4045,38 @@ function setupRoomPanelControls() {
     });
   }
 
+  if (elScreenChatBtn) {
+    elScreenChatBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const isRoomActive = (document.getElementById('mobileMenuSelect')?.value === 'room') ||
+                           (elPanelRoom && elPanelRoom.classList.contains('open'));
+      if (isRoomActive && activeRoomTab === 'chat') {
+        closeRoomPanel();
+      } else {
+        openRoomPanel();
+        activateTab('chat');
+      }
+    });
+  }
+
   if (elToggleRoomBtn) {
     elToggleRoomBtn.addEventListener('click', (e) => {
       e.stopPropagation();
       toggleRoomPanel();
+    });
+  }
+
+  if (elToggleChatBtn) {
+    elToggleChatBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const isRoomActive = (document.getElementById('mobileMenuSelect')?.value === 'room') ||
+                           (elPanelRoom && elPanelRoom.classList.contains('open'));
+      if (isRoomActive && activeRoomTab === 'chat') {
+        closeRoomPanel();
+      } else {
+        openRoomPanel();
+        activateTab('chat');
+      }
     });
   }
 
@@ -3832,7 +4242,9 @@ function setupRoomPanelControls() {
     if (window.innerWidth > 768 && elPanelRoom && elPanelRoom.classList.contains('open')) {
       if (!elPanelRoom.contains(e.target) && 
           (!elScreenRoomWidget || !elScreenRoomWidget.contains(e.target)) && 
-          (!elToggleRoomBtn || !elToggleRoomBtn.contains(e.target))) {
+          (!elScreenChatBtn || !elScreenChatBtn.contains(e.target)) &&
+          (!elToggleRoomBtn || !elToggleRoomBtn.contains(e.target)) &&
+          (!elToggleChatBtn || !elToggleChatBtn.contains(e.target))) {
         closeRoomPanel();
       }
     }
@@ -3886,6 +4298,9 @@ function updateListenersUI(listeners) {
 
   const elRoomListenersCount = document.getElementById('roomListenersCount');
   if (elRoomListenersCount) elRoomListenersCount.textContent = count;
+
+  const elChatOnlineStatusText = document.getElementById('chatOnlineStatusText');
+  if (elChatOnlineStatusText) elChatOnlineStatusText.textContent = `${count} Online`;
 
   const elRoomPillCount = document.getElementById('roomPillCount');
   if (elRoomPillCount) elRoomPillCount.innerHTML = `<i class="fa-solid fa-user-group"></i> ${count}`;
@@ -4090,7 +4505,7 @@ function openTodoPanel() {
 }
 
 function closeTodoPanel() {
-  setMiddleMenuPane('ambient');
+  setMiddleMenuPane('themes');
 }
 
 function toggleTodoPanel() {
@@ -4899,7 +5314,7 @@ function setupProfileAndAnalytics() {
       e.stopPropagation();
       const isProfileActive = document.getElementById('mobileMenuSelect')?.value === 'profile';
       if (isProfileActive) {
-        setMiddleMenuPane('ambient');
+        setMiddleMenuPane('themes');
         if (elAvatarPickerDropdown) elAvatarPickerDropdown.classList.add('hidden');
       } else {
         setMiddleMenuPane('profile');
@@ -4911,7 +5326,7 @@ function setupProfileAndAnalytics() {
   if (elClosePanelProfile) {
     elClosePanelProfile.addEventListener('click', (e) => {
       e.stopPropagation();
-      setMiddleMenuPane('ambient');
+      setMiddleMenuPane('themes');
       if (elAvatarPickerDropdown) elAvatarPickerDropdown.classList.add('hidden');
     });
   }
@@ -6495,8 +6910,16 @@ function setupMobileCompanionControls() {
   if (middleStageCloseBtn) {
     middleStageCloseBtn.addEventListener('click', (e) => {
       e.stopPropagation();
-      setMiddleMenuPane('ambient');
+      setMiddleMenuPane('themes');
     });
+  }
+
+  // Pre-render themes grid for mobile menu stage
+  renderMiddleThemes();
+
+  // Make themes selection menu the default for mobile view
+  if (window.innerWidth <= 768) {
+    setMiddleMenuPane('themes');
   }
 
   const elMobilePillThemes = document.getElementById('mobilePillThemes');
