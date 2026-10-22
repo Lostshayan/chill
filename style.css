@@ -135,7 +135,54 @@ body {
   pointer-events: none;
 }
 
+.screen-timer-widget.is-moved {
+  transform: none !important;
+}
+
+.screen-timer-widget.is-moved.hidden {
+  transform: translateY(-10px) !important;
+}
+
+.screen-timer-widget.dragging {
+  cursor: grabbing !important;
+  user-select: none;
+  z-index: 9999 !important;
+}
+
+.screen-timer-widget.dragging .timer-pill {
+  cursor: grabbing !important;
+  transform: scale(1.02);
+  box-shadow: 
+    0 24px 60px rgba(0, 0, 0, 0.85),
+    0 0 35px rgba(212, 163, 115, 0.4),
+    inset 0 1.5px 1.5px 0 rgba(255, 255, 255, 0.6);
+}
+
+.timer-drag-handle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255, 255, 255, 0.35);
+  font-size: 0.82rem;
+  cursor: grab;
+  padding: 2px 4px 2px 0;
+  transition: color 0.2s ease;
+  user-select: none;
+  touch-action: none;
+}
+
+.timer-pill:hover .timer-drag-handle {
+  color: rgba(212, 163, 115, 0.85);
+}
+
+.screen-timer-widget.dragging .timer-drag-handle {
+  color: #D4A373;
+  cursor: grabbing;
+}
+
 .timer-pill {
+  cursor: grab;
+  touch-action: none;
   display: flex;
   align-items: center;
   gap: 16px;
@@ -6042,6 +6089,32 @@ canvas {
   transform: rotate(18deg);
 }
 
+.room-copy-input-btn {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(212, 163, 115, 0.25);
+  border-radius: 8px;
+  color: #D4A373;
+  padding: 7px 11px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+}
+
+.room-copy-input-btn:hover {
+  background: rgba(212, 163, 115, 0.2);
+  color: #FFF;
+  transform: translateY(-1px);
+}
+
+.room-copy-input-btn.copied {
+  background: rgba(163, 177, 138, 0.22);
+  border-color: #A3B18A;
+  color: #A3B18A;
+}
+
 .room-create-btn {
   background: linear-gradient(135deg, #D4A373, #8B5E3C);
   color: #F4F1EA;
@@ -6267,6 +6340,217 @@ canvas {
   font-size: 0.65rem;
   color: #D4A373;
   font-weight: 600;
+}
+
+.host-badge {
+  font-size: 0.65rem;
+  color: #FFD166;
+  background: rgba(255, 209, 102, 0.16);
+  border: 1px solid rgba(255, 209, 102, 0.35);
+  padding: 1px 7px;
+  border-radius: 999px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  letter-spacing: 0.02em;
+}
+
+.room-leave-btn {
+  background: rgba(231, 111, 81, 0.12);
+  color: #F4A261;
+  border: 1px solid rgba(231, 111, 81, 0.3);
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+  margin-top: 4px;
+}
+
+.room-leave-btn:hover {
+  background: rgba(231, 111, 81, 0.25);
+  color: #fff;
+  border-color: rgba(231, 111, 81, 0.6);
+  transform: translateY(-1px);
+}
+
+.room-solo-box {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px dashed rgba(212, 163, 115, 0.22);
+  border-radius: 12px;
+  padding: 24px 18px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.room-solo-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: rgba(212, 163, 115, 0.12);
+  border: 1px solid rgba(212, 163, 115, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  color: #D4A373;
+}
+
+.room-solo-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #FFF;
+}
+
+.room-solo-desc {
+  font-size: 0.82rem;
+  color: #A69080;
+  max-width: 300px;
+  line-height: 1.45;
+  margin: 0;
+}
+
+/* Knock Modals (Waiting for approval & Host prompt) */
+.knock-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 8, 7, 0.82);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 100000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+
+.knock-modal-backdrop.active {
+  display: flex !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+}
+
+.knock-modal-card {
+  background: #181310;
+  border: 1px solid rgba(212, 163, 115, 0.35);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.8), 0 0 25px rgba(212, 163, 115, 0.15);
+  border-radius: 16px;
+  padding: 24px;
+  width: 100%;
+  max-width: 380px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  animation: knockModalPop 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes knockModalPop {
+  from { opacity: 0; transform: scale(0.92); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.knock-pulse-door {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: rgba(212, 163, 115, 0.12);
+  border: 2px solid #D4A373;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.6rem;
+  color: #D4A373;
+  animation: knockPulse 1.6s infinite ease-in-out;
+}
+
+@keyframes knockPulse {
+  0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(212, 163, 115, 0.4); }
+  50% { transform: scale(1.08); box-shadow: 0 0 0 12px rgba(212, 163, 115, 0); }
+}
+
+.knock-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #FFF;
+}
+
+.knock-desc {
+  font-size: 0.85rem;
+  color: #C2B6A6;
+  line-height: 1.45;
+  margin: 0;
+}
+
+.knock-btn-row {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+  margin-top: 6px;
+}
+
+.knock-btn {
+  flex: 1;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.knock-btn-deny {
+  background: rgba(231, 111, 81, 0.15);
+  color: #F4A261;
+  border: 1px solid rgba(231, 111, 81, 0.35);
+}
+
+.knock-btn-deny:hover {
+  background: rgba(231, 111, 81, 0.3);
+  color: #fff;
+}
+
+.knock-btn-accept {
+  background: linear-gradient(135deg, #2A9D8F, #1E7066);
+  color: #FFF;
+  box-shadow: 0 4px 12px rgba(42, 157, 143, 0.3);
+}
+
+.knock-btn-accept:hover {
+  filter: brightness(1.15);
+  transform: translateY(-1px);
+}
+
+.knock-btn-cancel {
+  background: rgba(255, 255, 255, 0.08);
+  color: #C2B6A6;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  width: 100%;
+}
+
+.knock-btn-cancel:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: #FFF;
 }
 
 .member-status-sub {

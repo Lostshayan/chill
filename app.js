@@ -330,7 +330,10 @@ const SOUNDSCAPES = {
 // --- APPLICATION STATE ---
 let state = {
   username: "Anonymous Study Bud",
-  roomId: "cozy-study",
+  roomId: null, // Default: Solo Mode (not in a room)
+  roomHostId: null, // Unique host user ID
+  localUserId: null, // Persistent user session ID
+  roomJoinedAt: null,
   currentVibe: "focus",
   currentTrackIndex: 0,
   isPlaying: false,
@@ -1803,10 +1806,11 @@ window.addEventListener('DOMContentLoaded', () => {
     }
   }
   
-  // Auto-start session instead of waiting for login
+  // Auto-start session (Solo by default unless URL has ?room=)
   state.username = "Studying Bud";
-  state.roomId = "cozy-study";
-  if (elRoomNameDisplay) elRoomNameDisplay.textContent = state.roomId;
+  state.roomId = null;
+  state.roomHostId = null;
+  if (elRoomNameDisplay) elRoomNameDisplay.textContent = "Solo Mode";
   
   startSession();
 });
@@ -2316,6 +2320,128 @@ function loadScript(src) {
 
 // --- SUPABASE REALTIME ROOM & PRESENCE ENGINE ---
 let roomChannel = null;
+let currentPendingKnock = null;
+let knockTimeoutTimer = null;
+
+function getMyUserId() {
+  if (!state.localUserId) {
+    try {
+      let stored = sessionStorage.getItem('lofify_tab_user_id_v2');
+      if (!stored) {
+        stored = 'user-' + Math.random().toString(36).substring(2, 10);
+        sessionStorage.setItem('lofify_tab_user_id_v2', stored);
+      }
+      state.localUserId = stored;
+    } catch(e) {
+      state.localUserId = 'user-' + Math.random().toString(36).substring(2, 10);
+    }
+  }
+  return state.localUserId;
+}
+
+function amIHost() {
+  const myId = getMyUserId();
+  if (state.roomHostId && state.roomHostId === myId) return true;
+  if (!state.roomHostId) return true;
+  if (roomChannel && typeof roomChannel.presenceState === 'function') {
+    const presenceState = roomChannel.presenceState();
+    const keys = Object.keys(presenceState);
+    if (keys.length <= 1) return true;
+    for (const key in presenceState) {
+      const pres = presenceState[key]?.[0];
+      if (key === myId && pres && (pres.isHost || pres.isHost === true)) return true;
+    }
+  }
+  return false;
+}
+
+function playKnockChime() {
+  try {
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    if (!AudioCtx) return;
+    const ctx = new AudioCtx();
+    const now = ctx.currentTime;
+    [587.33, 880].forEach((freq, i) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, now + i * 0.14);
+      gain.gain.setValueAtTime(0.18, now + i * 0.14);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.14 + 0.38);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now + i * 0.14);
+      osc.stop(now + i * 0.14 + 0.4);
+    });
+  } catch (e) {}
+}
+
+function showHostKnockApprovalModal(payload) {
+  currentPendingKnock = payload;
+  const modal = document.getElementById('hostKnockApprovalModal');
+  const nameEl = document.getElementById('knockRequesterName');
+  const avatarEl = document.getElementById('knockRequesterAvatar');
+  
+  if (nameEl) nameEl.textContent = payload.displayName || 'Study Buddy';
+  if (avatarEl) {
+    if (payload.avatarUrl) {
+      avatarEl.innerHTML = `<img src="${payload.avatarUrl}" referrerpolicy="no-referrer" style="width:36px;height:36px;border-radius:50%;object-fit:cover;">`;
+    } else {
+      avatarEl.textContent = payload.avatar || '🎧';
+    }
+  }
+  if (modal) {
+    modal.style.display = 'flex';
+    modal.classList.add('active');
+  }
+  playKnockChime();
+  showRoomToast(`🚪 <strong>${payload.displayName || 'Study Buddy'}</strong> wants to join your room!`);
+}
+
+function closeHostKnockApprovalModal() {
+  currentPendingKnock = null;
+  const modal = document.getElementById('hostKnockApprovalModal');
+  if (modal) {
+    modal.classList.remove('active');
+    modal.style.display = 'none';
+  }
+}
+
+function openKnockWaitingModal(roomName) {
+  const modal = document.getElementById('knockWaitingModal');
+  const titleEl = document.getElementById('knockWaitingTitle');
+  const descEl = document.getElementById('knockWaitingDesc');
+  const roomEl = document.getElementById('knockWaitingRoomName');
+  const fallbackEl = document.getElementById('knockFallbackActions');
+
+  if (titleEl) titleEl.textContent = 'Knocking on Door...';
+  if (roomEl) roomEl.textContent = roomName;
+  if (descEl) descEl.style.display = '';
+  if (fallbackEl) {
+    fallbackEl.style.display = 'none';
+    fallbackEl.classList.add('hidden');
+  }
+  if (modal) {
+    modal.style.display = 'flex';
+    modal.classList.add('active');
+  }
+}
+
+function closeKnockWaitingModal() {
+  if (knockTimeoutTimer) {
+    clearTimeout(knockTimeoutTimer);
+    knockTimeoutTimer = null;
+  }
+  if (window._knockRetryInterval) {
+    clearInterval(window._knockRetryInterval);
+    window._knockRetryInterval = null;
+  }
+  const modal = document.getElementById('knockWaitingModal');
+  if (modal) {
+    modal.classList.remove('active');
+    modal.style.display = 'none';
+  }
+}
 
 function getRoomIdFromUrl() {
   try {
@@ -2331,12 +2457,13 @@ function getRoomIdFromUrl() {
 }
 
 function getRoomInviteUrl() {
+  const r = state.roomId || 'cozy-study';
   try {
     const url = new URL(window.location.href);
-    url.searchParams.set('room', state.roomId || 'cozy-study');
+    url.searchParams.set('room', r);
     return url.toString();
   } catch (e) {
-    return `${window.location.origin}${window.location.pathname}?room=${encodeURIComponent(state.roomId || 'cozy-study')}`;
+    return `${window.location.origin}${window.location.pathname}?room=${encodeURIComponent(r)}`;
   }
 }
 
@@ -2357,38 +2484,75 @@ function showRoomToast(message) {
 }
 
 function updateRoomUI() {
-  const currentRoom = state.roomId || 'cozy-study';
-  const inviteUrl = getRoomInviteUrl();
+  const isInRoom = !!state.roomId;
+  const currentRoom = state.roomId || 'Solo Mode';
+  const inviteUrl = isInRoom ? getRoomInviteUrl() : `${window.location.origin}${window.location.pathname}`;
 
   const elRoomPillLabel = document.getElementById('roomPillLabel');
-  if (elRoomPillLabel) elRoomPillLabel.textContent = `Room: ${currentRoom}`;
+  if (elRoomPillLabel) {
+    elRoomPillLabel.textContent = isInRoom ? `Room: ${state.roomId}` : 'Solo Mode';
+  }
+
+  const elRoomPillCount = document.getElementById('roomPillCount');
+  if (elRoomPillCount && !isInRoom) {
+    elRoomPillCount.innerHTML = '<i class="fa-solid fa-user"></i> 1';
+  }
 
   const elRoomCodeBadge = document.getElementById('roomCodeBadge');
-  if (elRoomCodeBadge) elRoomCodeBadge.textContent = currentRoom;
+  if (elRoomCodeBadge) {
+    elRoomCodeBadge.textContent = isInRoom ? state.roomId : 'None (Solo)';
+  }
 
   const elRoomInviteInput = document.getElementById('roomInviteInput');
-  if (elRoomInviteInput) elRoomInviteInput.value = inviteUrl;
+  if (elRoomInviteInput) {
+    elRoomInviteInput.value = isInRoom ? inviteUrl : '';
+  }
 
   const elRoomNameInput = document.getElementById('roomNameInput');
   if (elRoomNameInput && !elRoomNameInput.value) {
-    elRoomNameInput.placeholder = `e.g. ${currentRoom}-2`;
+    elRoomNameInput.placeholder = isInRoom ? `e.g. ${state.roomId}-2` : 'e.g. math-cram';
   }
 
   if (elRoomNameDisplay) elRoomNameDisplay.textContent = currentRoom;
+
+  const elRoomSoloBox = document.getElementById('roomSoloBox');
+  const elRoomActiveBox = document.getElementById('roomActiveBox');
+  if (elRoomSoloBox && elRoomActiveBox) {
+    if (isInRoom) {
+      elRoomSoloBox.style.display = 'none';
+      elRoomActiveBox.style.display = 'flex';
+    } else {
+      elRoomSoloBox.style.display = 'flex';
+      elRoomActiveBox.style.display = 'none';
+    }
+  }
+
+  const elChatRoomName = document.getElementById('chatRoomName');
+  if (elChatRoomName) {
+    elChatRoomName.textContent = isInRoom ? `#${state.roomId}` : '#solo-notes';
+  }
+
+  if (elSyncText) elSyncText.textContent = isInRoom ? `Room: ${state.roomId}` : 'Solo Mode';
 }
 
 async function syncMyPresence() {
   if (!roomChannel) return;
   const avatarUrl = (profileState && profileState.avatarUrl) || "assets/images/avatars/cat.svg";
-  const avatar = (profileState && profileState.selectedAvatar) || "🐱";
+  const avatar = (profileState && profileState.selectedAvatar) || "🎧";
   const displayName = state.username || (profileState && profileState.username) || "Chill Scholar";
+  const myId = getMyUserId();
+  const isHost = (state.roomHostId === myId);
+
   try {
     await roomChannel.track({
+      userId: myId,
       displayName: displayName,
       avatar: avatar,
       avatarUrl: avatarUrl,
       isGoogle: !!(profileState && profileState.googleUser),
-      joinedAt: Date.now()
+      isHost: isHost,
+      hostId: state.roomHostId,
+      joinedAt: state.roomJoinedAt || Date.now()
     });
   } catch (err) {
     console.warn("Error tracking Supabase presence:", err);
@@ -2414,7 +2578,7 @@ function handleTodoBroadcast(payload) {
   }
 }
 
-async function initSupabaseRoom(forcedRoomId = null) {
+async function initSupabaseRoom(forcedRoomId = null, asHost = false) {
   const client = getSupabase();
   if (!client) {
     console.warn("Supabase client unavailable, using simulation room");
@@ -2422,16 +2586,23 @@ async function initSupabaseRoom(forcedRoomId = null) {
     return;
   }
 
-  // 1. Resolve room ID
   if (forcedRoomId) {
     state.roomId = forcedRoomId;
   } else {
     const roomFromUrl = getRoomIdFromUrl();
     if (roomFromUrl) {
       state.roomId = roomFromUrl;
-    } else if (!state.roomId) {
-      state.roomId = "cozy-study";
     }
+  }
+
+  if (!state.roomId) {
+    updateRoomUI();
+    return;
+  }
+
+  const myId = getMyUserId();
+  if (asHost) {
+    state.roomHostId = myId;
   }
 
   // Reflect room query param in browser address bar without reload
@@ -2442,9 +2613,7 @@ async function initSupabaseRoom(forcedRoomId = null) {
       const newUrl = `${window.location.pathname}?${currentParams.toString()}${window.location.hash}`;
       window.history.replaceState({}, '', newUrl);
     }
-  } catch (e) {
-    // Ignore URL replace errors in some environments
-  }
+  } catch (e) {}
 
   updateRoomUI();
 
@@ -2458,14 +2627,12 @@ async function initSupabaseRoom(forcedRoomId = null) {
     roomChannel = null;
   }
 
-  const presenceKey = (state.currentUser && state.currentUser.id)
-    ? state.currentUser.id
-    : `anon-${Math.random().toString(36).substring(2, 9)}`;
+  state.roomJoinedAt = state.roomJoinedAt || Date.now();
 
   // Create Realtime channel
   roomChannel = client.channel(`room:${state.roomId}`, {
     config: {
-      presence: { key: presenceKey },
+      presence: { key: myId },
       broadcast: { self: false }
     }
   });
@@ -2475,25 +2642,45 @@ async function initSupabaseRoom(forcedRoomId = null) {
     .on('presence', { event: 'sync' }, () => {
       const presenceState = roomChannel.presenceState();
       const list = [];
+      let hostFound = false;
+
       for (const id in presenceState) {
         const presences = presenceState[id];
         if (presences && presences.length > 0) {
           const userMeta = presences[0];
+          const isUserHost = !!(userMeta.isHost || (state.roomHostId && id === state.roomHostId));
+          if (isUserHost) {
+            hostFound = true;
+            state.roomHostId = id;
+          }
           list.push({
             id: id,
             displayName: userMeta.displayName || 'Studying Bud',
             avatar: userMeta.avatar || '🎧',
             avatarUrl: userMeta.avatarUrl || null,
-            isMe: id === presenceKey
+            isMe: id === myId,
+            isHost: isUserHost,
+            joinedAt: userMeta.joinedAt || 0
           });
         }
       }
+
+      // If no host was explicitly marked, assign the earliest joined user as host
+      if (!hostFound && list.length > 0) {
+        list.sort((a, b) => (a.joinedAt || 0) - (b.joinedAt || 0));
+        list[0].isHost = true;
+        state.roomHostId = list[0].id;
+        if (list[0].isMe) {
+          syncMyPresence();
+        }
+      }
+
       updateListenersUI(list);
     })
     .on('presence', { event: 'join' }, ({ newPresences }) => {
       if (newPresences && newPresences.length > 0) {
         const p = newPresences[0];
-        if (p && p.displayName && p.displayName !== state.username) {
+        if (p && p.displayName && p.userId !== myId) {
           showRoomToast(`👋 <strong>${p.displayName}</strong> joined the study room!`);
           if (typeof addChatSystemMessage === 'function') {
             addChatSystemMessage(`${p.displayName} joined the study room 👋`);
@@ -2504,7 +2691,7 @@ async function initSupabaseRoom(forcedRoomId = null) {
     .on('presence', { event: 'leave' }, ({ leftPresences }) => {
       if (leftPresences && leftPresences.length > 0) {
         const p = leftPresences[0];
-        if (p && p.displayName && p.displayName !== state.username) {
+        if (p && p.displayName && p.userId !== myId) {
           showRoomToast(`👋 <strong>${p.displayName}</strong> left the room.`);
           if (typeof addChatSystemMessage === 'function') {
             addChatSystemMessage(`${p.displayName} left the room`);
@@ -2513,9 +2700,37 @@ async function initSupabaseRoom(forcedRoomId = null) {
       }
     });
 
+  // Host Knock Request Listener
+  roomChannel.on('broadcast', { event: 'knock_request' }, ({ payload }) => {
+    console.log('[Room] Received knock_request broadcast:', payload);
+    if (!payload || !payload.requesterId) return;
+    if (payload.targetRoom && state.roomId) {
+      if (cleanRoomCode(payload.targetRoom) !== cleanRoomCode(state.roomId)) {
+        console.log('[Room] Knock target room mismatch:', payload.targetRoom, state.roomId);
+        return;
+      }
+    }
+    if (payload.requesterId === myId) return;
+    if (!amIHost()) {
+      console.log('[Room] Ignoring knock because amIHost() is false');
+      return;
+    }
+    showHostKnockApprovalModal(payload);
+  });
+
+  roomChannel.on('broadcast', { event: 'knock_cancel' }, ({ payload }) => {
+    if (currentPendingKnock && currentPendingKnock.requesterId === payload?.requesterId) {
+      closeHostKnockApprovalModal();
+      showRoomToast(`ℹ️ Join request was canceled.`);
+    }
+  });
+
   // Broadcast handlers
   roomChannel.on('broadcast', { event: 'room_state' }, ({ payload }) => {
     if (payload) {
+      if (payload.hostId && !state.roomHostId) {
+        state.roomHostId = payload.hostId;
+      }
       handleRoomSyncUpdate(payload);
     }
   });
@@ -2544,6 +2759,7 @@ async function initSupabaseRoom(forcedRoomId = null) {
         type: 'broadcast',
         event: 'room_state',
         payload: {
+          hostId: state.roomHostId,
           currentTheme: state.currentTheme,
           currentVibe: state.currentVibe,
           currentTrackIndex: state.currentTrackIndex,
@@ -2665,44 +2881,439 @@ async function initSupabaseRoom(forcedRoomId = null) {
   if (elSyncStatus) elSyncStatus.className = "sync-status online";
 }
 
+let activeRoomTab = 'active';
+
+function activateTab(tab) {
+  activeRoomTab = tab;
+  const elPanelRoom = document.getElementById('panelRoom');
+  const elTabActiveRoom = document.getElementById('tabActiveRoom');
+  const elTabCreateJoinRoom = document.getElementById('tabCreateJoinRoom');
+  const elTabChatRoom = document.getElementById('tabChatRoom');
+  const elViewActiveRoom = document.getElementById('viewActiveRoom');
+  const elViewCreateJoinRoom = document.getElementById('viewCreateJoinRoom');
+  const elViewChatRoom = document.getElementById('viewChatRoom');
+  const elScrollBody = elPanelRoom ? elPanelRoom.querySelector('.room-scroll-body') : document.querySelector('.room-scroll-body');
+
+  if (elScrollBody) {
+    elScrollBody.scrollTop = 0;
+  }
+
+  if (tab === 'chat') {
+    if (elTabChatRoom) elTabChatRoom.classList.add('active');
+    if (elTabActiveRoom) elTabActiveRoom.classList.remove('active');
+    if (elTabCreateJoinRoom) elTabCreateJoinRoom.classList.remove('active');
+    if (elViewChatRoom) elViewChatRoom.classList.add('active');
+    if (elViewActiveRoom) elViewActiveRoom.classList.remove('active');
+    if (elViewCreateJoinRoom) elViewCreateJoinRoom.classList.remove('active');
+    if (typeof clearUnreadChat === 'function') clearUnreadChat();
+    const elMsgBox = document.getElementById('roomChatMessages');
+    if (elMsgBox) elMsgBox.scrollTop = elMsgBox.scrollHeight;
+  } else if (tab === 'join' || tab === 'createjoin') {
+    if (elTabCreateJoinRoom) elTabCreateJoinRoom.classList.add('active');
+    if (elTabActiveRoom) elTabActiveRoom.classList.remove('active');
+    if (elTabChatRoom) elTabChatRoom.classList.remove('active');
+    if (elViewCreateJoinRoom) elViewCreateJoinRoom.classList.add('active');
+    if (elViewActiveRoom) elViewActiveRoom.classList.remove('active');
+    if (elViewChatRoom) elViewChatRoom.classList.remove('active');
+    if (elScrollBody) {
+      elScrollBody.scrollTop = 0;
+      requestAnimationFrame(() => { elScrollBody.scrollTop = 0; });
+    }
+  } else {
+    // Default to 'active' tab
+    if (elTabActiveRoom) elTabActiveRoom.classList.add('active');
+    if (elTabCreateJoinRoom) elTabCreateJoinRoom.classList.remove('active');
+    if (elTabChatRoom) elTabChatRoom.classList.remove('active');
+    if (elViewActiveRoom) elViewActiveRoom.classList.add('active');
+    if (elViewCreateJoinRoom) elViewCreateJoinRoom.classList.remove('active');
+    if (elViewChatRoom) elViewChatRoom.classList.remove('active');
+    if (elScrollBody) {
+      elScrollBody.scrollTop = 0;
+      requestAnimationFrame(() => { elScrollBody.scrollTop = 0; });
+    }
+  }
+}
+window.activateTab = activateTab;
+window.activateRoomTab = activateTab;
+
+async function requestToJoinRoom(targetRoomId) {
+  if (!targetRoomId || !targetRoomId.trim()) return;
+  const cleanId = cleanRoomCode(targetRoomId);
+  if (!cleanId) return;
+
+  if (cleanId === state.roomId) {
+    showRoomToast(`ℹ️ You are already in room: <strong>${cleanId}</strong>`);
+    activateTab('active');
+    return;
+  }
+
+  const client = getSupabase();
+  if (!client) {
+    state.roomId = cleanId;
+    state.roomHostId = getMyUserId();
+    updateRoomUI();
+    activateTab('active');
+    showRoomToast(`🎉 Joined room: <strong>${cleanId}</strong>`);
+    return;
+  }
+
+  // Unsubscribe old channel
+  if (roomChannel) {
+    try {
+      await client.removeChannel(roomChannel);
+    } catch (e) {}
+    roomChannel = null;
+  }
+
+  openKnockWaitingModal(cleanId);
+
+  const myId = getMyUserId();
+  const displayName = state.username || (profileState && profileState.username) || 'Study Buddy';
+  const avatar = (profileState && profileState.selectedAvatar) || '🎧';
+  const avatarUrl = (profileState && profileState.avatarUrl) || null;
+
+  // Connect to room channel without presence (pending knock)
+  roomChannel = client.channel(`room:${cleanId}`, {
+    config: {
+      broadcast: { self: false }
+    }
+  });
+
+  roomChannel.on('broadcast', { event: 'knock_response' }, async ({ payload }) => {
+    console.log('[Room] Received knock_response payload:', payload);
+    if (!payload || payload.requesterId !== myId) return;
+    closeKnockWaitingModal();
+
+    if (payload.approved) {
+      state.roomId = cleanId;
+      state.roomHostId = payload.hostId || null;
+      state.roomJoinedAt = Date.now();
+
+      try {
+        const currentParams = new URLSearchParams(window.location.search);
+        currentParams.set('room', cleanId);
+        window.history.replaceState({}, '', `${window.location.pathname}?${currentParams.toString()}${window.location.hash}`);
+      } catch (e) {}
+
+      await initSupabaseRoom(cleanId, false);
+      if (typeof initRoomChat === 'function') {
+        initRoomChat(cleanId);
+      }
+      activateTab('active');
+      showRoomToast(`🎉 <strong>Host approved!</strong> Welcome to room: <strong>${cleanId}</strong>`);
+    } else {
+      if (roomChannel) {
+        try {
+          await client.removeChannel(roomChannel);
+        } catch (e) {}
+        roomChannel = null;
+      }
+      state.roomId = null;
+      state.roomHostId = null;
+
+      try {
+        const currentParams = new URLSearchParams(window.location.search);
+        currentParams.delete('room');
+        const query = currentParams.toString() ? `?${currentParams.toString()}` : '';
+        window.history.replaceState({}, '', `${window.location.pathname}${query}${window.location.hash}`);
+      } catch (e) {}
+
+      updateRoomUI();
+      showRoomToast(`🚫 <strong>Request declined:</strong> The host declined your join request.`);
+    }
+  });
+
+  const sendKnock = () => {
+    if (!roomChannel) return;
+    console.log('[Room] Sending knock_request to', cleanId, 'from', myId);
+    roomChannel.send({
+      type: 'broadcast',
+      event: 'knock_request',
+      payload: {
+        requesterId: myId,
+        displayName: displayName,
+        avatar: avatar,
+        avatarUrl: avatarUrl,
+        targetRoom: cleanId,
+        timestamp: Date.now()
+      }
+    }).then(res => {
+      console.log('[Room] knock_request send result:', res);
+    }).catch(err => {
+      console.warn('[Room] knock_request send error:', err);
+    });
+  };
+
+  roomChannel.subscribe((status) => {
+    console.log('[Room] knock channel status:', status);
+    if (status === 'SUBSCRIBED') {
+      sendKnock();
+    }
+  });
+
+  // Pulse retry knock every 2 seconds while waiting modal is open
+  if (window._knockRetryInterval) clearInterval(window._knockRetryInterval);
+  window._knockRetryInterval = setInterval(() => {
+    const modal = document.getElementById('knockWaitingModal');
+    if (modal && modal.classList.contains('active')) {
+      sendKnock();
+    } else {
+      clearInterval(window._knockRetryInterval);
+      window._knockRetryInterval = null;
+    }
+  }, 2000);
+
+  // Timeout: If host doesn't respond in 9 seconds
+  if (knockTimeoutTimer) clearTimeout(knockTimeoutTimer);
+  knockTimeoutTimer = setTimeout(() => {
+    const fallbackEl = document.getElementById('knockFallbackActions');
+    const descEl = document.getElementById('knockWaitingDesc');
+    if (fallbackEl) {
+      fallbackEl.style.display = 'flex';
+      fallbackEl.classList.remove('hidden');
+    }
+    if (descEl) descEl.style.display = 'none';
+  }, 9000);
+}
+
+async function checkRoomActiveMembers(cleanId) {
+  const client = getSupabase();
+  if (!client || !cleanId) return false;
+
+  return new Promise((resolve) => {
+    let resolved = false;
+    let checkChannel = null;
+
+    const done = async (hasMembers) => {
+      if (resolved) return;
+      resolved = true;
+      if (timeoutId) clearTimeout(timeoutId);
+      if (checkChannel) {
+        try {
+          await client.removeChannel(checkChannel);
+        } catch (e) {}
+      }
+      resolve(hasMembers);
+    };
+
+    const timeoutId = setTimeout(() => {
+      done(false);
+    }, 850);
+
+    try {
+      checkChannel = client.channel(`room:${cleanId}`, {
+        config: { broadcast: { self: false } }
+      });
+
+      checkChannel.on('presence', { event: 'sync' }, () => {
+        try {
+          const presences = checkChannel.presenceState();
+          const memberKeys = Object.keys(presences);
+          if (memberKeys.length > 0) {
+            done(true);
+          }
+        } catch (e) {
+          done(false);
+        }
+      });
+
+      checkChannel.subscribe((status) => {
+        if (status === 'SUBSCRIBED') {
+          try {
+            const presences = checkChannel.presenceState();
+            const memberKeys = Object.keys(presences);
+            if (memberKeys.length > 0) {
+              done(true);
+            }
+          } catch (e) {}
+        } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
+          done(false);
+        }
+      });
+    } catch (err) {
+      done(false);
+    }
+  });
+}
+
+async function createStudyRoom(roomName, forceHost = false) {
+  let rawInput = roomName ? roomName.trim() : '';
+
+  // 1. If user pasted an invite link instead of a room name, reject and guide to Join section
+  if (rawInput.includes('http://') || rawInput.includes('https://') || rawInput.includes('?room=') || rawInput.includes('/')) {
+    let extracted = rawInput;
+    try {
+      if (rawInput.includes('?room=')) {
+        extracted = rawInput.split('?room=')[1].split('&')[0];
+      } else if (rawInput.includes('/')) {
+        const parts = rawInput.split('/');
+        extracted = parts[parts.length - 1];
+      }
+    } catch (e) {}
+    extracted = cleanRoomCode(extracted);
+
+    showRoomToast(`🚫 <strong>Invalid Room Code:</strong> That looks like an invite link! Please use the <strong>Join a Room</strong> section below.`);
+    const joinInput = document.getElementById('roomJoinInput');
+    if (joinInput && extracted) {
+      joinInput.value = extracted;
+      joinInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      joinInput.focus();
+    }
+    return false;
+  }
+
+  let targetRoom = rawInput;
+  if (!targetRoom) {
+    targetRoom = generateRandomRoomCode();
+  }
+  const cleanId = cleanRoomCode(targetRoom);
+  if (!cleanId) {
+    showRoomToast(`🚫 <strong>Invalid Room Code:</strong> Please enter a valid room name using letters and numbers.`);
+    return false;
+  }
+
+  // 2. If user is already in this room
+  if (cleanId === state.roomId) {
+    showRoomToast(`ℹ️ You are already in room: <strong>${cleanId}</strong>`);
+    activateTab('active');
+    return true;
+  }
+
+  // 3. If room code was manually typed or pasted (not auto-generated randomly),
+  // verify whether this room is already active with an existing host/participants!
+  if (rawInput && !forceHost) {
+    const btnSwitch = document.getElementById('btnSwitchRoom');
+    const origHtml = btnSwitch ? btnSwitch.innerHTML : '';
+    if (btnSwitch) {
+      btnSwitch.disabled = true;
+      btnSwitch.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Checking room...';
+    }
+
+    try {
+      const isAlreadyActive = await checkRoomActiveMembers(cleanId);
+      if (isAlreadyActive) {
+        if (btnSwitch) {
+          btnSwitch.disabled = false;
+          btnSwitch.innerHTML = origHtml;
+        }
+        showRoomToast(`🚫 <strong>Room Already Active:</strong> <code>${cleanId}</code> already exists and has an active host! Please use <strong>Join a Room</strong> below.`);
+        const joinInput = document.getElementById('roomJoinInput');
+        if (joinInput) {
+          joinInput.value = cleanId;
+          joinInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          joinInput.focus();
+        }
+        return false;
+      }
+    } catch (e) {
+      console.warn("Could not check active room occupants:", e);
+    } finally {
+      if (btnSwitch) {
+        btnSwitch.disabled = false;
+        btnSwitch.innerHTML = origHtml;
+      }
+    }
+  }
+
+  // 4. Create and enter room as Host
+  const myId = getMyUserId();
+  state.roomHostId = myId; // Current user is definitively HOST
+  state.roomId = cleanId;
+  state.roomJoinedAt = Date.now();
+
+  try {
+    const currentParams = new URLSearchParams(window.location.search);
+    currentParams.set('room', cleanId);
+    window.history.replaceState({}, '', `${window.location.pathname}?${currentParams.toString()}${window.location.hash}`);
+  } catch (e) {}
+
+  await initSupabaseRoom(cleanId, true);
+  updateRoomUI();
+  if (typeof initRoomChat === 'function') {
+    initRoomChat(cleanId);
+  }
+  activateTab('active');
+  showRoomToast(`👑 <strong>Created room: ${cleanId}</strong>. You are the host!`);
+  return true;
+}
+
+async function leaveCurrentStudyRoom() {
+  if (!state.roomId) return;
+  const oldRoom = state.roomId;
+  const client = getSupabase();
+  if (roomChannel) {
+    try {
+      await roomChannel.untrack();
+    } catch (e) {}
+    if (client) {
+      try {
+        client.removeChannel(roomChannel);
+      } catch (e) {}
+    }
+    roomChannel = null;
+  }
+
+  state.roomId = null;
+  state.roomHostId = null;
+  state.roomJoinedAt = null;
+
+  try {
+    const currentParams = new URLSearchParams(window.location.search);
+    currentParams.delete('room');
+    const query = currentParams.toString() ? `?${currentParams.toString()}` : '';
+    window.history.replaceState({}, '', `${window.location.pathname}${query}${window.location.hash}`);
+  } catch (e) {}
+
+  updateRoomUI();
+  updateListenersUI([{
+    id: getMyUserId(),
+    displayName: state.username || (profileState && profileState.username) || 'You',
+    avatar: (profileState && profileState.selectedAvatar) || '🎧',
+    avatarUrl: (profileState && profileState.avatarUrl) || null,
+    isMe: true,
+    isHost: false
+  }]);
+
+  if (typeof initRoomChat === 'function') {
+    initRoomChat(null);
+  }
+
+  showRoomToast(`🚪 Left study room <strong>${oldRoom}</strong>. You are now studying solo.`);
+}
+
 async function switchStudyRoom(newRoomId) {
   if (!newRoomId || !newRoomId.trim()) return;
-  const cleanId = newRoomId.trim().toLowerCase().replace(/[^a-z0-9_-]/g, '-').slice(0, 32);
+  const cleanId = cleanRoomCode(newRoomId);
   if (!cleanId) return;
   if (cleanId === state.roomId) {
     showRoomToast(`ℹ️ Already in room: <strong>${cleanId}</strong>`);
     return;
   }
-  state.roomId = cleanId;
-
-  // Immediately update query param in URL
-  try {
-    const currentParams = new URLSearchParams(window.location.search);
-    currentParams.set('room', cleanId);
-    const newUrl = `${window.location.pathname}?${currentParams.toString()}${window.location.hash}`;
-    window.history.replaceState({}, '', newUrl);
-  } catch (e) {}
-
-  await initSupabaseRoom(cleanId);
-  updateRoomUI();
-  if (typeof initRoomChat === 'function') {
-    initRoomChat(cleanId);
-  }
-  showRoomToast(`🚪 Switched to room: <strong>${cleanId}</strong>`);
+  await requestToJoinRoom(cleanId);
 }
 
 async function startSession() {
   initAudio();
-  if (typeof USE_SUPABASE !== 'undefined' && USE_SUPABASE) {
-    await initSupabaseRoom();
-  } else if (USE_MOCK_MODE) {
-    console.log("Starting in mock simulation mode...");
-    initMockRoom();
+  const roomFromUrl = getRoomIdFromUrl();
+  if (roomFromUrl) {
+    // If URL has ?room=, request to join that room
+    await requestToJoinRoom(roomFromUrl);
   } else {
-    initMockRoom();
-  }
-  if (typeof initRoomChat === 'function') {
-    initRoomChat(state.roomId || 'cozy-study');
+    // Solo mode by default!
+    state.roomId = null;
+    state.roomHostId = null;
+    updateRoomUI();
+    updateListenersUI([{
+      id: getMyUserId(),
+      displayName: state.username || (profileState && profileState.username) || 'You',
+      avatar: (profileState && profileState.selectedAvatar) || '🎧',
+      avatarUrl: (profileState && profileState.avatarUrl) || null,
+      isMe: true,
+      isHost: false
+    }]);
+    if (typeof initRoomChat === 'function') {
+      initRoomChat(null);
+    }
   }
 }
 
@@ -3603,7 +4214,6 @@ function updateMobileMenuStageState() {
 
 // --- STUDY ROOM CHAT SYSTEM ---
 let unreadChatCount = 0;
-let activeRoomTab = 'create';
 
 function getSenderInfo() {
   const isGoogle = !!(profileState && profileState.googleUser);
@@ -3906,13 +4516,17 @@ function setupRoomPanelControls() {
   const elClosePanelRoom = document.getElementById('closePanelRoom');
 
   // Tabs
-  const elTabCreateRoom = document.getElementById('tabCreateRoom');
-  const elTabJoinRoom = document.getElementById('tabJoinRoom');
+  const elTabActiveRoom = document.getElementById('tabActiveRoom') || document.getElementById('tabCreateRoom');
+  const elTabCreateJoinRoom = document.getElementById('tabCreateJoinRoom') || document.getElementById('tabJoinRoom');
   const elTabChatRoom = document.getElementById('tabChatRoom');
-  const elViewCreateRoom = document.getElementById('viewCreateRoom');
-  const elViewJoinRoom = document.getElementById('viewJoinRoom');
+  const elViewActiveRoom = document.getElementById('viewActiveRoom') || document.getElementById('viewCreateRoom');
+  const elViewCreateJoinRoom = document.getElementById('viewCreateJoinRoom') || document.getElementById('viewJoinRoom');
   const elViewChatRoom = document.getElementById('viewChatRoom');
   const elRoomMembersSection = document.getElementById('roomMembersSection');
+
+  // Solo / Leave buttons
+  const elBtnLeaveRoom = document.getElementById('btnLeaveRoom');
+  const elBtnGoToCreateJoin = document.getElementById('btnGoToCreateJoin');
 
   // Chat controls
   const elRoomChatForm = document.getElementById('roomChatForm');
@@ -3925,6 +4539,7 @@ function setupRoomPanelControls() {
   const elRoomInviteInput = document.getElementById('roomInviteInput');
   const elRoomNameInput = document.getElementById('roomNameInput');
   const elBtnRandomRoom = document.getElementById('btnRandomRoom');
+  const elBtnCopyCreateRoomName = document.getElementById('btnCopyCreateRoomName');
   const elBtnSwitchRoom = document.getElementById('btnSwitchRoom');
 
   // Join Room controls
@@ -3957,51 +4572,17 @@ function setupRoomPanelControls() {
   window.closeRoomPanel = closeRoomPanel;
   window.toggleRoomPanel = toggleRoomPanel;
 
-  function activateTab(tab) {
-    activeRoomTab = tab;
-    if (tab === 'chat') {
-      if (elTabChatRoom) elTabChatRoom.classList.add('active');
-      if (elTabCreateRoom) elTabCreateRoom.classList.remove('active');
-      if (elTabJoinRoom) elTabJoinRoom.classList.remove('active');
-      if (elViewChatRoom) elViewChatRoom.classList.add('active');
-      if (elViewCreateRoom) elViewCreateRoom.classList.remove('active');
-      if (elViewJoinRoom) elViewJoinRoom.classList.remove('active');
-      if (elRoomMembersSection) elRoomMembersSection.style.display = 'none';
-      clearUnreadChat();
-      const elMsgBox = document.getElementById('roomChatMessages');
-      if (elMsgBox) elMsgBox.scrollTop = elMsgBox.scrollHeight;
-      if (elRoomChatInput) setTimeout(() => elRoomChatInput.focus(), 100);
-    } else if (tab === 'join') {
-      if (elTabJoinRoom) elTabJoinRoom.classList.add('active');
-      if (elTabCreateRoom) elTabCreateRoom.classList.remove('active');
-      if (elTabChatRoom) elTabChatRoom.classList.remove('active');
-      if (elViewJoinRoom) elViewJoinRoom.classList.add('active');
-      if (elViewCreateRoom) elViewCreateRoom.classList.remove('active');
-      if (elViewChatRoom) elViewChatRoom.classList.remove('active');
-      if (elRoomMembersSection) elRoomMembersSection.style.display = '';
-      if (elRoomJoinInput) setTimeout(() => elRoomJoinInput.focus(), 80);
-    } else {
-      if (elTabCreateRoom) elTabCreateRoom.classList.add('active');
-      if (elTabJoinRoom) elTabJoinRoom.classList.remove('active');
-      if (elTabChatRoom) elTabChatRoom.classList.remove('active');
-      if (elViewCreateRoom) elViewCreateRoom.classList.add('active');
-      if (elViewJoinRoom) elViewJoinRoom.classList.remove('active');
-      if (elViewChatRoom) elViewChatRoom.classList.remove('active');
-      if (elRoomMembersSection) elRoomMembersSection.style.display = '';
-    }
-  }
-
-  if (elTabCreateRoom) {
-    elTabCreateRoom.addEventListener('click', (e) => {
+  if (elTabActiveRoom) {
+    elTabActiveRoom.addEventListener('click', (e) => {
       e.stopPropagation();
-      activateTab('create');
+      activateTab('active');
     });
   }
 
-  if (elTabJoinRoom) {
-    elTabJoinRoom.addEventListener('click', (e) => {
+  if (elTabCreateJoinRoom) {
+    elTabCreateJoinRoom.addEventListener('click', (e) => {
       e.stopPropagation();
-      activateTab('join');
+      activateTab('createjoin');
     });
   }
 
@@ -4009,6 +4590,20 @@ function setupRoomPanelControls() {
     elTabChatRoom.addEventListener('click', (e) => {
       e.stopPropagation();
       activateTab('chat');
+    });
+  }
+
+  if (elBtnLeaveRoom) {
+    elBtnLeaveRoom.addEventListener('click', (e) => {
+      e.stopPropagation();
+      leaveCurrentStudyRoom();
+    });
+  }
+
+  if (elBtnGoToCreateJoin) {
+    elBtnGoToCreateJoin.addEventListener('click', (e) => {
+      e.stopPropagation();
+      activateTab('createjoin');
     });
   }
 
@@ -4153,15 +4748,42 @@ function setupRoomPanelControls() {
     });
   }
 
-  // Create another room
-  if (elBtnSwitchRoom && elRoomNameInput) {
-    const handleCreate = () => {
-      let targetRoom = elRoomNameInput.value.trim();
-      if (!targetRoom) {
-        targetRoom = generateRandomRoomCode();
+  // Copy Room Name from Create Input
+  if (elBtnCopyCreateRoomName && elRoomNameInput) {
+    elBtnCopyCreateRoomName.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      let nameToCopy = elRoomNameInput.value.trim();
+      if (!nameToCopy) {
+        nameToCopy = generateRandomRoomCode();
+        elRoomNameInput.value = nameToCopy;
       }
-      switchStudyRoom(targetRoom);
-      elRoomNameInput.value = '';
+      try {
+        await navigator.clipboard.writeText(nameToCopy);
+        elBtnCopyCreateRoomName.classList.add('copied');
+        elBtnCopyCreateRoomName.innerHTML = '<i class="fa-solid fa-check"></i>';
+        showRoomToast(`📋 <strong>Room name copied:</strong> <code>${nameToCopy}</code>`);
+        setTimeout(() => {
+          if (elBtnCopyCreateRoomName) {
+            elBtnCopyCreateRoomName.classList.remove('copied');
+            elBtnCopyCreateRoomName.innerHTML = '<i class="fa-solid fa-clipboard"></i>';
+          }
+        }, 2200);
+      } catch (err) {
+        elRoomNameInput.select();
+        document.execCommand('copy');
+        showRoomToast(`📋 <strong>Copied:</strong> <code>${nameToCopy}</code>`);
+      }
+    });
+  }
+
+  // Create Room as Host
+  if (elBtnSwitchRoom && elRoomNameInput) {
+    const handleCreate = async () => {
+      let targetRoom = elRoomNameInput.value.trim();
+      const success = await createStudyRoom(targetRoom);
+      if (success) {
+        elRoomNameInput.value = '';
+      }
     };
     elBtnSwitchRoom.addEventListener('click', (e) => {
       e.stopPropagation();
@@ -4196,7 +4818,7 @@ function setupRoomPanelControls() {
     });
   }
 
-  // Submit Join Room
+  // Submit Join Room (Knock / Request to Join)
   if (elBtnSubmitJoinRoom && elRoomJoinInput) {
     const handleJoin = async () => {
       const raw = elRoomJoinInput.value;
@@ -4213,15 +4835,12 @@ function setupRoomPanelControls() {
 
       if (targetRoom === state.roomId) {
         showRoomToast(`ℹ️ You are already in room: <strong>${targetRoom}</strong>`);
-        activateTab('create');
+        activateTab('active');
         return;
       }
 
-      // Join room directly without external navigation
-      await switchStudyRoom(targetRoom);
+      await requestToJoinRoom(targetRoom);
       elRoomJoinInput.value = '';
-      activateTab('create');
-      showRoomToast(`🎉 <strong>Joined room:</strong> ${targetRoom}! Studying together.`);
     };
 
     elBtnSubmitJoinRoom.addEventListener('click', (e) => {
@@ -4233,6 +4852,91 @@ function setupRoomPanelControls() {
       if (e.key === 'Enter') {
         e.preventDefault();
         handleJoin();
+      }
+    });
+  }
+
+  // Knock Modals Control Wiring
+  const elBtnCancelKnock = document.getElementById('btnCancelKnock');
+  if (elBtnCancelKnock) {
+    elBtnCancelKnock.addEventListener('click', (e) => {
+      e.stopPropagation();
+      closeKnockWaitingModal();
+      if (roomChannel) {
+        try {
+          roomChannel.send({
+            type: 'broadcast',
+            event: 'knock_cancel',
+            payload: { requesterId: getMyUserId() }
+          });
+          const client = getSupabase();
+          if (client) client.removeChannel(roomChannel);
+        } catch (e) {}
+        roomChannel = null;
+      }
+      state.roomId = null;
+      state.roomHostId = null;
+      try {
+        const p = new URLSearchParams(window.location.search);
+        p.delete('room');
+        const query = p.toString() ? `?${p.toString()}` : '';
+        window.history.replaceState({}, '', `${window.location.pathname}${query}${window.location.hash}`);
+      } catch (e) {}
+      updateRoomUI();
+    });
+  }
+
+  const elBtnKnockEnterAsHost = document.getElementById('btnKnockEnterAsHost');
+  if (elBtnKnockEnterAsHost) {
+    elBtnKnockEnterAsHost.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      const targetRoom = document.getElementById('knockWaitingRoomName')?.textContent?.trim();
+      closeKnockWaitingModal();
+      if (targetRoom) {
+        await createStudyRoom(targetRoom);
+      }
+    });
+  }
+
+  const elBtnAcceptKnock = document.getElementById('btnAcceptKnock');
+  if (elBtnAcceptKnock) {
+    elBtnAcceptKnock.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (currentPendingKnock && roomChannel) {
+        roomChannel.send({
+          type: 'broadcast',
+          event: 'knock_response',
+          payload: {
+            requesterId: currentPendingKnock.requesterId,
+            approved: true,
+            hostId: getMyUserId(),
+            hostName: state.username || 'Host',
+            targetRoom: state.roomId
+          }
+        });
+        showRoomToast(`✅ Allowed <strong>${currentPendingKnock.displayName}</strong> into the room!`);
+        closeHostKnockApprovalModal();
+      }
+    });
+  }
+
+  const elBtnDenyKnock = document.getElementById('btnDenyKnock');
+  if (elBtnDenyKnock) {
+    elBtnDenyKnock.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (currentPendingKnock && roomChannel) {
+        roomChannel.send({
+          type: 'broadcast',
+          event: 'knock_response',
+          payload: {
+            requesterId: currentPendingKnock.requesterId,
+            approved: false,
+            hostId: getMyUserId(),
+            targetRoom: state.roomId
+          }
+        });
+        showRoomToast(`❌ Declined join request from <strong>${currentPendingKnock.displayName}</strong>.`);
+        closeHostKnockApprovalModal();
       }
     });
   }
@@ -4312,8 +5016,9 @@ function updateListenersUI(listeners) {
       elRoomMembersList.innerHTML = '<div class="no-members-hint">No other buddies yet. Click "Copy" above and send the link to friends!</div>';
     } else {
       listeners.forEach(user => {
+        const isUserHost = !!(user.isHost || (state.roomHostId && user.id === state.roomHostId));
         const card = document.createElement('div');
-        card.className = `room-member-card ${user.isMe ? 'is-me' : ''}`;
+        card.className = `room-member-card ${user.isMe ? 'is-me' : ''} ${isUserHost ? 'is-host' : ''}`;
 
         let avatarHtml = '';
         if (user.avatarUrl) {
@@ -4328,8 +5033,12 @@ function updateListenersUI(listeners) {
             <span class="member-online-dot"></span>
           </div>
           <div class="member-meta">
-            <div class="member-name">${user.displayName} ${user.isMe ? '<span class="you-badge">(You)</span>' : ''}</div>
-            <div class="member-status-sub">${user.isMe ? 'Host / You' : 'Studying with you'}</div>
+            <div class="member-name">
+              <span>${user.displayName}</span>
+              ${isUserHost ? '<span class="host-badge"><i class="fa-solid fa-crown"></i> Host</span>' : ''}
+              ${user.isMe ? '<span class="you-badge">(You)</span>' : ''}
+            </div>
+            <div class="member-status-sub">${isUserHost ? 'Room Host' : 'Studying with you'}</div>
           </div>
         `;
         elRoomMembersList.appendChild(card);
@@ -4886,6 +5595,7 @@ function setupFocusTimer() {
   if (elTimerDisplay) {
     elTimerDisplay.addEventListener('click', (e) => {
       e.stopPropagation();
+      if (Date.now() - (window._lastTimerDragTime || 0) < 300) return;
       toggleSettings();
     });
   }
@@ -4968,6 +5678,151 @@ function setupFocusTimer() {
 
   // Initial UI draw
   updateTimerUI();
+
+  // Enable dragging timer widget anywhere across the screen
+  makeTimerWidgetDraggable();
+}
+
+// Enable free dragging of timer widget across the screen
+function makeTimerWidgetDraggable() {
+  const widget = document.getElementById('screenTimerWidget');
+  const pill = document.getElementById('timerPill');
+  if (!widget || !pill) return;
+
+  let isDragging = false;
+  let hasMoved = false;
+  let startX = 0;
+  let startY = 0;
+  let initLeft = 0;
+  let initTop = 0;
+
+  // Restore saved position from localStorage
+  const restorePosition = () => {
+    try {
+      const saved = JSON.parse(localStorage.getItem('lofify_timer_pos'));
+      if (saved && typeof saved.left === 'number' && typeof saved.top === 'number') {
+        const container = widget.offsetParent || document.getElementById('roomContainer') || document.body;
+        if (container) {
+          const maxLeft = Math.max(6, container.clientWidth - widget.offsetWidth - 6);
+          const maxTop = Math.max(6, container.clientHeight - widget.offsetHeight - 6);
+          const left = Math.max(6, Math.min(maxLeft, saved.left));
+          const top = Math.max(6, Math.min(maxTop, saved.top));
+          widget.classList.add('is-moved');
+          widget.style.transform = 'none';
+          widget.style.left = `${left}px`;
+          widget.style.top = `${top}px`;
+          widget.style.bottom = 'auto';
+          widget.style.right = 'auto';
+        }
+      }
+    } catch (_) {}
+  };
+
+  restorePosition();
+
+  const onPointerDown = (e) => {
+    // Ignore clicks on control buttons (play, reset, settings, close)
+    if (e.target.closest('.timer-action-btn')) return;
+    // Ignore clicks inside the settings modal dropdown
+    if (e.target.closest('#timerSettingsModal')) return;
+
+    isDragging = true;
+    hasMoved = false;
+
+    if (pill.setPointerCapture && e.pointerId !== undefined) {
+      try { pill.setPointerCapture(e.pointerId); } catch (_) {}
+    }
+
+    startX = e.clientX;
+    startY = e.clientY;
+
+    const container = widget.offsetParent || document.getElementById('roomContainer') || document.body;
+    const containerRect = container.getBoundingClientRect();
+    const widgetRect = widget.getBoundingClientRect();
+
+    initLeft = widgetRect.left - containerRect.left;
+    initTop = widgetRect.top - containerRect.top;
+
+    widget.classList.add('is-moved');
+    widget.style.transform = 'none';
+    widget.style.left = `${initLeft}px`;
+    widget.style.top = `${initTop}px`;
+    widget.style.bottom = 'auto';
+    widget.style.right = 'auto';
+
+    window.addEventListener('pointermove', onPointerMove, { passive: false });
+    window.addEventListener('pointerup', onPointerUp);
+    window.addEventListener('pointercancel', onPointerUp);
+  };
+
+  const onPointerMove = (e) => {
+    if (!isDragging) return;
+    const dx = e.clientX - startX;
+    const dy = e.clientY - startY;
+
+    if (!hasMoved && Math.hypot(dx, dy) > 4) {
+      hasMoved = true;
+      widget.classList.add('dragging');
+    }
+
+    if (hasMoved) {
+      e.preventDefault();
+      const container = widget.offsetParent || document.getElementById('roomContainer') || document.body;
+      let newLeft = initLeft + dx;
+      let newTop = initTop + dy;
+
+      const maxLeft = Math.max(6, container.clientWidth - widget.offsetWidth - 6);
+      const maxTop = Math.max(6, container.clientHeight - widget.offsetHeight - 6);
+
+      newLeft = Math.max(6, Math.min(maxLeft, newLeft));
+      newTop = Math.max(6, Math.min(maxTop, newTop));
+
+      widget.style.left = `${newLeft}px`;
+      widget.style.top = `${newTop}px`;
+    }
+  };
+
+  const onPointerUp = (e) => {
+    if (!isDragging) return;
+    isDragging = false;
+    widget.classList.remove('dragging');
+
+    if (pill.releasePointerCapture && e && e.pointerId !== undefined) {
+      try { pill.releasePointerCapture(e.pointerId); } catch (_) {}
+    }
+
+    window.removeEventListener('pointermove', onPointerMove);
+    window.removeEventListener('pointerup', onPointerUp);
+    window.removeEventListener('pointercancel', onPointerUp);
+
+    if (hasMoved) {
+      window._lastTimerDragTime = Date.now();
+      const curLeft = parseFloat(widget.style.left);
+      const curTop = parseFloat(widget.style.top);
+      if (!isNaN(curLeft) && !isNaN(curTop)) {
+        try {
+          localStorage.setItem('lofify_timer_pos', JSON.stringify({ left: curLeft, top: curTop }));
+        } catch (_) {}
+      }
+    }
+  };
+
+  pill.addEventListener('pointerdown', onPointerDown);
+
+  // Keep inside container on window resize
+  window.addEventListener('resize', () => {
+    if (widget.classList.contains('is-moved')) {
+      const container = widget.offsetParent || document.getElementById('roomContainer') || document.body;
+      if (container) {
+        const curLeft = parseFloat(widget.style.left) || 0;
+        const curTop = parseFloat(widget.style.top) || 0;
+        const maxLeft = Math.max(6, container.clientWidth - widget.offsetWidth - 6);
+        const maxTop = Math.max(6, container.clientHeight - widget.offsetHeight - 6);
+        widget.style.left = `${Math.max(6, Math.min(maxLeft, curLeft))}px`;
+        widget.style.top = `${Math.max(6, Math.min(maxTop, curTop))}px`;
+      }
+    }
+  });
 }
 
 
