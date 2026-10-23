@@ -1825,7 +1825,14 @@ function getSupabase() {
   if (supabaseClient) return supabaseClient;
   if (typeof window.supabase !== 'undefined' && typeof SUPABASE_URL !== 'undefined' && typeof SUPABASE_ANON_KEY !== 'undefined') {
     try {
-      supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+        auth: {
+          persistSession: true,
+          autoRefreshToken: true,
+          detectSessionInUrl: true,
+          storage: window.localStorage
+        }
+      });
       return supabaseClient;
     } catch (err) {
       console.error("Failed to initialize Supabase client:", err);
@@ -1986,6 +1993,10 @@ function initLandingPage() {
     elLandingGuestBtn.addEventListener('click', (e) => {
       e.preventDefault();
       window.guestModeActive = true;
+      try {
+        localStorage.setItem('lofify_guest_mode', 'true');
+        document.documentElement.classList.add('has-auth-session');
+      } catch (_) {}
       if (elLandingPage) {
         elLandingPage.classList.add('hidden');
       }
@@ -2006,6 +2017,10 @@ async function signOutUser() {
     }
   }
   window.guestModeActive = false;
+  try {
+    localStorage.removeItem('lofify_guest_mode');
+    document.documentElement.classList.remove('has-auth-session');
+  } catch (_) {}
   state.currentUser = null;
   state.username = "Studying Bud";
   if (profileState) {
@@ -2029,6 +2044,7 @@ function updateAuthUI(user) {
   const elLandingPage = document.getElementById('landingPage');
 
   if (user) {
+    document.documentElement.classList.add('has-auth-session');
     if (elLandingPage) elLandingPage.classList.add('hidden');
     if (elAuthLoggedOut) elAuthLoggedOut.style.display = 'none';
     if (elAuthLoggedIn) elAuthLoggedIn.style.display = 'flex';
@@ -2041,8 +2057,13 @@ function updateAuthUI(user) {
       elLogoutBtn.title = `Signed in as ${user.email || 'Google User'}`;
     }
   } else {
-    if (elLandingPage && !window.guestModeActive) {
-      elLandingPage.classList.remove('hidden');
+    const isGuest = window.guestModeActive || (typeof localStorage !== 'undefined' && localStorage.getItem('lofify_guest_mode') === 'true');
+    if (isGuest) {
+      document.documentElement.classList.add('has-auth-session');
+      if (elLandingPage) elLandingPage.classList.add('hidden');
+    } else {
+      document.documentElement.classList.remove('has-auth-session');
+      if (elLandingPage) elLandingPage.classList.remove('hidden');
     }
     if (elAuthLoggedOut) elAuthLoggedOut.style.display = 'block';
     if (elAuthLoggedIn) elAuthLoggedIn.style.display = 'none';
@@ -2053,16 +2074,18 @@ function updateAuthUI(user) {
   }
 }
 
-function handleAuthUser(user) {
+async function handleAuthUser(user) {
   if (!user) {
     updateAuthUI(null);
     return;
   }
   state.currentUser = user;
-  const fullName = user.user_metadata?.full_name || user.user_metadata?.name || user.email?.split('@')[0] || "Chill Scholar";
-  const googleAvatar = user.user_metadata?.avatar_url || user.user_metadata?.picture;
+  updateAuthUI(user);
 
   if (!profileState) loadProfileData();
+
+  const fullName = user.user_metadata?.full_name || user.user_metadata?.name || user.email?.split('@')[0] || "Chill Scholar";
+  const googleAvatar = user.user_metadata?.avatar_url || user.user_metadata?.picture;
 
   if (profileState) {
     profileState.googleUser = {
@@ -2071,47 +2094,87 @@ function handleAuthUser(user) {
       name: fullName,
       avatarUrl: googleAvatar || null
     };
-
-    const setupKey = `lofify_profile_setup_${user.id}`;
-    const hasCompletedSetup = localStorage.getItem(setupKey) === 'true';
-
-    if (!hasCompletedSetup) {
-      // Prompt user to pick cute animal avatar & username on initial login!
-      const initialNickname = fullName.split(' ')[0] || fullName;
-      profileState.username = initialNickname;
-      if (!profileState.avatarUrl) {
-        profileState.avatarUrl = 'assets/images/avatars/cat.svg';
-        profileState.avatarAnimal = 'cat';
-        profileState.selectedAvatar = 'Mochi Cat 🐱';
-      }
-      state.username = initialNickname;
-      saveProfileData();
-      updateAuthUI(user);
-      renderProfileUI();
-
-      // Open cute animal onboarding modal with a smooth welcoming delay
-      setTimeout(() => {
-        openProfileSetupModal(user, false);
-      }, 400);
-    } else {
-      // User has already customized their persona
-      state.username = profileState.username || fullName;
-      saveProfileData();
-      updateAuthUI(user);
-      renderProfileUI();
-      if (typeof syncMyPresence === 'function') {
-        syncMyPresence();
-      }
-    }
-
-    // Sync cloud profile and todos from Supabase
-    syncProfileFromSupabase(user);
-    syncTodosFromSupabase(user);
-    syncFriendsFromSupabase(user.id);
-    syncFriendRequestsFromSupabase(user.id);
-    initGlobalLobbyChannel();
-    syncGlobalPresence();
   }
+
+  const setupKey = `lofify_profile_setup_${user.id}`;
+  let hasCompletedSetup = localStorage.getItem(setupKey) === 'true';
+
+  // 1. Check Supabase profiles table first before anything else!
+  const client = getSupabase();
+  let existingProfile = null;
+  if (client) {
+    try {
+      const { data, error } = await client
+        .from('profiles')
+        .select('*')
+        .eq('id', user.id)
+        .maybeSingle();
+      if (!error && data) {
+        existingProfile = data;
+      }
+    } catch (err) {
+      console.warn("Supabase profile check error in handleAuthUser:", err);
+    }
+  }
+
+  // 2. If user already has a saved profile in the Supabase database:
+  if (existingProfile && existingProfile.username) {
+    hasCompletedSetup = true;
+    localStorage.setItem(setupKey, 'true');
+    localStorage.setItem('lofify_profile_setup_local', 'true');
+
+    if (!profileState) loadProfileData();
+    profileState.username = existingProfile.username;
+    if (existingProfile.avatar_url) profileState.avatarUrl = existingProfile.avatar_url;
+    if (existingProfile.avatar_animal) profileState.avatarAnimal = existingProfile.avatar_animal;
+    if (existingProfile.bio) profileState.bio = existingProfile.bio;
+    if (existingProfile.total_focus_minutes !== undefined && existingProfile.total_focus_minutes > (profileState.totalMinutes || 0)) {
+      profileState.totalMinutes = existingProfile.total_focus_minutes;
+    }
+    if (existingProfile.streak_days !== undefined && existingProfile.streak_days > (profileState.streakDays || 1)) {
+      profileState.streakDays = existingProfile.streak_days;
+    }
+    profileState.hasCustomProfile = true;
+    state.username = profileState.username;
+
+    saveProfileData();
+    renderProfileUI();
+    closeProfileSetupModal(); // Never open setup modal for existing profile!
+  } else if (hasCompletedSetup || (profileState && profileState.hasCustomProfile && profileState.username && profileState.username !== 'Chill Scholar' && profileState.username !== 'Studying Bud')) {
+    // User already completed setup in local storage
+    hasCompletedSetup = true;
+    localStorage.setItem(setupKey, 'true');
+    state.username = profileState.username;
+    saveProfileData();
+    renderProfileUI();
+    closeProfileSetupModal();
+  } else {
+    // True first-time user who has NEVER created a persona anywhere
+    const initialNickname = fullName.split(' ')[0] || fullName;
+    profileState.username = initialNickname;
+    if (!profileState.avatarUrl) {
+      profileState.avatarUrl = 'assets/images/avatars/cat.svg';
+      profileState.avatarAnimal = 'cat';
+      profileState.selectedAvatar = 'Mochi Cat 🐱';
+    }
+    state.username = initialNickname;
+    saveProfileData();
+    renderProfileUI();
+
+    // Only prompt onboarding if truly never completed
+    setTimeout(() => {
+      if (localStorage.getItem(setupKey) !== 'true') {
+        openProfileSetupModal(user, false);
+      }
+    }, 400);
+  }
+
+  // Sync remaining cloud data
+  syncTodosFromSupabase(user);
+  syncFriendsFromSupabase(user.id);
+  syncFriendRequestsFromSupabase(user.id);
+  initGlobalLobbyChannel();
+  syncGlobalPresence();
 }
 
 function openProfileSetupModal(user = state.currentUser, isEditing = false) {
@@ -2183,6 +2246,10 @@ function closeProfileSetupModal() {
   if (modal) {
     modal.classList.remove('open');
   }
+  if (state.currentUser?.id) {
+    localStorage.setItem(`lofify_profile_setup_${state.currentUser.id}`, 'true');
+  }
+  localStorage.setItem('lofify_profile_setup_local', 'true');
 }
 
 // ==========================================================================
@@ -2636,21 +2703,17 @@ async function initSupabaseAuth() {
     return;
   }
 
-  try {
-    // Check active session
-    const { data: { session } } = await client.auth.getSession();
-    if (session && session.user) {
-      handleAuthUser(session.user);
-    } else {
-      updateAuthUI(null);
-    }
+  let sessionHandled = false;
 
-    // Subscribe to auth state changes
-    client.auth.onAuthStateChange((event, session) => {
+  try {
+    // 1. Subscribe to auth state changes (captures SIGNED_IN, SIGNED_OUT, TOKEN_REFRESHED, INITIAL_SESSION)
+    client.auth.onAuthStateChange(async (event, session) => {
       console.log("Supabase Auth event:", event);
       if (session && session.user) {
-        handleAuthUser(session.user);
+        sessionHandled = true;
+        await handleAuthUser(session.user);
       } else if (event === 'SIGNED_OUT') {
+        sessionHandled = true;
         updateAuthUI(null);
         if (profileState) {
           profileState.googleUser = null;
@@ -2661,8 +2724,22 @@ async function initSupabaseAuth() {
         renderProfileUI();
       }
     });
+
+    // 2. Check active session if not already handled by onAuthStateChange
+    const { data: { session } } = await client.auth.getSession();
+    if (session && session.user) {
+      if (!sessionHandled) {
+        sessionHandled = true;
+        await handleAuthUser(session.user);
+      }
+    } else {
+      if (!sessionHandled) {
+        updateAuthUI(null);
+      }
+    }
   } catch (err) {
     console.warn("Failed to check Supabase auth session:", err);
+    updateAuthUI(null);
   }
 }
 
