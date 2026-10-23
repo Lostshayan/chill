@@ -7044,6 +7044,13 @@ canvas {
   transform: scale(0.98);
 }
 
+html.has-auth-session #landingPage,
+html.has-auth-session .landing-page {
+  display: none !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
 /* Atmospheric Glow */
 .vibe-bg-glow {
   position: fixed;

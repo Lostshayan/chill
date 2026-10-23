@@ -98,9 +98,22 @@
   <meta name="apple-mobile-web-app-title" content="Lofify">
 
   <!-- Core Styles -->
-  <link rel="stylesheet" href="style.css?v=lofify_friends_unique_v2">
-</head>
+  <link rel="stylesheet" href="style.css?v=lofify_auth_persistent_v3">
 <body>
+  <!-- Instant Session Detector: Prevents landing page flash if user is already authenticated or guest -->
+  <script>
+    (function() {
+      try {
+        var hasAuth = Object.keys(localStorage).some(function(k) {
+          return (k.indexOf('sb-') === 0 && k.indexOf('-auth-token') !== -1) || k === 'sb-auth-token';
+        }) || localStorage.getItem('lofify_guest_mode') === 'true';
+        if (hasAuth) {
+          document.documentElement.classList.add('has-auth-session');
+        }
+      } catch (e) {}
+    })();
+  </script>
+
   <!-- MINIMAL VIBE-CODED AESTHETIC LANDING -->
   <div class="landing-page" id="landingPage">
     <!-- Atmospheric Ambient Lighting -->
@@ -1839,6 +1852,6 @@
   <script src="https://www.youtube.com/iframe_api"></script>
 
   <script src="config.js" defer></script>
-  <script src="app.js?v=lofify_friends_sep_v3" defer></script>
+  <script src="app.js?v=lofify_auth_persistent_v4" defer></script>
 </body>
 </html>
