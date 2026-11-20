@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contact & Feedback — Lofify</title>
+  <meta name="description" content="Get in touch with the Lofify team. Report a bug, suggest a new study theme, or request support.">
+  <link rel="canonical" href="https://lofify-chi.vercel.app/contact">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/images/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/assets/images/favicon-16x16.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <style>
+    :root {
+      --bg: #0F0A08;
+      --card-bg: rgba(26, 18, 14, 0.75);
+      --card-border: rgba(212, 163, 115, 0.2);
+      --accent: #D4A373;
+      --accent-hover: #E9C49A;
+      --text: #F4F1EA;
+      --text-muted: #A69080;
+      --pill-bg: rgba(212, 163, 115, 0.12);
+      --tag-blue: #70A9A1;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: radial-gradient(ellipse at top, #1E120B 0%, #0D0806 70%);
+      color: var(--text);
+      font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+      line-height: 1.7;
+      min-height: 100vh;
+      padding: 40px 20px 80px;
+    }
+    .container {
+      max-width: 860px;
+      margin: 0 auto;
+    }
+    header.nav-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 40px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--card-border);
+    }
+    .logo-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      color: var(--text);
+      font-size: 1.4rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+    .logo-link img {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+    }
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--pill-bg);
+      border: 1px solid var(--card-border);
+      color: var(--accent);
+      padding: 8px 16px;
+      border-radius: 99px;
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: all 0.2s ease;
+    }
+    .back-btn:hover {
+      background: rgba(212, 163, 115, 0.22);
+      color: var(--accent-hover);
+      transform: translateY(-1px);
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(112, 169, 161, 0.15);
+      color: var(--tag-blue);
+      border: 1px solid rgba(112, 169, 161, 0.3);
+      padding: 4px 12px;
+      border-radius: 99px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 14px;
+    }
+    h1 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      letter-spacing: -1px;
+      margin-bottom: 10px;
+      color: #FFF;
+    }
+    .lead-subtitle {
+      color: var(--text-muted);
+      font-size: 1.1rem;
+      margin-bottom: 30px;
+    }
+    .content-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 36px 32px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(12px);
+    }
+    .contact-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 20px;
+      margin-bottom: 32px;
+    }
+    .contact-card {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(212, 163, 115, 0.15);
+      border-radius: 12px;
+      padding: 24px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .contact-icon {
+      font-size: 1.8rem;
+      color: var(--accent);
+    }
+    .contact-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #FFF;
+    }
+    .contact-desc {
+      font-size: 0.92rem;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+    .contact-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 0.95rem;
+      transition: color 0.2s;
+    }
+    .contact-link:hover {
+      color: var(--accent-hover);
+    }
+    .faq-section {
+      margin-top: 30px;
+      padding-top: 25px;
+      border-top: 1px solid var(--card-border);
+    }
+    .faq-title {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: var(--accent-hover);
+      margin-bottom: 18px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .faq-item {
+      margin-bottom: 20px;
+    }
+    .faq-q {
+      font-weight: 600;
+      color: #FFF;
+      margin-bottom: 6px;
+    }
+    .faq-a {
+      color: rgba(244, 241, 234, 0.85);
+      font-size: 0.95rem;
+    }
+    footer.legal-footer {
+      margin-top: 40px;
+      padding-top: 25px;
+      border-top: 1px solid var(--card-border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 15px;
+      color: var(--text-muted);
+      font-size: 0.88rem;
+    }
+    .footer-links {
+      display: flex;
+      gap: 20px;
+    }
+    .footer-links a {
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .footer-links a:hover {
+      color: var(--accent);
+    }
+    @media (max-width: 600px) {
+      body { padding: 20px 14px 60px; }
+      h1 { font-size: 2rem; }
+      .content-card { padding: 24px 18px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="nav-header">
+      <a href="/" class="logo-link">
+        <img src="/assets/images/logo-120.png" alt="Lofify Logo">
+        <span>Lofify</span>
+      </a>
+      <a href="/" class="back-btn"><i class="fa-solid fa-arrow-left"></i> Return to Sanctuary</a>
+    </header>
+
+    <main>
+      <div class="badge"><i class="fa-solid fa-headset"></i> Support & Community</div>
+      <h1>Contact & Feedback</h1>
+      <p class="lead-subtitle">Have a question, feedback, or found a bug? We'd love to hear from you.</p>
+
+      <div class="content-card">
+        <div class="contact-grid">
+          <div class="contact-card">
+            <div class="contact-icon"><i class="fa-brands fa-github"></i></div>
+            <div class="contact-title">GitHub Repository</div>
+            <p class="contact-desc">Report an issue, request a feature, or inspect our open-source codebase.</p>
+            <a href="https://github.com/Lostshayan/chill" target="_blank" rel="noopener" class="contact-link">
+              <span>View Repository</span> <i class="fa-solid fa-arrow-up-right-from-square"></i>
+            </a>
+          </div>
+
+          <div class="contact-card">
+            <div class="contact-icon"><i class="fa-solid fa-envelope"></i></div>
+            <div class="contact-title">Direct Email</div>
+            <p class="contact-desc">For privacy inquiries, DMCA requests, or general study room feedback.</p>
+            <a href="mailto:shayan@lofify.app" class="contact-link">
+              <span>shayan@lofify.app</span> <i class="fa-solid fa-envelope"></i>
+            </a>
+          </div>
+
+          <div class="contact-card">
+            <div class="contact-icon"><i class="fa-solid fa-code-pull-request"></i></div>
+            <div class="contact-title">Bug Reports</div>
+            <p class="contact-desc">Report broken YouTube stream links or UI glitches directly on GitHub.</p>
+            <a href="https://github.com/Lostshayan/chill/issues" target="_blank" rel="noopener" class="contact-link">
+              <span>Open an Issue</span> <i class="fa-solid fa-arrow-up-right-from-square"></i>
+            </a>
+          </div>
+        </div>
+
+        <div class="faq-section">
+          <div class="faq-title"><i class="fa-solid fa-circle-question"></i> Frequently Asked Questions</div>
+          
+          <div class="faq-item">
+            <div class="faq-q">Is Lofify completely free?</div>
+            <div class="faq-a">Yes! Lofify is 100% free, open-source, and has no paywalls or subscription tiers.</div>
+          </div>
+
+          <div class="faq-item">
+            <div class="faq-q">Can I paste any YouTube link into the custom radio?</div>
+            <div class="faq-a">Yes, you can paste standard YouTube video URLs, live lo-fi stream links, or playlist links. Playback will synchronize across all peers in your study room.</div>
+          </div>
+
+          <div class="faq-item">
+            <div class="faq-q">How do I delete my profile data?</div>
+            <div class="faq-a">Open your Profile & Analytics panel via the TV bezel button, scroll to the bottom, and click "Delete Account". All records are immediately and permanently erased from our Supabase database.</div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <footer class="legal-footer">
+      <div>© 2026 Lofify. Crafted for calm, focused minds.</div>
+      <div class="footer-links">
+        <a href="/privacy">Privacy Policy</a>
+        <a href="/terms">Terms of Service</a>
+        <a href="/about">About Lofify</a>
+      </div>
+    </footer>
+  </div>
+</body>
+</html>

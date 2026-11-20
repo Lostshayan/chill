@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Terms of Service — Lofify</title>
+  <meta name="description" content="Terms of Service for Lofify. Read our usage guidelines, community standards, and terms of service.">
+  <link rel="canonical" href="https://lofify-chi.vercel.app/terms">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/images/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/assets/images/favicon-16x16.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <style>
+    :root {
+      --bg: #0F0A08;
+      --card-bg: rgba(26, 18, 14, 0.75);
+      --card-border: rgba(212, 163, 115, 0.2);
+      --accent: #D4A373;
+      --accent-hover: #E9C49A;
+      --text: #F4F1EA;
+      --text-muted: #A69080;
+      --pill-bg: rgba(212, 163, 115, 0.12);
+      --tag-amber: #E09F3E;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: radial-gradient(ellipse at top, #1E120B 0%, #0D0806 70%);
+      color: var(--text);
+      font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+      line-height: 1.7;
+      min-height: 100vh;
+      padding: 40px 20px 80px;
+    }
+    .container {
+      max-width: 860px;
+      margin: 0 auto;
+    }
+    header.nav-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 40px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--card-border);
+    }
+    .logo-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      color: var(--text);
+      font-size: 1.4rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+    .logo-link img {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+    }
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--pill-bg);
+      border: 1px solid var(--card-border);
+      color: var(--accent);
+      padding: 8px 16px;
+      border-radius: 99px;
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: all 0.2s ease;
+    }
+    .back-btn:hover {
+      background: rgba(212, 163, 115, 0.22);
+      color: var(--accent-hover);
+      transform: translateY(-1px);
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(224, 159, 62, 0.15);
+      color: var(--tag-amber);
+      border: 1px solid rgba(224, 159, 62, 0.3);
+      padding: 4px 12px;
+      border-radius: 99px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 14px;
+    }
+    h1 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      letter-spacing: -1px;
+      margin-bottom: 10px;
+      color: #FFF;
+    }
+    .last-updated {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      margin-bottom: 30px;
+    }
+    .content-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 36px 32px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(12px);
+    }
+    h2 {
+      font-size: 1.4rem;
+      color: var(--accent-hover);
+      margin: 30px 0 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    h2:first-of-type { margin-top: 0; }
+    p, ul {
+      color: rgba(244, 241, 234, 0.88);
+      font-size: 1rem;
+      margin-bottom: 16px;
+    }
+    ul {
+      list-style: none;
+      padding-left: 0;
+    }
+    ul li {
+      position: relative;
+      padding-left: 24px;
+      margin-bottom: 10px;
+    }
+    ul li::before {
+      content: "•";
+      position: absolute;
+      left: 8px;
+      color: var(--accent);
+      font-weight: bold;
+    }
+    footer.legal-footer {
+      margin-top: 40px;
+      padding-top: 25px;
+      border-top: 1px solid var(--card-border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 15px;
+      color: var(--text-muted);
+      font-size: 0.88rem;
+    }
+    .footer-links {
+      display: flex;
+      gap: 20px;
+    }
+    .footer-links a {
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .footer-links a:hover {
+      color: var(--accent);
+    }
+    @media (max-width: 600px) {
+      body { padding: 20px 14px 60px; }
+      h1 { font-size: 2rem; }
+      .content-card { padding: 24px 18px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="nav-header">
+      <a href="/" class="logo-link">
+        <img src="/assets/images/logo-120.png" alt="Lofify Logo">
+        <span>Lofify</span>
+      </a>
+      <a href="/" class="back-btn"><i class="fa-solid fa-arrow-left"></i> Return to Sanctuary</a>
+    </header>
+
+    <main>
+      <div class="badge"><i class="fa-solid fa-scale-balanced"></i> Community & Terms</div>
+      <h1>Terms of Service</h1>
+      <div class="last-updated">Last Updated: November 20, 2026 • Effective Immediately</div>
+
+      <div class="content-card">
+        <h2><i class="fa-solid fa-check"></i> 1. Acceptance of Terms</h2>
+        <p>By accessing or using Lofify (located at <a href="https://lofify-chi.vercel.app" style="color: var(--accent);">https://lofify-chi.vercel.app</a>), you agree to be bound by these Terms of Service. If you do not agree to these terms, please discontinue using the service.</p>
+
+        <h2><i class="fa-solid fa-heart"></i> 2. Permitted Use & Community Guidelines</h2>
+        <p>Lofify is an educational, productivity, and study community designed to foster deep focus and mutual motivation. By using our collaborative rooms, you agree to:</p>
+        <ul>
+          <li>Maintain a respectful, friendly environment in live study rooms and shared chat channels.</li>
+          <li>Never post abusive, harassing, defamatory, sexually explicit, hateful, or illegal content.</li>
+          <li>Refrain from attempting to exploit, spam, DDoS, or disrupt room WebSocket broadcasts or Supabase database endpoints.</li>
+          <li>Choose respectful, non-offensive callsigns and usernames.</li>
+        </ul>
+
+        <h2><i class="fa-brands fa-youtube"></i> 3. Audio & Third-Party Media Content</h2>
+        <p>Lofify provides ambient noise generation and allows users to stream lo-fi audio:</p>
+        <ul>
+          <li><strong>Curated Lo-Fi Tracks:</strong> Built-in lo-fi audio tracks are provided under Creative Commons, royalty-free, or promotional educational distribution.</li>
+          <li><strong>YouTube Integration:</strong> When you input a YouTube video or livestream URL, playback is handled directly by the official YouTube IFrame Player API. You agree to comply with YouTube's Terms of Service (<a href="https://www.youtube.com/t/terms" target="_blank" rel="noopener" style="color: var(--accent);">https://www.youtube.com/t/terms</a>). Lofify does not host, download, or re-encode copyrighted YouTube video streams.</li>
+        </ul>
+
+        <h2><i class="fa-solid fa-user-shield"></i> 4. User Accounts & Termination</h2>
+        <p>You may use Lofify anonymously or authenticate with Google Sign-In. You are responsible for safeguarding your sessions. We reserve the right to temporarily suspend or terminate room access for any user found violating community standards or exploiting network channels.</p>
+
+        <h2><i class="fa-solid fa-triangle-exclamation"></i> 5. Disclaimer of Warranties</h2>
+        <p>Lofify is provided on an "AS IS" and "AS AVAILABLE" basis without warranties of any kind. While we strive for 100% uptime and seamless real-time synchronization, we do not warrant that ambient streams or WebSocket connections will be uninterrupted or error-free.</p>
+
+        <h2><i class="fa-solid fa-gavel"></i> 6. Limitation of Liability</h2>
+        <p>Under no circumstances shall Lofify, its developers, or contributors be liable for any indirect, incidental, special, consequential, or punitive damages resulting from your use of or inability to use the service.</p>
+
+        <h2><i class="fa-solid fa-pen-to-square"></i> 7. Modifications to Terms</h2>
+        <p>We may update these Terms of Service periodically. Continued use of the platform after updates constitutes acceptance of the revised terms.</p>
+      </div>
+    </main>
+
+    <footer class="legal-footer">
+      <div>© 2026 Lofify. All rights reserved. Crafted for calm, focused minds.</div>
+      <div class="footer-links">
+        <a href="/privacy">Privacy Policy</a>
+        <a href="/about">About Lofify</a>
+        <a href="/contact">Support & Contact</a>
+      </div>
+    </footer>
+  </div>
+</body>
+</html>

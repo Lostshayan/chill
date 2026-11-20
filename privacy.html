@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Privacy Policy — Lofify</title>
+  <meta name="description" content="Privacy Policy for Lofify. Learn how we handle authentication, Google Sign-In, user data, and privacy protection.">
+  <link rel="canonical" href="https://lofify-chi.vercel.app/privacy">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/images/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/assets/images/favicon-16x16.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <style>
+    :root {
+      --bg: #0F0A08;
+      --card-bg: rgba(26, 18, 14, 0.75);
+      --card-border: rgba(212, 163, 115, 0.2);
+      --accent: #D4A373;
+      --accent-hover: #E9C49A;
+      --text: #F4F1EA;
+      --text-muted: #A69080;
+      --pill-bg: rgba(212, 163, 115, 0.12);
+      --tag-green: #A3B18A;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: radial-gradient(ellipse at top, #1E120B 0%, #0D0806 70%);
+      color: var(--text);
+      font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+      line-height: 1.7;
+      min-height: 100vh;
+      padding: 40px 20px 80px;
+    }
+    .container {
+      max-width: 860px;
+      margin: 0 auto;
+    }
+    header.nav-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 40px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--card-border);
+    }
+    .logo-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      color: var(--text);
+      font-size: 1.4rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+    .logo-link img {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+    }
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--pill-bg);
+      border: 1px solid var(--card-border);
+      color: var(--accent);
+      padding: 8px 16px;
+      border-radius: 99px;
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: all 0.2s ease;
+    }
+    .back-btn:hover {
+      background: rgba(212, 163, 115, 0.22);
+      color: var(--accent-hover);
+      transform: translateY(-1px);
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(163, 177, 138, 0.15);
+      color: var(--tag-green);
+      border: 1px solid rgba(163, 177, 138, 0.3);
+      padding: 4px 12px;
+      border-radius: 99px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 14px;
+    }
+    h1 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      letter-spacing: -1px;
+      margin-bottom: 10px;
+      color: #FFF;
+    }
+    .last-updated {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      margin-bottom: 30px;
+    }
+    .content-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 36px 32px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(12px);
+    }
+    h2 {
+      font-size: 1.4rem;
+      color: var(--accent-hover);
+      margin: 30px 0 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    h2:first-of-type { margin-top: 0; }
+    p, ul {
+      color: rgba(244, 241, 234, 0.88);
+      font-size: 1rem;
+      margin-bottom: 16px;
+    }
+    ul {
+      list-style: none;
+      padding-left: 0;
+    }
+    ul li {
+      position: relative;
+      padding-left: 24px;
+      margin-bottom: 10px;
+    }
+    ul li::before {
+      content: "•";
+      position: absolute;
+      left: 8px;
+      color: var(--accent);
+      font-weight: bold;
+    }
+    .highlight-box {
+      background: rgba(212, 163, 115, 0.08);
+      border-left: 3px solid var(--accent);
+      padding: 16px 20px;
+      border-radius: 0 10px 10px 0;
+      margin: 20px 0;
+      font-size: 0.95rem;
+    }
+    footer.legal-footer {
+      margin-top: 40px;
+      padding-top: 25px;
+      border-top: 1px solid var(--card-border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 15px;
+      color: var(--text-muted);
+      font-size: 0.88rem;
+    }
+    .footer-links {
+      display: flex;
+      gap: 20px;
+    }
+    .footer-links a {
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .footer-links a:hover {
+      color: var(--accent);
+    }
+    @media (max-width: 600px) {
+      body { padding: 20px 14px 60px; }
+      h1 { font-size: 2rem; }
+      .content-card { padding: 24px 18px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="nav-header">
+      <a href="/" class="logo-link">
+        <img src="/assets/images/logo-120.png" alt="Lofify Logo">
+        <span>Lofify</span>
+      </a>
+      <a href="/" class="back-btn"><i class="fa-solid fa-arrow-left"></i> Return to Sanctuary</a>
+    </header>
+
+    <main>
+      <div class="badge"><i class="fa-solid fa-shield-halved"></i> Privacy First</div>
+      <h1>Privacy Policy</h1>
+      <div class="last-updated">Last Updated: November 20, 2026 • Effective Immediately</div>
+
+      <div class="content-card">
+        <div class="highlight-box">
+          <strong>Summary:</strong> Lofify is a distraction-free, privacy-conscious virtual study sanctuary. We do not sell your personal data, we do not track you across the web, and we only collect the minimum information required to sync your focus sessions, study rooms, and friend requests.
+        </div>
+
+        <h2><i class="fa-solid fa-database"></i> 1. Information We Collect</h2>
+        <p>Depending on how you use Lofify, we collect the following limited categories of information:</p>
+        <ul>
+          <li><strong>Guest Usage:</strong> If you use Lofify without signing in, your focus streak, local checklist, and theme preferences are stored exclusively on your device using browser <code>localStorage</code>. No personal identity is transmitted to our servers.</li>
+          <li><strong>Google OAuth Authentication:</strong> When you choose to authenticate via Google Sign-In, we receive your email address, primary name, Google user ID, and public avatar through Supabase Auth (GoTrue). We do not receive, store, or have access to your Google password.</li>
+          <li><strong>User Profile Data:</strong> Custom usernames, selected companion avatar, status badges, and focus metrics (total focus minutes, completed Pomodoro sessions, and active streak days).</li>
+          <li><strong>Real-Time Room Data:</strong> Room codes, ephemeral presence status (online, studying, paused), and real-time chat messages sent during an active study room session. Chat messages in ephemeral rooms are pub/sub broadcast and not permanently stored.</li>
+        </ul>
+
+        <h2><i class="fa-brands fa-google"></i> 2. Google API Services User Data Policy</h2>
+        <p>Lofify adheres to the <a href="https://developers.google.com/terms/api-services-user-data-policy" target="_blank" rel="noopener" style="color: var(--accent);">Google API Services User Data Policy</a>, including the Limited Use requirements:</p>
+        <ul>
+          <li>We only request standard authentication profile scopes (<code>openid</code>, <code>email</code>, <code>profile</code>) to securely verify your identity.</li>
+          <li>We <strong>never</strong> transfer, sell, or disclose your Google user data to third-party data brokers, advertising networks, or data aggregators.</li>
+          <li>We do <strong>not</strong> use Google user data to serve targeted advertisements or train generalized machine learning or artificial intelligence models.</li>
+        </ul>
+
+        <h2><i class="fa-solid fa-cloud-arrow-up"></i> 3. Third-Party Infrastructure & Sub-processors</h2>
+        <p>To provide high-availability study features, Lofify interfaces with trusted developer platforms:</p>
+        <ul>
+          <li><strong>Supabase (PostgreSQL & Realtime):</strong> Cloud database hosting, user authentication, and WebSocket pub/sub room synchronizations protected by PostgreSQL Row-Level Security (RLS).</li>
+          <li><strong>Vercel:</strong> Global edge delivery, CDN caching, and HTTPS hosting.</li>
+          <li><strong>YouTube IFrame API:</strong> For optional, user-initiated background lo-fi radio streams. Interactions with embedded YouTube playback are subject to YouTube's Terms of Service and Google's Privacy Policy.</li>
+        </ul>
+
+        <h2><i class="fa-solid fa-lock"></i> 4. Data Security & Storage</h2>
+        <p>All client-server communications are encrypted in transit using Transport Layer Security (TLS 1.3 / HTTPS). Database rows are partitioned using PostgreSQL Row-Level Security (RLS) policies, ensuring users can only read and mutate their own authenticated records.</p>
+
+        <h2><i class="fa-solid fa-user-xmark"></i> 5. Data Retention & Account Deletion</h2>
+        <p>You maintain full sovereignty over your data at all times:</p>
+        <ul>
+          <li>You may delete your profile and all associated focus statistics at any time directly within the application by clicking the <strong>"Delete Account"</strong> button in your Profile & Analytics panel.</li>
+          <li>Upon confirmation, your record in the <code>profiles</code> table, all associated friendship links, and your authentication record are permanently purged via <code>CASCADE</code> deletion.</li>
+        </ul>
+
+        <h2><i class="fa-solid fa-envelope"></i> 6. Contact Us</h2>
+        <p>If you have any questions, privacy inquiries, or data access requests regarding this policy, please reach out to us at <a href="mailto:shayan@lofify.app" style="color: var(--accent);">shayan@lofify.app</a> or via our <a href="/contact" style="color: var(--accent);">Contact Page</a>.</p>
+      </div>
+    </main>
+
+    <footer class="legal-footer">
+      <div>© 2026 Lofify. All rights reserved. Crafted for calm, focused minds.</div>
+      <div class="footer-links">
+        <a href="/terms">Terms of Service</a>
+        <a href="/about">About Lofify</a>
+        <a href="/contact">Support & Contact</a>
+      </div>
+    </footer>
+  </div>
+</body>
+</html>
