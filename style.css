@@ -9755,31 +9755,54 @@ html.has-auth-session .landing-page {
 
 /* Legal & Compliance Footer Links */
 .profile-legal-links {
-  margin-top: 24px;
-  padding-top: 16px;
+  margin-top: 14px;
+  padding-top: 14px;
   border-top: 1px dashed rgba(212, 163, 115, 0.2);
-  display: flex;
-  justify-content: center;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  position: relative;
+  z-index: 5;
+  pointer-events: auto;
+}
+
+.profile-legal-links a,
+.profile-legal-links a:link,
+.profile-legal-links a:visited {
+  display: inline-flex;
   align-items: center;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-
-.profile-legal-links a {
-  color: var(--text-muted);
-  font-size: 0.8rem;
-  text-decoration: none;
-  transition: color 0.2s;
-}
-
-.profile-legal-links a:hover {
-  color: var(--accent-hover);
-  text-decoration: underline;
-}
-
-.legal-dot {
-  color: rgba(212, 163, 115, 0.35);
+  justify-content: center;
+  gap: 6px;
+  padding: 7px 10px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(212, 163, 115, 0.16);
+  border-radius: 8px;
+  color: #C8B6A6;
   font-size: 0.75rem;
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+  pointer-events: auto;
+  transition: all 0.2s ease;
+}
+
+.profile-legal-links a i {
+  font-size: 0.72rem;
+  color: var(--accent-color);
+  opacity: 0.85;
+}
+
+.profile-legal-links a:hover,
+.profile-legal-links a:focus-visible {
+  background: rgba(212, 163, 115, 0.14);
+  border-color: rgba(212, 163, 115, 0.45);
+  color: #F4F1EA;
+  text-decoration: none;
+  transform: translateY(-1px);
+}
+
+.profile-legal-links a:hover i {
+  opacity: 1;
 }
 
 .setup-legal-disclosure {

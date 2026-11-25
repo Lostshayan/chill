@@ -1,5 +1,5 @@
 // Lofify Service Worker - Offline Caching & PWA Support
-const CACHE_NAME = 'lofify-pwa-v2';
+const CACHE_NAME = 'lofify-pwa-v3';
 
 const STATIC_ASSETS = [
   '/',
