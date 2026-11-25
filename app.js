@@ -11396,5 +11396,76 @@ function setupPwaControllers() {
 
 setupPwaControllers();
 
+// --- DESKTOP FULLSCREEN CONTROLLER ---
+function setupFullscreenController() {
+  const btn = document.getElementById('toggleFullscreenBtn');
+  if (!btn) return;
+
+  const isSupported = document.fullscreenEnabled || document.webkitFullscreenEnabled;
+  if (!isSupported) {
+    btn.style.display = 'none';
+    return;
+  }
+
+  function getFullscreenElement() {
+    return document.fullscreenElement || document.webkitFullscreenElement || null;
+  }
+
+  function updateFullscreenBtnState() {
+    const isFs = !!getFullscreenElement();
+    btn.classList.toggle('active', isFs);
+    btn.title = isFs ? 'Exit Fullscreen (F)' : 'Toggle Fullscreen (F)';
+    const icon = btn.querySelector('i');
+    if (icon) {
+      icon.className = isFs ? 'fa-solid fa-compress' : 'fa-solid fa-expand';
+    }
+  }
+
+  async function toggleFullscreen() {
+    if (window.innerWidth <= 768) return;
+    try {
+      if (getFullscreenElement()) {
+        if (document.exitFullscreen) {
+          await document.exitFullscreen();
+        } else if (document.webkitExitFullscreen) {
+          document.webkitExitFullscreen();
+        }
+      } else {
+        const root = document.documentElement;
+        if (root.requestFullscreen) {
+          await root.requestFullscreen();
+        } else if (root.webkitRequestFullscreen) {
+          root.webkitRequestFullscreen();
+        }
+      }
+    } catch (err) {
+      console.warn('[Fullscreen] Toggle failed:', err);
+    }
+  }
+
+  btn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    toggleFullscreen();
+  });
+
+  document.addEventListener('fullscreenchange', updateFullscreenBtnState);
+  document.addEventListener('webkitfullscreenchange', updateFullscreenBtnState);
+
+  document.addEventListener('keydown', (e) => {
+    if (window.innerWidth <= 768) return;
+    if (e.ctrlKey || e.metaKey || e.altKey) return;
+    const tag = document.activeElement?.tagName;
+    if (tag === 'INPUT' || tag === 'TEXTAREA' || document.activeElement?.isContentEditable) return;
+    if (e.key === 'f' || e.key === 'F') {
+      e.preventDefault();
+      toggleFullscreen();
+    }
+  });
+
+  updateFullscreenBtnState();
+}
+
+setupFullscreenController();
+
 
 

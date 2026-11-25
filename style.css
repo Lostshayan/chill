@@ -9821,4 +9821,17 @@ html.has-auth-session .landing-page {
   text-decoration: underline;
 }
 
+/* Desktop-Only Fullscreen Button & Fullscreen Viewport Scaling */
+@media (max-width: 768px) {
+  .tv-fullscreen-btn {
+    display: none !important;
+  }
+}
+
+:fullscreen #tv-set,
+:-webkit-full-screen #tv-set {
+  width: 96vw;
+  max-width: min(1440px, calc((100vh - 105px) * 16 / 9));
+}
+
 
